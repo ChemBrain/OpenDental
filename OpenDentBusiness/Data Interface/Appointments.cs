@@ -667,8 +667,8 @@ namespace OpenDentBusiness{
 				}
 			}
 			else{
-				command="SELECT AptNum,PlannedAptNum,"//AbbrDesc,procedurecode.CodeNum
-					+"ProcFee*(UnitQty+BaseUnits) ProcFee,"
+				command="SELECT AptNum,PlannedAptNum,"
+					+"ProcFee*(UnitQty+BaseUnits) ProcFee,procedurelog.CodeNum,procedurelog.ClinicNum,procedurelog.ProvNum,"
 					+"SUM(CASE WHEN claimproc.Status IN("+POut.Int((int)ClaimProcStatus.CapComplete)+","+POut.Int((int)ClaimProcStatus.CapEstimate)+") THEN 0 "
 					+"WHEN claimproc.ClaimNum>0 THEN claimproc.WriteOff "
 					+"WHEN WriteOffEstOverride!=-1 THEN WriteOffEstOverride "
@@ -802,7 +802,16 @@ namespace OpenDentBusiness{
 			DataTable tableCarriers=InsPlans.GetCarrierNames(listPlanNums);
 			Dictionary<long,string> dictCarriers=tableCarriers.Select().ToDictionary(x => PIn.Long(x["PlanNum"].ToString()),x => PIn.String(x["CarrierName"].ToString()));
 			Dictionary<long,string> dictCarrierColors=tableCarriers.Select().ToDictionary(x => PIn.Long(x["PlanNum"].ToString()),x => x["CarrierColor"].ToString());
-			Dictionary<long,string> dictDiscountPlans=DiscountPlans.GetAll(true).ToDictionary(x => x.DiscountPlanNum,x => x.Description);
+			Dictionary<long,DiscountPlan> dictDiscountPlans=DiscountPlans.GetAll(true).ToDictionary(x => x.DiscountPlanNum);
+			List<long> listDiscountPlanNums=raw.Select().Select(x => PIn.Long(x["discountPlan"].ToString()))
+				.Where(x => x!=0).ToList();
+			List<long> listDiscountPlanFeeSchedNums=listDiscountPlanNums
+				.Where(x => dictDiscountPlans.ContainsKey(x))
+				.Select(x => dictDiscountPlans[x].FeeSchedNum).ToList();
+			List<long> listClinicNumProcs=rawProc?.Select().Select(x => PIn.Long(x["ClinicNum"].ToString())).ToList()??new List<long>();
+			List<Fee> listDiscountPlanFees=Fees.GetByFeeSchedNumsClinicNums(listDiscountPlanFeeSchedNums,
+					listClinicNumProcs.Union(new List<long> { 0 }).ToList())
+				.Select(x => (Fee)x).ToList();
 			List<long> listPatsWithDisease=Diseases.GetPatientsWithDisease(listPatNums);
 			List<long> listPatsWithAllergy=Allergies.GetPatientsWithAllergy(listPatNums);
 			Dictionary<long,string> dictRefFromPatNums=new Dictionary<long,string>();//Only contains FROM referrals 
@@ -983,8 +992,9 @@ namespace OpenDentBusiness{
 					row["CreditType"]=rowRaw["patCreditType"].ToString();
 					row["discountPlan"]="";
 					long discountPlanNum=PIn.Long(rowRaw["DiscountPlan"].ToString());
-					if(discountPlanNum>0 && dictDiscountPlans.ContainsKey(discountPlanNum)) {
-						row["discountPlan"]+=Lans.g("Appointments","DiscountPlan")+": "+dictDiscountPlans[discountPlanNum];
+					DiscountPlan discountPlan=null;
+					if(discountPlanNum>0 && dictDiscountPlans.TryGetValue(discountPlanNum,out discountPlan)) {
+						row["discountPlan"]+=Lans.g("Appointments","DiscountPlan")+": "+dictDiscountPlans[discountPlanNum].Description;
 					}
 					row["Email"]=rowRaw["patEmail"].ToString();
 					row["famFinUrgNote"]="";
@@ -1111,8 +1121,10 @@ namespace OpenDentBusiness{
 					writeoffPPO=0;
 					insAmt=0;
 					decimal adjAmtForAppt=0;
+					decimal discountPlanDiscount=0;
 					if(rawProc!=null) {
 						for(int p = 0;p<rawProc.Rows.Count;p++) {
+							ProcStat procStat=PIn.Enum<ProcStat>(PIn.Int(rawProc.Rows[p]["ProcStatus"].ToString()));
 							if(isPlanned && rowRaw["apptAptNum"].ToString()!=rawProc.Rows[p]["PlannedAptNum"].ToString()) {
 								continue;
 							}
@@ -1120,10 +1132,11 @@ namespace OpenDentBusiness{
 								continue;
 							}
 							//We only want to include C, TP, and TPi procedures in the production calculation.
-							if(!PIn.Int(rawProc.Rows[p]["ProcStatus"].ToString()).In((int)ProcStat.C,(int)ProcStat.TP,(int)ProcStat.TPi)) {
+							if(!procStat.In(ProcStat.C,ProcStat.TP,ProcStat.TPi)) {
 								continue;
 							}
-							production+=PIn.Decimal(rawProc.Rows[p]["ProcFee"].ToString());
+							decimal procFee=PIn.Decimal(rawProc.Rows[p]["ProcFee"].ToString());
+							production+=procFee;
 							production-=PIn.Decimal(rawProc.Rows[p]["writeoffCap"].ToString());
 							//WriteOffEst -1 and WriteOffEstOverride -1 already excluded
 							//production-=
@@ -1141,14 +1154,22 @@ namespace OpenDentBusiness{
 									}
 								}
 							}
+							if(discountPlan!=null && procStat!=ProcStat.C) {
+								decimal discountFee=(decimal)Fees.GetAmount0(PIn.Long(rawProc.Rows[p]["CodeNum"].ToString()),discountPlan.FeeSchedNum,
+									PIn.Long(rawProc.Rows[p]["ClinicNum"].ToString()),PIn.Long(rawProc.Rows[p]["ProvNum"].ToString()),listDiscountPlanFees);
+								if(discountFee.IsGreaterThan(0)) {
+									discountPlanDiscount+=Math.Max(procFee-discountFee,0);
+								}
+							}
 						}
 					}
 					row["prophy/PerioPastDue[P]"]=(Recalls.IsPatientPastDue(PIn.Long(rowRaw["apptPatNum"].ToString()),true,listPastDueRecalls)? "P":"");
 					row["production"]=production.ToString("c");//PIn.Double(rowRaw["Production"].ToString()).ToString("c");
 					row["productionVal"]=production.ToString();//rowRaw["Production"].ToString();	
 					row["netProduction"]=(production-writeoffPPO+adjAmtForAppt).ToString("c");
-					row["estPatientPortion"]=(production-writeoffPPO+adjAmtForAppt-insAmt).ToString("c");
-					row["estPatientPortionRaw"]=(production-writeoffPPO+adjAmtForAppt-insAmt);
+					decimal patientPortion=production-writeoffPPO+adjAmtForAppt-insAmt-discountPlanDiscount;
+					row["estPatientPortion"]=patientPortion.ToString("c");
+					row["estPatientPortionRaw"]=patientPortion;
 					row["adjustmentTotal"]=adjustmentAmt.ToString();
 					row["ProvBarText"]=rowRaw["ProvBarText"].ToString();
 					long apptProvNum=PIn.Long(rowRaw["apptProvNum"].ToString());

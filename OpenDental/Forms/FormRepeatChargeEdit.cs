@@ -847,6 +847,10 @@ namespace OpenDental{
 				MsgBox.Show(this,"Repeating charges already running on another workstation, you must wait for them to finish before continuing.");
 				return;
 			}
+			if(RepeatCur.RepeatChargeNum==0) {
+				MsgBox.Show(this,"Please click 'OK' to save the repeat charge before adding a manual charge.");
+				return;
+			}
 			double procFee;
 			try {
 				procFee=Double.Parse(textChargeAmt.Text);

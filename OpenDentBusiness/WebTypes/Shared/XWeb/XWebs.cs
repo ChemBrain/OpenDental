@@ -553,7 +553,8 @@ namespace OpenDentBusiness.WebTypes.Shared.XWeb {
 			///<summary>Verifies approval and sets response.PatNote.</summary>
 			protected override void PostProcessOutput(XWebResponse response) {
 				if(response.XWebResponseCode!=XWebResponseCodes.Approval && response.XWebResponseCode!=XWebResponseCodes.AliasSuccess) {
-					throw new ODException("DTG failed ("+response.ResponseCode.ToString()+"): "+response.ResponseDescription);
+					throw new ODException("DTG failed ("+response.ResponseCode.ToString()+"): "+response.ResponseDescription,
+						ODException.ErrorCodes.XWebDTGFailed);
 				}
 				response.PayNote=_payNote;
 				response.TransactionStatus=ApprovalStatus;

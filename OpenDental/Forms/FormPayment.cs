@@ -3924,6 +3924,15 @@ namespace OpenDental {
 			try {
 				response=PaySimple.VoidPayment(refNum,_paymentCur.ClinicNum);
 			}
+			catch(PaySimpleException ex) {
+				MessageBox.Show(ex.Message);
+				if(ex.ErrorType==PaySimpleError.CustomerDoesNotExist && MsgBox.Show(this,MsgBoxButtons.OKCancel,
+					"Delete the link to the customer id for this patient?")) 
+				{
+					PatientLinks.DeletePatNumTos(ex.CustomerId,PatientLinkType.PaySimple);
+				}
+				return;
+			}
 			catch(ODException wex) {
 				MessageBox.Show(wex.Message);//This should have already been Lans.g if applicable.
 				return;

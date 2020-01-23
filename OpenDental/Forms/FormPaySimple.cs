@@ -299,7 +299,12 @@ namespace OpenDental {
 								throw new ODException(Lan.g(this,"Invalid PaySimple Customer Id found."));
 							}
 						}
-						retVal=PaySimple.AddCreditCard(paySimpleCustomerId,textCardNumber.Text,new DateTime(expYear,expMonth,1),textZipCode.Text,_clinicNum);
+						try {
+							retVal=PaySimple.AddCreditCard(paySimpleCustomerId,textCardNumber.Text,new DateTime(expYear,expMonth,1),textZipCode.Text,_clinicNum);
+						}
+						catch(PaySimpleException ex) {
+							PaySimple.HandlePaySimpleException(ex,paySimpleCustomerId);
+						}
 						break;
 					case PaySimple.TransType.RETURN:
 						if(string.IsNullOrWhiteSpace(textRefNumber.Text)) {
@@ -322,6 +327,15 @@ namespace OpenDental {
 					default:
 						throw new Exception("Invalid transmission type: "+_trantype.ToString());
 				}
+			}
+			catch(PaySimpleException ex) {
+				MessageBox.Show(ex.Message);
+				if(ex.ErrorType==PaySimpleError.CustomerDoesNotExist && MsgBox.Show(this,MsgBoxButtons.OKCancel,
+					"Delete the link to the customer id for this patient?")) 
+				{
+					PatientLinks.DeletePatNumTos(ex.CustomerId,PatientLinkType.PaySimple);
+				}
+				return null;
 			}
 			catch(ODException wex) {
 				MessageBox.Show(wex.Message);//This should have already been Lans.g if applicable.
@@ -378,6 +392,15 @@ namespace OpenDental {
 						FriendlyException.Show("Unable to register for ACH Settled event",ex);
 					}					
 				}
+			}
+			catch(PaySimpleException ex) {
+				MessageBox.Show(ex.Message);
+				if(ex.ErrorType==PaySimpleError.CustomerDoesNotExist && MsgBox.Show(this,MsgBoxButtons.OKCancel,
+					"Delete the link to the customer id for this patient?")) 
+				{
+					PatientLinks.DeletePatNumTos(ex.CustomerId,PatientLinkType.PaySimple);
+				}
+				return null;
 			}
 			catch(ODException ex) {
 				MessageBox.Show(ex.Message);//This should have already been Lans.g if applicable.

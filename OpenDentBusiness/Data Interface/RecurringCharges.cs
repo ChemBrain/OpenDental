@@ -633,9 +633,11 @@ namespace OpenDentBusiness {
 				MarkFailed(chargeData,"Unable to charge card.\r\nError Message: "+ex.Message,LogLevel.Error);
 				amount=0;
 				xWebResponseNum=0;
-				if(ex is ODException) {
+				//An error code of XWebDTGFailed means that communication with XWeb was successful so the charge was technically attempted, return true.
+				if(ex is ODException && ((ODException)ex).ErrorCodeAsEnum!=ODException.ErrorCodes.XWebDTGFailed) {
 					return false;
 				}
+				strBuilderResultText.Append(ex.Message);
 				return true;//The error came from XWeb.
 			}
 		}

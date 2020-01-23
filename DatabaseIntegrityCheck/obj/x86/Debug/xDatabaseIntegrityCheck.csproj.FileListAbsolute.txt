@@ -1,0 +1,17 @@
+C:\Git\OpenDental\DatabaseIntegrityCheck\bin\Debug\DatabaseIntegrityCheck.exe.config
+C:\Git\OpenDental\DatabaseIntegrityCheck\bin\Debug\DatabaseIntegrityCheck.exe
+C:\Git\OpenDental\DatabaseIntegrityCheck\bin\Debug\DatabaseIntegrityCheck.pdb
+C:\Git\OpenDental\DatabaseIntegrityCheck\bin\Debug\CDT.dll
+C:\Git\OpenDental\DatabaseIntegrityCheck\bin\Debug\CodeBase.dll
+C:\Git\OpenDental\DatabaseIntegrityCheck\bin\Debug\MySql.Data.dll
+C:\Git\OpenDental\DatabaseIntegrityCheck\bin\Debug\Tao.Platform.Windows.dll
+C:\Git\OpenDental\DatabaseIntegrityCheck\bin\Debug\Windows.winmd
+C:\Git\OpenDental\DatabaseIntegrityCheck\bin\Debug\Tao.OpenGl.dll
+C:\Git\OpenDental\DatabaseIntegrityCheck\bin\Debug\CodeBase.pdb
+C:\Git\OpenDental\DatabaseIntegrityCheck\obj\x86\Debug\xDatabaseIntegrityCheck.csprojAssemblyReference.cache
+C:\Git\OpenDental\DatabaseIntegrityCheck\obj\x86\Debug\DatabaseIntegrityCheck.FormDatabaseCheck.resources
+C:\Git\OpenDental\DatabaseIntegrityCheck\obj\x86\Debug\DatabaseIntegrityCheck.Properties.Resources.resources
+C:\Git\OpenDental\DatabaseIntegrityCheck\obj\x86\Debug\xDatabaseIntegrityCheck.csproj.GenerateResource.cache
+C:\Git\OpenDental\DatabaseIntegrityCheck\obj\x86\Debug\xDatabaseIntegrityCheck.csproj.CopyComplete
+C:\Git\OpenDental\DatabaseIntegrityCheck\obj\x86\Debug\DatabaseIntegrityCheck.exe
+C:\Git\OpenDental\DatabaseIntegrityCheck\obj\x86\Debug\DatabaseIntegrityCheck.pdb

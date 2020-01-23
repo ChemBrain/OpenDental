@@ -47,7 +47,13 @@ namespace OpenDentBusiness {
 				throw new ODException(Lans.g("PaySimple","Error adding account. Patient required."));
 			}
 			long psCustomerId=GetCustomerIdForPat(pat.PatNum,pat.FName,pat.LName,clinicNum);
-			return AddACHAccount(psCustomerId,routingNumber,acctNumber,bankName,isCheckings,clinicNum);
+			try {
+				return AddACHAccount(psCustomerId,routingNumber,acctNumber,bankName,isCheckings,clinicNum);
+			}
+			catch(PaySimpleException ex) {
+				HandlePaySimpleException(ex,psCustomerId);
+				throw;
+			}
 		}
 
 		///<summary>Throws exceptions.  Will purposefully throw ODExceptions that are already translated and formatted.</summary>
@@ -107,7 +113,14 @@ namespace OpenDentBusiness {
 					};
 				}
 				long psCustomerId=GetCustomerIdForPat(patCur.PatNum,patCur.FName,patCur.LName,clinicNum);
-				ApiResponse apiResponse=AddCreditCard(psCustomerId,ccNum,ccExpDate,billingZipCode,clinicNum);
+				ApiResponse apiResponse;
+				try {
+					apiResponse=AddCreditCard(psCustomerId,ccNum,ccExpDate,billingZipCode,clinicNum);
+				}
+				catch(PaySimpleException ex) {
+					HandlePaySimpleException(ex,psCustomerId);
+					throw;
+				}
 				cc.PaySimpleToken=apiResponse.PaySimpleToken;
 				//If the user doesn't want Open Dental to store their account id, we will let them continue entering their CC info.
 				if(!isOneTimePayment && cc.CreditCardNum>0) {
@@ -187,8 +200,13 @@ namespace OpenDentBusiness {
 			}
 			if(string.IsNullOrWhiteSpace(cc.PaySimpleToken)) {
 				long psCustomerId=GetCustomerIdForPat(pat.PatNum,pat.FName,pat.LName,clinicNum);
-				ApiResponse apiResponse=AddACHAccount(psCustomerId,routingNumber,acctNumber,bankName,isCheckings,clinicNum);
-				cc.PaySimpleToken=apiResponse.PaySimpleToken;
+				try {
+					ApiResponse apiResponse=AddACHAccount(psCustomerId,routingNumber,acctNumber,bankName,isCheckings,clinicNum);
+					cc.PaySimpleToken=apiResponse.PaySimpleToken;
+				}
+				catch(PaySimpleException ex) {
+					HandlePaySimpleException(ex,psCustomerId);
+				}
 			}
 			return PaySimpleApi.PostPayment(GetAuthHeader(clinicNum),PaySimpleApi.MakeNewPaymentACHData(PIn.Long(cc.PaySimpleToken),payAmt),
 				CreditCardSource.PaySimpleACH);
@@ -269,6 +287,16 @@ namespace OpenDentBusiness {
 				});
 			}
 			return psCustomerId;
+		}
+
+		public static void HandlePaySimpleException(PaySimpleException exception,long customerId) {
+			if(exception.ErrorCode=="InvalidInput" && exception.ErrorMessages.Count==1
+				&& exception.ErrorMessages[0]==$"Customer id {customerId} does not exist") 
+			{
+				exception.ErrorType=PaySimpleError.CustomerDoesNotExist;
+				exception.CustomerId=customerId;
+			}
+			throw exception;
 		}
 
 		///<summary>OD response object for PaySimple API method responses.</summary>
@@ -1341,14 +1369,18 @@ namespace OpenDentBusiness {
 					var errors=metaObj.Errors;
 					StringBuilder strbError=new StringBuilder();
 					strbError.AppendLine("PaySimple ErrorCode:  "+errors.ErrorCode);
+					List<string> listErrorMessages=new List<string>();
 					if(errors.ErrorMessages.Length>0) {
 						strbError.AppendLine("PaySimple Error Message(s):");
-						errors.ErrorMessages.ToList().ForEach(x => strbError.AppendLine(x.Message));
+						errors.ErrorMessages.ToList().ForEach(x => {
+							strbError.AppendLine(x.Message);
+							listErrorMessages.Add(x.Message);
+						});
 					}
-					//Purposefully not Lans.g and throwing ODException.  I don't want this to look like a generic exception being caught.
-					throw new ODException(strbError.ToString());
+					//Purposefully not Lans.g and throwing PaySimpleException.  I don't want this to look like a generic exception being caught.
+					throw new PaySimpleException(strbError.ToString(),errors.ErrorCode,listErrorMessages);
 				}
-				catch(ODException ex) {
+				catch(PaySimpleException ex) {
 					ex.DoNothing();
 					throw;//Re-throw the stringbuilder above.
 				}
@@ -1395,5 +1427,31 @@ namespace OpenDentBusiness {
 			///<summary>Used to cancel a credit card or ACH account.</summary>
 			DELETE,
 		}
+	}
+
+	///<summary>Exception class for errors returned from PayConnect. The Message field is a human-readable error that can be shown to the user.
+	///</summary>
+	public class PaySimpleException:ApplicationException {
+		///<summary>Error code returned from PaySimple.</summary>
+		public string ErrorCode;
+		///<summary>Error messages returned from PaySimple.</summary>
+		public List<string> ErrorMessages;
+		///<summary>The type of error.</summary>
+		public PaySimpleError ErrorType;
+		///<summary>The PaySimple customer id sent in this request.</summary>
+		public long CustomerId;
+
+		public PaySimpleException(string message,string errorCode,List<string> errorMessages) : base(message) {
+			ErrorCode=errorCode;
+			ErrorMessages=errorMessages;
+		}
+	}
+
+	///<summary>The PaySimple errors that we handle differently.</summary>
+	public enum PaySimpleError {
+		///<summary>We have not classified this error.</summary>
+		NotSpecified,
+		///<summary>A Customer object does not exist in PaySimple with the Customer id we provided.</summary>
+		CustomerDoesNotExist,
 	}
 }

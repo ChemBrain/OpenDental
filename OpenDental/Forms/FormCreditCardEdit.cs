@@ -477,6 +477,15 @@ namespace OpenDental {
 						PaySimple.DeleteCreditCard(CreditCardCur);
 					}
 				}
+				catch(PaySimpleException ex) {
+					MessageBox.Show(ex.Message);
+					if(ex.ErrorType==PaySimpleError.CustomerDoesNotExist && MsgBox.Show(this,MsgBoxButtons.OKCancel,
+						"Delete the link to the customer id for this patient?")) 
+					{
+						PatientLinks.DeletePatNumTos(ex.CustomerId,PatientLinkType.PaySimple);
+					}
+					return false;
+				}
 				catch(Exception ex) {
 					if(MessageBox.Show(Lans.g(this,"Error when deleting from PaySimple:")+"\r\n"+ex.Message+"\r\n\r\n"
 						+Lans.g(this,"Do you still want to delete the card from ")+PrefC.GetString(PrefName.SoftwareName)+"?",

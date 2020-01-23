@@ -1,0 +1,12 @@
+C:\Git\OpenDental\DataConnectionBase\bin\Debug\DataConnectionBase.dll
+C:\Git\OpenDental\DataConnectionBase\bin\Debug\DataConnectionBase.pdb
+C:\Git\OpenDental\DataConnectionBase\bin\Debug\CodeBase.dll
+C:\Git\OpenDental\DataConnectionBase\bin\Debug\MySql.Data.dll
+C:\Git\OpenDental\DataConnectionBase\bin\Debug\Tao.Platform.Windows.dll
+C:\Git\OpenDental\DataConnectionBase\bin\Debug\Windows.winmd
+C:\Git\OpenDental\DataConnectionBase\bin\Debug\Tao.OpenGl.dll
+C:\Git\OpenDental\DataConnectionBase\bin\Debug\CodeBase.pdb
+C:\Git\OpenDental\DataConnectionBase\obj\Debug\xDataConnectionBase.csprojAssemblyReference.cache
+C:\Git\OpenDental\DataConnectionBase\obj\Debug\xDataConnectionBase.csproj.CopyComplete
+C:\Git\OpenDental\DataConnectionBase\obj\Debug\DataConnectionBase.dll
+C:\Git\OpenDental\DataConnectionBase\obj\Debug\DataConnectionBase.pdb

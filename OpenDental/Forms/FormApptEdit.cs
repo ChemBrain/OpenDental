@@ -1029,6 +1029,10 @@ namespace OpenDental{
 				return;
 			}
 			_listProcsForAppt=Procedures.GetProcsForApptEdit(AptCur);//We need to refresh in case the user changed the ProcCode or set the proc complete.
+			//The next 3 lines are a duplicate of a section in butDeleteProc to handle deleted procedures.
+			Appointments.SetProcDescript(AptCur,_listProcsForAppt);
+			AptOld.ProcDescript=AptCur.ProcDescript;
+			AptOld.ProcsColored=AptCur.ProcsColored;
 			FillProcedures();
 			CalculatePatternFromProcs();
 			//SetTimeSliderColors();

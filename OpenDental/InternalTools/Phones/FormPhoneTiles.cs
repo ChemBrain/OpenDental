@@ -28,7 +28,7 @@ namespace OpenDental {
 		private Phone _phoneSelected;
 		private Phones.PhoneComparer.SortBy _sortBy=Phones.PhoneComparer.SortBy.name;
 		private int _tileHeight=35;
-		private int _tileWidth=175;
+		private int _tileWidth=142;
 		/// <summary>This is where the tiles need to start (under the existing controls) in the y axis in order to be drawn correctly.</summary>
 		private int _tileStart;
 		///<summary>How many phone tiles should show up in each column before creating a new column.</summary>
@@ -134,19 +134,16 @@ namespace OpenDental {
 			List<WebChatSession> listWebChatSessions=WebChatSessions.GetActiveSessions();
 			int controlHeight=16;
 			int controlMargin=3;
-			int customerWidth=79;
-			int customerX=97;
+			int customerWidth=80;
+			int customerX=60;
 			int customerY=18;
 			int extensionWidth=96;
-			int statusWidth=71;
-			int statusX=22;
-			int statusY=21;
-			int imageHeight=17;
-			int imageLocationX=2;
-			int proxLocationX=156;
-			int timeBoxLocationX=99;
+			int imageLocationX=99;
+			int proxLocationX=126;
+			int timeBoxLocationX=3;
+			int timeBoxLocationY=17;
 			int timeBoxWidth=56;
-			int timeLocationX=107;
+			int timeLocationX=11;
 			int yTop=_tileStart;//the offset of the phone tile taking the other controls of the form into account
 			int x=0;//x axis location
 			int y=0;//y axis location
@@ -170,13 +167,6 @@ namespace OpenDental {
 				//determine if the extension has a user associated with it
 				if(_listPhones[numCur].EmployeeName=="") {
 					extensionAndName+="Vacant";
-				}
-				//determine the status or note if the user is gone, otherwise just leave it
-				string statusAndNote=$"{_listPhones[numCur].ClockStatus.ToString()}";
-				if(_listPhones[numCur].ClockStatus==ClockStatusEnum.Home
-					|| _listPhones[numCur].ClockStatus==ClockStatusEnum.None
-					|| _listPhones[numCur].ClockStatus==ClockStatusEnum.Off) {
-					statusAndNote="Clock In";
 				}
 				//get the customer number and if it is too long, cut it down
 				string customer=_listPhones[numCur].CustomerNumber;
@@ -210,11 +200,11 @@ namespace OpenDental {
 					//draw the inside of the time box if the user is not on break
 					if(_listPhones[numCur].ClockStatus!=ClockStatusEnum.Break) {
 						using(SolidBrush brush=new SolidBrush(colorBar)) {
-							g.FillRectangle(brush,(x*_tileWidth)+timeBoxLocationX,(y*_tileHeight)+yTop+controlMargin,timeBoxWidth,controlHeight);
+							g.FillRectangle(brush,(x*_tileWidth)+timeBoxLocationX,(y*_tileHeight)+yTop+timeBoxLocationY,timeBoxWidth,controlHeight);
 						}
 					}
 					//draw the outline of the time box
-					g.DrawRectangle(pen,(x*_tileWidth)+timeBoxLocationX,(y*_tileHeight)+yTop+controlMargin,timeBoxWidth,controlHeight);
+					g.DrawRectangle(pen,(x*_tileWidth)+timeBoxLocationX,(y*_tileHeight)+yTop+timeBoxLocationY,timeBoxWidth,controlHeight);
 					//draw either the figure or circle depending on if they are proxmial 
 					if(_listPhones[numCur].IsProxVisible) {
 						g.DrawImage(Properties.Resources.Figure,(x*_tileWidth)+proxLocationX,(y*_tileHeight)+yTop+controlMargin);
@@ -224,27 +214,25 @@ namespace OpenDental {
 					}
 					//draw the phone image if it is in use
 					if(_listPhones[numCur].Description!="") {
-						g.DrawImage(Properties.Resources.phoneInUse,(x*_tileWidth)+imageLocationX,(y*_tileHeight)+yTop+imageHeight);
+						g.DrawImage(Properties.Resources.phoneInUse,(x*_tileWidth)+imageLocationX,(y*_tileHeight)+yTop+controlMargin);
 					}
 					else if(webChatSession!=null) {
 						g.DrawImage(Properties.Resources.WebChatIcon,
-							new Rectangle((x*_tileWidth)+imageLocationX,(y*_tileHeight)+yTop+imageHeight,webChatHeightWidth,webChatHeightWidth));
+							new Rectangle((x*_tileWidth)+imageLocationX,(y*_tileHeight)+yTop+controlMargin,webChatHeightWidth,webChatHeightWidth));
 						time=(DateTime.Now-webChatSession.DateTcreated).ToStringHmmss();
 					}
 					else if(chatUser!=null && chatUser.CurrentSessions!=0) {
-						g.DrawImage(Properties.Resources.gtaicon3,(x*_tileWidth)+imageLocationX,(y*_tileHeight)+yTop+imageHeight);
+						g.DrawImage(Properties.Resources.gtaicon3,(x*_tileWidth)+imageLocationX,(y*_tileHeight)+yTop+controlMargin);
 						time=TimeSpan.FromMilliseconds(chatUser.SessionTime).ToStringHmmss();
 					}
 					//draw the time on call or what ever activity they are doing
 					if(time!="") {
-						g.DrawString(time,fontDraw,solidBrush,(x*_tileWidth)+timeLocationX,(y*_tileHeight)+yTop+5);
+						g.DrawString(time,fontDraw,solidBrush,(x*_tileWidth)+timeLocationX,(y*_tileHeight)+yTop+timeBoxLocationY+2);
 					}
 				}
 				//draw the things that need to be shown at all times such as the employee name, customer, and emp status
 				g.DrawString(extensionAndName,fontBold,solidBrush,new RectangleF((x*_tileWidth),(y*_tileHeight)+yTop+controlMargin,
 					extensionWidth,controlHeight),new StringFormat() { FormatFlags=StringFormatFlags.NoWrap });
-				g.DrawString(statusAndNote,fontDraw,solidBrush,new RectangleF((x*_tileWidth)+statusX,(y*_tileHeight)+yTop+statusY,
-					statusWidth,controlHeight),new StringFormat() { Trimming=StringTrimming.EllipsisCharacter,FormatFlags=StringFormatFlags.NoWrap });
 				g.DrawString(customer,fontDraw,solidBrush,new RectangleF((x*_tileWidth)+customerX,(y*_tileHeight)+yTop+customerY+controlMargin,
 					customerWidth,controlHeight),new StringFormat() { Trimming=StringTrimming.EllipsisCharacter,FormatFlags=StringFormatFlags.NoWrap });
 				//draw the grid lines
@@ -399,18 +387,19 @@ namespace OpenDental {
 		}
 
 		private void FormPhoneTiles_MouseClick(object sender,MouseEventArgs e) {
-			int statusStartX=21;
-			int statusFinalX=95;
+			int statusStartX=3;
+			int statusFinalX=59;
+			int timeStartY=17;
 			int startY=20;
 			int finalY=34;
-			int customerStartX=96;
-			int customerFinalX=182;
+			int customerStartX=60;
+			int customerFinalX=140;
 			Point location=FindPhoneAndLocation(e,out int x,out int y);
 			if(_phoneSelected==null) {
 				return;
 			}
 			if(e.Button==MouseButtons.Right) {
-				if(x<statusFinalX && x>statusStartX && y<finalY && y>startY) { //right click on status
+				if(x<statusFinalX && x>statusStartX && y<finalY && y>timeStartY) { //right click on time 
 					ShowMenuStatus(location,_phoneSelected);
 				}
 				else if(x<customerFinalX && x>customerStartX && y<finalY && y>startY) { //right click on customer

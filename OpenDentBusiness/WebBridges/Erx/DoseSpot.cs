@@ -1463,7 +1463,8 @@ namespace OpenDentBusiness {
 			{{
 				""DisplayName"": ""{medCur.DisplayName}"",
 				""Status"": ""{(int)medCur.MedicationStatus}"",
-				""InactiveDate"": ""{medCur.DateInactive}""
+				""InactiveDate"": ""{medCur.DateInactive}"",
+				""Comment"": ""{medCur.Comment}""
 			}}";
 			var resObj=Request(ApiRoute.PutSelfReportedMedications,HttpMethod.Put,"Bearer "+authToken,body,new {
 				Id=-1,
@@ -1659,6 +1660,7 @@ namespace OpenDentBusiness {
 			else {
 				medSelfReported.DisplayName=medPat.MedDescript;
 			}
+			medSelfReported.Comment=medPat.PatNote;
 			//Set the MedicationStatus.
 			medSelfReported.MedicationStatus=MedicationStatus.Discontinued;
 			if(medPat.DateStop.Year<1880 || medPat.DateStop>=DateTime.Today) {
@@ -1668,7 +1670,7 @@ namespace OpenDentBusiness {
 				medSelfReported.MedicationStatus=MedicationStatus.Completed;
 				medSelfReported.DateInactive=medPat.DateStop;
 				//A comment is required when a medication has been discontinued (figured out through testing, not in docs)
-				medSelfReported.Comment="Discontinued in Open Dental";
+				medSelfReported.Comment+=" Discontinued in Open Dental";
 			}
 			return medSelfReported;
 		}

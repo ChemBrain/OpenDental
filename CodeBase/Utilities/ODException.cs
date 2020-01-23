@@ -125,6 +125,8 @@ namespace CodeBase {
 			WebPaySetup=205,
 			///<summary>DoseSpot user not authorized to perform action.</summary>
 			DoseSpotNotAuthorized=206,
+			///<summary>An API request to XWeb DTG was failed by XWeb.</summary>
+			XWebDTGFailed=207,
 			//400-499 range. Values used by web apps
 			///<summary>No patient found that matches the specified parameters.</summary>
 			NoPatientFound=400,
