@@ -224,6 +224,10 @@ namespace OpenDental{
 						dResult=FormTro.ShowDialog();
 					}
 					break;
+				case "BencoPracticeManagement":
+					FormBencoSetup FormBPM=new FormBencoSetup();
+					dResult=FormBPM.ShowDialog();
+					break;
 				default:
 					FormProgramLinkEdit FormPE=new FormProgramLinkEdit();
 					if(Programs.IsStatic(program)) {

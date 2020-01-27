@@ -156,31 +156,13 @@ namespace OpenDental {
 			long userNumCur=Security.CurUser.UserNum;
 			ODThread.WorkerDelegate getAlerts=new ODThread.WorkerDelegate((o) => {
 				Logger.LogToPath("",LogPath.Signals,LogPhase.Start);
-				//List of AlertSubs for current clinic and user combo.
-				List<AlertSub> listUserAlertSubs=AlertSubs.GetAllForUser(userNumCur,clinicNumCur);
-				List<long> listAlertCatNums=listUserAlertSubs.Select(y => y.AlertCategoryNum).ToList();
-				//AlertTypes current user is subscribed to.
-				List<AlertType> listUserAlertLinks=AlertCategoryLinks.GetWhere(x => listAlertCatNums.Contains(x.AlertCategoryNum))
-				.Select(x => x.AlertType).ToList();
-				//Each inner list is a group of alerts that are duplicates of each other.
-				List<List<AlertItem>> listUniqueAlerts=new List<List<AlertItem>>();
-				AlertItems.RefreshForClinicAndTypes(clinicNumCur,listUserAlertLinks)
-					.ForEach(x => {
-						foreach(List<AlertItem> listDuplicates in listUniqueAlerts) {
-							if(AlertItems.AreDuplicates(listDuplicates.First(),x)) {
-								listDuplicates.Add(x);
-								return;
-							}
-						}
-						listUniqueAlerts.Add(new List<AlertItem> { x });
-					}
-				);
+				List<List<AlertItem>> listUniqueAlerts=AlertItems.GetUniqueAlerts(userNumCur,clinicNumCur);
 				//We will set the alert's tag to all the items in its list so that all can be marked read/deleted later.
 				listUniqueAlerts.ForEach(x => x.First().TagOD=x.Select(y => y.AlertItemNum).ToList());
 				List<AlertItem> listAlertItems=listUniqueAlerts.Select(x => x.First())
 					.Where(x => x.Type!=AlertType.ClinicsChangedInternal).ToList();//These alerts are not supposed to be displayed to the end user.
 				//Update listUserAlertTypes to only those with active AlertItems.
-				listUserAlertLinks=listAlertItems.Select(x => x.Type).ToList();
+				List<AlertType> listUserAlertLinks=listAlertItems.Select(x => x.Type).ToList();
 				List<AlertRead> listAlertItemReads=AlertReads.RefreshForAlertNums(userNumCur,listAlertItems.Select(x => x.AlertItemNum).ToList());
 				this.InvokeIfRequired(() => {
 					//Assigning this inside Invoke so that we don't have to lock _listAlertItems and _listAlertReads.

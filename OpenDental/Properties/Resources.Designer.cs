@@ -142,6 +142,16 @@ namespace OpenDental.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap bencoLogo {
+            get {
+                object obj = ResourceManager.GetObject("bencoLogo", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The Bouncy Castle Cryptographic C#® API
         ///
         ///License:
@@ -1226,6 +1236,16 @@ namespace OpenDental.Properties {
         public static string SharpDX {
             get {
                 return ResourceManager.GetString("SharpDX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap splashBenco {
+            get {
+                object obj = ResourceManager.GetObject("splashBenco", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         

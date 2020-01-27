@@ -457,4 +457,10 @@
   <data name="PaySimple_Button_2019_26x75" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\PaySimple_Button_2019_26x75.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="bencoLogo" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\benco_logo.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="splashBenco" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\splashBenco.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
 </root>

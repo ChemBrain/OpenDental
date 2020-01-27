@@ -2460,5 +2460,19 @@ namespace OpenDentBusiness {
 			Db.NonQ(command);
 		}
 
+		private static void To19_4_12() {
+			string command=@"INSERT INTO program (ProgName,ProgDesc,Enabled,Path,CommandLine,Note)
+				 VALUES(
+				 'BencoPracticeManagement', 
+				 'Benco Practice Management', 
+				 '0', 
+				 'https://identity.benco.com/auth/login',
+				 '',
+				 '');";
+			long programNum=Db.NonQ(command);
+			command=$"INSERT INTO toolbutitem (ProgramNum,ToolBar,ButtonText) VALUES ({POut.Long(programNum)},7,'Benco');"; //7 = Main Toolbar
+			Db.NonQ(command);
+		}
+
 	}
 }

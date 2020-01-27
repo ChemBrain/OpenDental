@@ -13,14 +13,16 @@ using PdfSharp.Pdf;
 
 namespace OpenDental {
 	public partial class FormRpServiceDateView:ODForm {
-		#region Private Variables
-		private bool _headingPrinted;
-		private int _pagesPrinted;
-		private int _headingPrintH;
+		#region Public Variables
 		///<summary>This will be the PatNum or the Guarantor's PatNum.</summary>
 		public readonly long PatNum;
 		///<summary>Whether or not the window is displaying results for the entire family.</summary>
 		public readonly bool IsFamily;
+		#endregion
+		#region Private Variables
+		private bool _headingPrinted;
+		private int _pagesPrinted;
+		private int _headingPrintH;
 		private Family _fam;
 		#endregion
 		
@@ -34,10 +36,11 @@ namespace OpenDental {
 
 		private void FormRpServiceDate_Load(object sender,EventArgs e) {
 			FillGrid();
+			Text=Lans.g(this,"Service Date View -")+" "+_fam.GetPatient(PatNum).GetNameFL()+(IsFamily ? " "+Lans.g(this,"(Family)") : "");
 		}
 
 		private void FillGrid() {
-			DataTable table=RpServiceDateView.GetData(PatNum,IsFamily);
+			DataTable table=RpServiceDateView.GetData(PatNum,IsFamily,checkDetailedView.Checked);
 			gridMain.BeginUpdate();
 			//Columns
 			gridMain.ListGridColumns.Clear();
@@ -62,12 +65,17 @@ namespace OpenDental {
 				newRow.Cells.Add(row["Patient"].ToString());
 				string strReference=row["Reference"].ToString();
 				newRow.Cells.Add(strReference);
-				newRow.Cells.Add(PIn.Decimal(row["Charge"].ToString()).ToString("f"));
-				newRow.Cells.Add(PIn.Decimal(row["Credit"].ToString()).ToString("f"));
+				bool isUnallocated=strReference.ToLower().Contains("unallocated");
+				newRow.Cells.Add(isUnallocated ? "" : PIn.Decimal(row["Charge"].ToString()).ToString("f"));
+				newRow.Cells.Add(isUnallocated ? "" : PIn.Decimal(row["Credit"].ToString()).ToString("f"));
 				newRow.Cells.Add(row["Pvdr"].ToString());
+				decimal insBal=PIn.Decimal(row["InsBal"].ToString());
+				decimal acctBal=PIn.Decimal(row["AcctBal"].ToString());
 				bool isTotalsRow=row==lastRow || strReference.ToLower().Contains("Total for Date".ToLower());
-				newRow.Cells.Add(isTotalsRow ? PIn.Decimal(row["InsBal"].ToString()).ToString("f") : "");
-				newRow.Cells.Add(isTotalsRow ? PIn.Decimal(row["AcctBal"].ToString()).ToString("f") : "");
+				//Show insBal and acctBal when not on totals row and detailed is checked and either of the amounts are not zero.
+				bool showDetailedRow=isTotalsRow || (checkDetailedView.Checked && (Math.Abs(insBal).IsGreaterThanZero() || Math.Abs(acctBal).IsGreaterThanZero()));
+				newRow.Cells.Add(showDetailedRow ? insBal.ToString("f") : "");
+				newRow.Cells.Add(showDetailedRow ? acctBal.ToString("f") : "");
 				newRow.Tag=row;
 				if(isTotalsRow) {
 					newRow.Bold=true;
@@ -75,6 +83,11 @@ namespace OpenDental {
 				gridMain.ListGridRows.Add(newRow);
 			}
 			gridMain.EndUpdate();
+		}
+
+
+		private void butRefresh_Click(object sender,EventArgs e) {
+			FillGrid();
 		}
 
 		private void butSavePDFToImages_Click(object sender,EventArgs e) {

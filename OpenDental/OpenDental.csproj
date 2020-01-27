@@ -292,6 +292,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Bridges\Benco.cs" />
     <Compile Include="Bridges\DexisIntegrator.cs" />
     <Compile Include="Bridges\XDR.cs" />
     <Compile Include="Bridges\FormOryxUserSettings.cs">
@@ -446,6 +447,12 @@
     </Compile>
     <Compile Include="Forms\FormApptBreakRequired.designer.cs">
       <DependentUpon>FormApptBreakRequired.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\FormBencoSetup.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FormBencoSetup.Designer.cs">
+      <DependentUpon>FormBencoSetup.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\FormPatientEditEmail.cs">
       <SubType>Form</SubType>
@@ -5498,6 +5505,9 @@
     <EmbeddedResource Include="Forms\FormApptBreakRequired.resx">
       <DependentUpon>FormApptBreakRequired.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FormBencoSetup.resx">
+      <DependentUpon>FormBencoSetup.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\FormPatientEditEmail.resx">
       <DependentUpon>FormPatientEditEmail.cs</DependentUpon>
     </EmbeddedResource>
@@ -9097,6 +9107,8 @@
     <None Include="Web References\NewCrop\Update1.wsdl" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\splashBenco.jpg" />
+    <None Include="Resources\benco_logo.png" />
     <None Include="Resources\PaySimple_Button_2019_26x75.png" />
     <None Include="Resources\Zxing.txt" />
     <None Include="Resources\butPin22.gif" />

@@ -138,6 +138,9 @@ namespace OpenDental {
 			int customerX=60;
 			int customerY=18;
 			int extensionWidth=96;
+			int statusWidth=62;
+			int statusX=0;
+			int statusY=20;
 			int imageLocationX=99;
 			int proxLocationX=126;
 			int timeBoxLocationX=3;
@@ -168,7 +171,17 @@ namespace OpenDental {
 				if(_listPhones[numCur].EmployeeName=="") {
 					extensionAndName+="Vacant";
 				}
-				//get the customer number and if it is too long, cut it down
+				//determine the status or note if the user is gone, otherwise just leave it
+				string statusAndNote="";
+				if(_listPhones[numCur].ClockStatus==ClockStatusEnum.Home
+					|| _listPhones[numCur].ClockStatus==ClockStatusEnum.None
+					|| _listPhones[numCur].ClockStatus==ClockStatusEnum.Off) {
+					statusAndNote="Clock In";
+				}
+				if(_listPhones[numCur].ClockStatus==ClockStatusEnum.Unavailable) {
+					statusAndNote="Unavailable";
+				}
+				//get the customer number
 				string customer=_listPhones[numCur].CustomerNumber;
 				//get the time that has passed on a call
 				string time="";
@@ -180,10 +193,11 @@ namespace OpenDental {
 				}
 				//draw the time box with its determined color
 				Color colorBar=outerColor;
-				//don't draw anything if they are clocked out
+				//don't draw anything if they are clocked out or unavailable
 				if(_listPhones[numCur].ClockStatus!=ClockStatusEnum.Home
 					&&_listPhones[numCur].ClockStatus!=ClockStatusEnum.None
-					&&_listPhones[numCur].ClockStatus!=ClockStatusEnum.Off) {
+					&&_listPhones[numCur].ClockStatus!=ClockStatusEnum.Off
+					&&_listPhones[numCur].ClockStatus!=ClockStatusEnum.Unavailable) {
 					//determine if they need help and flash pink if they do 
 					if(_listPhones[numCur].ClockStatus==ClockStatusEnum.NeedsHelp) {
 						if(_isFlashingPink) {
@@ -233,6 +247,10 @@ namespace OpenDental {
 				//draw the things that need to be shown at all times such as the employee name, customer, and emp status
 				g.DrawString(extensionAndName,fontBold,solidBrush,new RectangleF((x*_tileWidth),(y*_tileHeight)+yTop+controlMargin,
 					extensionWidth,controlHeight),new StringFormat() { FormatFlags=StringFormatFlags.NoWrap });
+				if(statusAndNote!="") { //the status only shows if it is Clock In or Unavailable
+					g.DrawString(statusAndNote,fontDraw,solidBrush,new RectangleF((x*_tileWidth)+statusX,(y*_tileHeight)+yTop+statusY,
+						statusWidth,controlHeight),new StringFormat() { Trimming=StringTrimming.EllipsisCharacter,FormatFlags=StringFormatFlags.NoWrap });
+				}
 				g.DrawString(customer,fontDraw,solidBrush,new RectangleF((x*_tileWidth)+customerX,(y*_tileHeight)+yTop+customerY+controlMargin,
 					customerWidth,controlHeight),new StringFormat() { Trimming=StringTrimming.EllipsisCharacter,FormatFlags=StringFormatFlags.NoWrap });
 				//draw the grid lines
@@ -243,7 +261,7 @@ namespace OpenDental {
 					g.DrawLine(pen,0,(_tileHeight*y)+yTop,numColumns*_tileWidth,(_tileHeight*y)+yTop);
 				}
 				y++;
-				if(i%_tilesPerColumn==0) {
+				if(i%_tilesPerColumn==0 && i!=_listPhones.Count) {
 					x++;
 					//draw the right grid line of the entire column
 					g.DrawLine(pen,_tileWidth*x,yTop,_tileWidth*x,(_tileHeight*_tilesPerColumn)+yTop);

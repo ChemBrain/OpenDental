@@ -3074,6 +3074,9 @@ namespace OpenDental{
 			Signalods.SignalLastRefreshed=MiscData.GetNowDateTime();
 			Signalods.ApptSignalLastRefreshed=Signalods.SignalLastRefreshed;
 			SetTimersAndThreads(true);//Safe to start timers since this method call is on the main thread.
+			if(Programs.GetCur(ProgramName.BencoPracticeManagement).Enabled) {
+				menuItemRemoteSupport.Visible=false;
+			}
 			Plugins.HookAddCode(this,"FormOpenDental.Load_end");
 		}
 
@@ -8499,11 +8502,15 @@ namespace OpenDental{
 
 		//Help
 		private void menuItemRemote_Click(object sender,System.EventArgs e) {
+			string site="http://www.opendental.com/contact.html";
+			if(Programs.GetCur(ProgramName.BencoPracticeManagement).Enabled) {
+				site="https://support.benco.com/";
+			}
 			try {
-				Process.Start("http://www.opendental.com/contact.html");
+				Process.Start(site);
 			}
 			catch(Exception) {
-				MessageBox.Show(Lan.g(this,"Could not find")+" http://www.opendental.com/contact.html" + "\r\n"
+				MessageBox.Show(Lan.g(this,"Could not find")+" "+site+"\r\n"
 					+Lan.g(this,"Please set up a default web browser."));
 			}
 			/*

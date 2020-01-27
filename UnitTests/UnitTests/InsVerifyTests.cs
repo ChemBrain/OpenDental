@@ -410,6 +410,25 @@ namespace UnitTests.InsVerify_Tests {
 		}
 
 		[TestMethod]
+		public void InsVerifies_ValidatePlanDates_ValidStartDateMinValEndDate() {
+			string suffix=MethodInfo.GetCurrentMethod().Name;
+			Patient pat=PatientT.CreatePatient(suffix);
+			Carrier carrier=CarrierT.CreateCarrier(suffix);
+			InsPlan insPlan=InsPlanT.CreateInsPlan(carrier.CarrierNum);
+			InsSub insSub=InsSubT.CreateInsSub(pat.PatNum,insPlan.PlanNum);
+			long provNum=ProviderT.CreateProvider(suffix);
+			Appointment apt=AppointmentT.CreateAppointment(pat.PatNum,DateTime.Now,0,provNum);
+			//Invalid plan dates were parsed from the 271.
+			DateTime dateStartFrom271=DateTime.Today.AddYears(-1);
+			DateTime dateEndFrom271=DateTime.MinValue;
+			string errorStatus=InsVerifies.ValidatePlanDates(dateStartFrom271,dateEndFrom271,insSub,apt.AptNum);
+			//When a valid start date is received we will update the policy end date always, per NADG.
+			Assert.AreEqual("",errorStatus);
+			Assert.IsTrue(insSub.DateEffective==dateStartFrom271);
+			Assert.IsTrue(insSub.DateTerm==DateTime.MinValue);
+		}
+
+		[TestMethod]
 		public void InsVerifies_ValidateAnnualMaxAndGeneralDeductible_NoBensReceivedFrom271() {
 			string suffix=MethodInfo.GetCurrentMethod().Name;
 			Patient pat=PatientT.CreatePatient(suffix);

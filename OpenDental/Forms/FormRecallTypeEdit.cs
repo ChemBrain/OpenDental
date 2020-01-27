@@ -905,7 +905,9 @@ namespace OpenDental{
 			}
 			//Ask user to update recalls for patients if they changed the DefaultInterval.
 			if(!RecallTypeCur.IsNew && defaultIntervalOld!=RecallTypeCur.DefaultInterval) {
-				if(MsgBox.Show(this,MsgBoxButtons.YesNo,"Default interval has been changed.  Reset all current patient intervals of this type?")) {
+				if(MsgBox.Show(this,MsgBoxButtons.YesNo,"Default interval has been changed.  "
+					+"Please note that this change will not affect patients with intervals that were set manually.\r\n"
+					+"Reset all other current patient intervals of this type?")) {
 					Recalls.UpdateDefaultIntervalForPatients(RecallTypeCur.RecallTypeNum,defaultIntervalOld,RecallTypeCur.DefaultInterval);
 				}
 			}

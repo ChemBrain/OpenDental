@@ -161,6 +161,44 @@ namespace OpenDentBusiness{
 			AlertReads.DeleteForAlertItems(listChangedAlertItemNums);
 		}
 
+		///<summary>Returns a list of lists which contains unique alert items. Each inner list is a group of alerts that are duplicates of each other.</summary>
+		public static List<List<AlertItem>> GetUniqueAlerts(long userNumCur, long clinicNumCur){
+			List<AlertSub> listUserAlertSubsAll=AlertSubs.GetAllForUser(userNumCur);
+			bool isAllClinics=listUserAlertSubsAll.Any(x => x.ClinicNum==-1);
+			List<long> listAlertCatNums=new List<long>();
+			if(isAllClinics) {//User subscribed to all clinics.
+				listAlertCatNums=listUserAlertSubsAll.Select(x => x.AlertCategoryNum).Distinct().ToList();
+			}
+			else {
+				//List of AlertSubs for current clinic and user combo.
+				List<AlertSub> listUserAlertSubs=listUserAlertSubsAll.FindAll(x => x.ClinicNum==clinicNumCur);
+				listAlertCatNums=listUserAlertSubs.Select(y => y.AlertCategoryNum).ToList();
+			}
+			//AlertTypes current user is subscribed to.
+			List<AlertType> listUserAlertLinks=AlertCategoryLinks.GetWhere(x => listAlertCatNums.Contains(x.AlertCategoryNum))
+				.Select(x => x.AlertType).ToList();
+			List<long> listAllAlertCatNums=listUserAlertSubsAll.Select(y => y.AlertCategoryNum).ToList();
+			//AlertTypes current user is subscribed to for AlertItems which are not clinic specific.
+			List<AlertType> listAllUserAlertLinks=AlertCategoryLinks.GetWhere(x => listAllAlertCatNums.Contains(x.AlertCategoryNum))
+				.Select(x => x.AlertType).ToList();
+			//Each inner list is a group of alerts that are duplicates of each other.
+			List<List<AlertItem>> listUniqueAlerts=new List<List<AlertItem>>();
+			RefreshForClinicAndTypes(clinicNumCur,listUserAlertLinks)//Get alert items for the current clinic
+				.Union(RefreshForClinicAndTypes(-1,listAllUserAlertLinks))//Get alert items that are for all clinics
+				.DistinctBy(x => x.AlertItemNum)
+				.ForEach(x => {
+					foreach(List<AlertItem> listDuplicates in listUniqueAlerts) {
+						if(AreDuplicates(listDuplicates.First(),x)) {
+							listDuplicates.Add(x);
+							return;
+						}
+					}
+					listUniqueAlerts.Add(new List<AlertItem> { x });
+				}
+			);
+			return listUniqueAlerts;
+		}
+
 		///<summary>Returns true if the two alerts match all fields other than AlertItemNum.</summary>
 		public static bool AreDuplicates(AlertItem alert1,AlertItem alert2) {
 			if(alert1==null || alert2==null) {

@@ -2054,7 +2054,9 @@ namespace OpenDentBusiness
 					//2430 CAS: (medical,institutional,dental) Line Adjustment. Situational. Required when the payer identified in Loop 2330B made line level adjustments which caused the amount paid to differ from the amount originally charged.
 					//These CAS segments at the procedure level should add up to their respective claim level 2320 CAS segments.
 					//Claim Adjustment Reason Codes can be found on the Washington Publishing Company website at: http://www.wpc-edi.com/reference/codelists/healthcare/claim-adjustment-reason-codes/
-					if(hasAdjForOtherPlans && IsApex(clearinghouseClin)) {//This section of code might work for other clearinghouses, but has not yet been tested, and nobody else has requested this information yet.
+					//This section of code might work for other clearinghouses, but has not yet been tested, and nobody else has requested this information yet.
+					//See task #2351950: DentalXChange vouched that we can send both claim-level and line-level CAS segments on 01/06/2020.
+					if(hasAdjForOtherPlans && (IsApex(clearinghouseClin) || IsClaimConnect(clearinghouseClin))) {
 						double procPatientPortionAmt=Math.Max(0,claimProcs[j].FeeBilled-listProcWriteoffAmts[j]-listProcDeductibleAmts[j]-listProcPaidOtherInsAmts[j]);
 						if(listProcWriteoffAmts[j]>0) {
 							sw.Write("CAS"+s

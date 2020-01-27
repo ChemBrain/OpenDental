@@ -294,6 +294,7 @@ namespace OpenDental {
 			if(_patCur==null || _patCur.PatNum!=e.PatNumNew){//patient changed
 				RefreshModuleDataPatient(e.PatNumNew);
 				FormOpenDental.S_Contr_PatientSelected(_patCur,true,false);
+				Plugins.HookAddCode(this,"ContrAppt.contrApptPanel_SelectedApptChanged_patientchanged_end");
 				return;
 			}
 			//patient not changed
@@ -3730,7 +3731,7 @@ namespace OpenDental {
 				tabControl.Height=0;
 			}
 			else {
-				tabControl.Height=contrApptPanel.Height-tabControl.Top+21;
+				tabControl.Height=contrApptPanel.Height-tabControl.Top;
 			}
 		}
 

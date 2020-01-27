@@ -500,6 +500,8 @@ namespace OpenDental {
 					|| sortedSheetFromDb.SheetFields[i].ReportableName!=sortedNewSheet.SheetFields[i].ReportableName
 					|| sortedSheetFromDb.SheetFields[i].TextAlign!=sortedNewSheet.SheetFields[i].TextAlign
 					|| sortedSheetFromDb.SheetFields[i].ItemColor!=sortedNewSheet.SheetFields[i].ItemColor
+					|| sortedSheetFromDb.SheetFields[i].UiLabelMobile!=sortedNewSheet.SheetFields[i].UiLabelMobile
+					|| sortedSheetFromDb.SheetFields[i].UiLabelMobileRadioButton!=sortedNewSheet.SheetFields[i].UiLabelMobileRadioButton
 					) {
 					return false;//No need to keep looping, we know the sheets are not equal at this point.
 				}

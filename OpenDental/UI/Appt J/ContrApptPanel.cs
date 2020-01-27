@@ -1051,7 +1051,12 @@ namespace OpenDental.UI{
 				rectangleMarginBounds.Y+_heightProvOpHeaders,
 				rectangleSourceMain.Width,
 				rectangleSourceMain.Height);
-			g.DrawImage(_bitmapMain,rectangleDestMain,rectangleSourceMain,GraphicsUnit.Pixel);
+			//g.DrawImage(_bitmapMain,rectangleDestMain,rectangleSourceMain,GraphicsUnit.Pixel);
+			g.TranslateTransform(-rectangleSourceMain.X+rectangleDestMain.X,-rectangleSourceMain.Y+rectangleDestMain.Y);
+			g.SetClip(rectangleSourceMain);
+			SetBitmapMain(g);
+			g.ResetClip();
+			g.ResetTransform();
 			//Prov Bars------------------------------------------------------------------------------------------------------
 			if(_showProvBars && _bitmapProvBars!=null){
 				RectangleF rectangleSourceProvBars=new RectangleF(
@@ -1064,15 +1069,27 @@ namespace OpenDental.UI{
 					rectangleMarginBounds.Y+_heightProvOpHeaders,
 					rectangleSourceProvBars.Width,
 					rectangleSourceProvBars.Height);
-				g.DrawImage(_bitmapProvBars,rectangleDestProvBars,rectangleSourceProvBars,GraphicsUnit.Pixel);
+				//g.DrawImage(_bitmapProvBars,rectangleDestProvBars,rectangleSourceProvBars,GraphicsUnit.Pixel);
+				g.TranslateTransform(-rectangleSourceProvBars.X+rectangleDestProvBars.X,-rectangleSourceProvBars.Y+rectangleDestProvBars.Y);
+				g.SetClip(rectangleSourceProvBars);
+				SetBitmapProvbars(g);
+				g.ResetClip();
+				g.ResetTransform();
 			}
 			//ProvBars Header---------------------------------------------------------------------------------------------------
 			if(_showProvBars && _bitmapProvBarsHeader!=null){
-				g.DrawImage(_bitmapProvBarsHeader,
+				RectangleF rectangleDestProvBarHeader= new RectangleF(
 					rectangleMarginBounds.X+_widthTime,
 					rectangleMarginBounds.Y,
 					_bitmapProvBarsHeader.Width,
 					_bitmapProvBarsHeader.Height);
+				//g.DrawImage(_bitmapProvBarsHeader,rectangleSourceProvBarHeader
+				// no source was set because it will always be at 0,0
+				g.TranslateTransform(rectangleDestProvBarHeader.X,rectangleDestProvBarHeader.Y);
+				//g.SetClip();
+				SetBitmapProvBarsHeaders(g);
+				//g.ResetClip();
+				g.ResetTransform();
 			}
 			//Ops Header-------------------------------------------------------------------------------------------------------
 			RectangleF rectangleSourceOpsHeader;
@@ -1095,8 +1112,13 @@ namespace OpenDental.UI{
 				rectangleMarginBounds.Y,
 				rectangleSourceOpsHeader.Width,
 				rectangleSourceOpsHeader.Height);
-			g.DrawImage(_bitmapOpsHeader,retangleDestOpsHeader,rectangleSourceOpsHeader,GraphicsUnit.Pixel);
-			//Time Bars--------------------------------------------------------------------------------------------------------
+			//g.DrawImage(_bitmapOpsHeader,retangleDestOpsHeader,rectangleSourceOpsHeader,GraphicsUnit.Pixel);
+			g.TranslateTransform(-rectangleSourceOpsHeader.X+retangleDestOpsHeader.X,-rectangleSourceOpsHeader.Y+retangleDestOpsHeader.Y);
+			g.SetClip(rectangleSourceOpsHeader);
+			SetBitmapOpsHeaders(g);
+			g.ResetClip();
+			g.ResetTransform();
+			//Time Bar Left--------------------------------------------------------------------------------------------------------
 			RectangleF rectangleSourceTime=new RectangleF(
 				0,
 				hourBegin*_heightLine*_rowsPerHr,
@@ -1107,13 +1129,24 @@ namespace OpenDental.UI{
 				rectangleMarginBounds.Y+_heightProvOpHeaders,
 				rectangleSourceTime.Width,
 				rectangleSourceTime.Height);
-			g.DrawImage(_bitmapTimebarLeft,rectangleDestTime,rectangleSourceTime,GraphicsUnit.Pixel);
+			//g.DrawImage(_bitmapTimebarLeft,rectangleDestTime,rectangleSourceTime,GraphicsUnit.Pixel);
+			g.TranslateTransform(-rectangleSourceTime.X+rectangleDestTime.X,-rectangleSourceTime.Y+rectangleDestTime.Y);
+			g.SetClip(rectangleSourceTime);
+			SetBitmapTimebarL(g);
+			g.ResetClip();
+			g.ResetTransform();
+			//Time Bar Right---------------------------------------------------------------------------------------------------------
 			rectangleDestTime=new RectangleF(
 				rectangleDestMain.Right,
 				rectangleMarginBounds.Y+_heightProvOpHeaders,
 				rectangleSourceTime.Width,
 				rectangleSourceTime.Height);
-			g.DrawImage(_bitmapTimebarRight,rectangleDestTime,rectangleSourceTime,GraphicsUnit.Pixel);
+			//g.DrawImage(_bitmapTimebarRight,rectangleDestTime,rectangleSourceTime,GraphicsUnit.Pixel);
+			g.TranslateTransform(-rectangleSourceTime.X+rectangleDestTime.X,-rectangleSourceTime.Y+rectangleDestTime.Y);
+			g.SetClip(rectangleSourceTime);
+			SetBitmapTimebarR(g);
+			g.ResetClip();
+			g.ResetTransform();
 			//g.DrawRectangle(Pens.Red,rectangleMarginBounds);//just for testing
 			DrawPrintingHeaderFooter(e.Graphics,totalPages,rectanglePageBounds.Width,rectanglePageBounds.Height);
 			PagesPrinted++;
@@ -1714,9 +1747,12 @@ namespace OpenDental.UI{
 			if(!_isValidMain || !_isValidHeaders){
 				ComputeHeight();
 			}
-			SetBitmapsMain();
-			SetBitmapsHeaders();
-			SetBitmapsTimebar();
+			SetBitmapMain();
+			SetBitmapProvbars();
+			SetBitmapProvBarsHeaders();
+			SetBitmapOpsHeaders();
+			SetBitmapTimebarL();
+			SetBitmapTimebarR();
 			Invalidate();
 		}
 
@@ -2130,7 +2166,7 @@ namespace OpenDental.UI{
 
 		#region Methods - Private Set Bitmaps
 		///<summary>Triggered much less frequently than OnPaint.</summary>
-		private void SetBitmapsMain(){
+		private void SetBitmapMain(Graphics gPrinting=null){
 			//if(_isValidMain){//no longer test so that red time line will draw
 			//	return;
 			//}
@@ -2138,6 +2174,14 @@ namespace OpenDental.UI{
 			if(_widthMain<1){
 				_bitmapMain?.Dispose();
 				_bitmapMain=null;
+			}
+			else if(gPrinting!=null){
+				gPrinting.SmoothingMode=SmoothingMode.HighQuality;
+				gPrinting.TextRenderingHint=TextRenderingHint.AntiAlias;
+				DrawBackground(gPrinting);
+				DrawRedTimeLineMain(gPrinting);
+				gPrinting.TextRenderingHint=TextRenderingHint.AntiAlias;
+				DrawAppts(gPrinting);
 			}
 			else{
 				if(_bitmapMain==null){
@@ -2157,6 +2201,9 @@ namespace OpenDental.UI{
 					DrawAppts(g);
 				}
 			}
+		}
+
+		private void SetBitmapProvbars(Graphics gPrinting=null){
 			//Provbars------------------------------------------------------------------------------------------------
 			if(_listProvsVisible.Count==0 || IsWeeklyView){
 				_bitmapProvBars?.Dispose();
@@ -2164,32 +2211,46 @@ namespace OpenDental.UI{
 				_isValidMain=true;
 				return;
 			}
-			if(_bitmapProvBars==null){
-				_bitmapProvBars=new Bitmap((int)(_listProvsVisible.Count*_widthProv),_heightMain);
+			else if(gPrinting!=null){
+				gPrinting.SmoothingMode=SmoothingMode.HighQuality;
+				gPrinting.FillRectangle(_brushClosed,0,0,_widthProv*_listProvsVisible.Count,_heightMain);
+				DrawProvScheds(gPrinting);
+				DrawProvBarsAppts(gPrinting);
+				DrawGridLinesProv(gPrinting);
+				DrawRedTimeLineProv(gPrinting);
 			}
-			else if(_bitmapProvBars.Size!=new Size((int)(_listProvsVisible.Count*_widthProv),_heightMain)){
-				_bitmapProvBars.Dispose();
-				_bitmapProvBars=new Bitmap((int)(_listProvsVisible.Count*_widthProv),_heightMain);
-			}
-			using(Graphics g=Graphics.FromImage(_bitmapProvBars)){
-				g.SmoothingMode=SmoothingMode.HighQuality;
-				g.FillRectangle(_brushClosed,0,0,_widthProv*_listProvsVisible.Count,_heightMain);
-				DrawProvScheds(g);
-				DrawProvBarsAppts(g);
-				DrawGridLinesProv(g);
-				DrawRedTimeLineProv(g);
+			else{
+				if(_bitmapProvBars==null){
+					_bitmapProvBars=new Bitmap((int)(_listProvsVisible.Count*_widthProv),_heightMain);
+				}
+				else if(_bitmapProvBars.Size!=new Size((int)(_listProvsVisible.Count*_widthProv),_heightMain)){
+					_bitmapProvBars.Dispose();
+					_bitmapProvBars=new Bitmap((int)(_listProvsVisible.Count*_widthProv),_heightMain);
+				}
+				using(Graphics g=Graphics.FromImage(_bitmapProvBars)){
+					g.SmoothingMode=SmoothingMode.HighQuality;
+					g.FillRectangle(_brushClosed,0,0,_widthProv*_listProvsVisible.Count,_heightMain);
+					DrawProvScheds(g);
+					DrawProvBarsAppts(g);
+					DrawGridLinesProv(g);
+					DrawRedTimeLineProv(g);
+				}
 			}
 			_isValidMain=true;
 		}
 
 		///<summary>Does nothing unless _bitmapProvBarsHeader or _bitmapOpsHeader needs a redraw.</summary>
-		private void SetBitmapsHeaders(){
-			if(_isValidHeaders){
+		private void SetBitmapProvBarsHeaders(Graphics gPrinting=null){
+			if(_isValidHeaders && gPrinting==null){
 				return;
 			}
 			if(_listProvsVisible.Count==0){
 				_bitmapProvBarsHeader?.Dispose();
 				_bitmapProvBarsHeader=null;
+			}
+			else if(gPrinting!=null){
+				gPrinting.SmoothingMode=SmoothingMode.HighQuality;
+				DrawProvBarsHeader(gPrinting);
 			}
 			else{
 				if(_bitmapProvBarsHeader==null){
@@ -2204,10 +2265,20 @@ namespace OpenDental.UI{
 					DrawProvBarsHeader(g);
 				}
 			}
-			//Ops Header------------------------------------------------------------------------------------------------------
+		}
+
+		private void SetBitmapOpsHeaders(Graphics gPrinting=null){
+			if(_isValidHeaders && gPrinting==null){
+				return;
+			}
 			if(_widthMain<1){
 				_bitmapOpsHeader?.Dispose();
 				_bitmapOpsHeader=null;
+			}
+			else if(gPrinting!=null){
+				gPrinting.SmoothingMode=SmoothingMode.HighQuality;
+				gPrinting.TextRenderingHint=TextRenderingHint.AntiAlias;
+				DrawOpsHeader(gPrinting);
 			}
 			else{
 				if(_bitmapOpsHeader==null){
@@ -2226,35 +2297,63 @@ namespace OpenDental.UI{
 			_isValidHeaders=true;
 		}
 		
-		///<summary>L&R timebars</summary>
-		private void SetBitmapsTimebar(){
+		///<summary></summary>
+		private void SetBitmapTimebarL(Graphics gPrinting=null){
 			//if(_isValidTimebars){//no longer test so that red time line will draw
 			//	return;
 			//}
 			Size sizeTimebar=new Size((int)_widthTime,(int)(_heightLine*24*_rowsPerHr)+1);
-			if(_bitmapTimebarLeft==null){
-				_bitmapTimebarLeft=new Bitmap((int)_widthTime,(int)(_heightLine*24*_rowsPerHr)+1);
-				_bitmapTimebarRight=new Bitmap((int)_widthTime,(int)(_heightLine*24*_rowsPerHr)+1);
+			if(gPrinting!=null){
+				gPrinting.SmoothingMode=SmoothingMode.HighQuality;
+				gPrinting.TextRenderingHint=TextRenderingHint.AntiAlias;
+				DrawTimebar(gPrinting,true);
+				DrawRedTimeLineTimeBar(gPrinting);
 			}
-			else if(_bitmapTimebarLeft.Size!=sizeTimebar){
-				_bitmapTimebarLeft.Dispose();
-				_bitmapTimebarLeft=new Bitmap((int)_widthTime,(int)(_heightLine*24*_rowsPerHr)+1);
-				_bitmapTimebarRight.Dispose();
-				_bitmapTimebarRight=new Bitmap((int)_widthTime,(int)(_heightLine*24*_rowsPerHr)+1);
+			else{
+				if(_bitmapTimebarLeft==null){
+					_bitmapTimebarLeft=new Bitmap((int)_widthTime,(int)(_heightLine*24*_rowsPerHr)+1);
+				}
+				else if(_bitmapTimebarLeft.Size!=sizeTimebar){
+					_bitmapTimebarLeft.Dispose();
+					_bitmapTimebarLeft=new Bitmap((int)_widthTime,(int)(_heightLine*24*_rowsPerHr)+1);
+				}
+				using(Graphics g=Graphics.FromImage(_bitmapTimebarLeft)){
+					g.SmoothingMode=SmoothingMode.HighQuality;
+					g.TextRenderingHint=TextRenderingHint.ClearTypeGridFit;
+					DrawTimebar(g,true);
+					DrawRedTimeLineTimeBar(g);
+				}
 			}
-			using(Graphics g=Graphics.FromImage(_bitmapTimebarLeft)){
-				g.SmoothingMode=SmoothingMode.HighQuality;
-				g.TextRenderingHint=TextRenderingHint.ClearTypeGridFit;
-				DrawTimebar(g,true);
-				DrawRedTimeLineTimeBar(g);
+		}
+
+		///<summary></summary>
+		private void SetBitmapTimebarR(Graphics gPrinting=null){
+			//if(_isValidTimebars){//no longer test so that red time line will draw
+			//	return;
+			//}
+			Size sizeTimebar=new Size((int)_widthTime,(int)(_heightLine*24*_rowsPerHr)+1);
+			if(gPrinting!=null){
+				gPrinting.SmoothingMode=SmoothingMode.HighQuality;
+				gPrinting.TextRenderingHint=TextRenderingHint.AntiAlias;
+				DrawTimebar(gPrinting,false);
+				DrawRedTimeLineTimeBar(gPrinting);
 			}
-			using(Graphics g=Graphics.FromImage(_bitmapTimebarRight)){
-				g.SmoothingMode=SmoothingMode.HighQuality;
-				g.TextRenderingHint=TextRenderingHint.ClearTypeGridFit;
-				DrawTimebar(g,false);
-				DrawRedTimeLineTimeBar(g);
+			else{
+				if(_bitmapTimebarRight==null){
+					_bitmapTimebarRight=new Bitmap((int)_widthTime,(int)(_heightLine*24*_rowsPerHr)+1);
+				}
+				else if(_bitmapTimebarRight.Size!=sizeTimebar){
+					_bitmapTimebarRight.Dispose();
+					_bitmapTimebarRight=new Bitmap((int)_widthTime,(int)(_heightLine*24*_rowsPerHr)+1);
+				}
+				using(Graphics g=Graphics.FromImage(_bitmapTimebarRight)){
+					g.SmoothingMode=SmoothingMode.HighQuality;
+					g.TextRenderingHint=TextRenderingHint.ClearTypeGridFit;
+					DrawTimebar(g,false);
+					DrawRedTimeLineTimeBar(g);
+				}
 			}
-			_isValidTimebars=true;
+			//_isValidTimebars=true;
 		}
 
 		///<summary></summary>
@@ -3241,14 +3340,18 @@ namespace OpenDental.UI{
 								rgbInt=m.Result("$1");
 								proc=m.Result("$2");
 							}
-							if(i!=lines.Length-1) {
+							//procedure abbreviation could be empty
+							if(i!=lines.Length-1 && !proc.IsNullOrEmpty()) {
 								proc+=",";
 							}
 							if(string.IsNullOrEmpty(rgbInt)) {
 								rgbInt=listApptViewItems[idxItem].ElementColorXml.ToString();
 							}
 							Color c=Color.FromArgb(PIn.Int(rgbInt,false));
-							SizeF procSize=g.MeasureString(proc,_font,(int)widthAppt-(int)WidthProvOnAppt-1,new StringFormat(StringFormatFlags.MeasureTrailingSpaces));
+							SizeF procSize=new Size(1,lastH);//Use the last height measured, otherwise it will draw procs on top of each other if the appt is narrow
+							if(!proc.IsNullOrEmpty()) {
+								procSize=g.MeasureString(proc,_font,(int)widthAppt-(int)WidthProvOnAppt-1,new StringFormat(StringFormatFlags.MeasureTrailingSpaces));
+							}
 							procSize.Width=(float)Math.Ceiling(procSize.Width);
 							if(tempPt.X+procSize.Width>widthAppt) {
 								tempPt.X=pointDraw.X;
@@ -3259,7 +3362,9 @@ namespace OpenDental.UI{
 							SolidBrush sb=new SolidBrush(c);
 							g.DrawString(proc,_font,sb,procRect);
 							DisposeObjects(sb);
-							tempPt.X+=(int)procRect.Width+3;//+3 is room for spaces
+							if(!proc.IsNullOrEmpty()) { 
+								tempPt.X+=(int)procRect.Width+3;//+3 is room for spaces
+							}
 							lastH=(int)procSize.Height;
 							if(tempPt.Y+lastH > heightAppt || i==lines.Length-1) {
 								tempPt.Y+=lastH;
@@ -3426,6 +3531,9 @@ namespace OpenDental.UI{
 						sizeNote=new SizeF(sizeNote.Width,_heightLine+1);//only allowed to be one line high.
 						if(sizeNote.Width<5) {
 							sizeNote=new SizeF(5,sizeNote.Height);
+						}
+						if(sizeNote.Height+pointDraw.Y>heightAppt) {
+							return new PointF(pointDraw.X,pointDraw.Y);
 						}
 						//g.MeasureString(text,baseFont,noteSize,format,out charactersFitted,out linesFilled);
 						PointF drawLocThis=new PointF(pointDraw.X-(int)sizeNote.Width,pointDraw.Y);//upper left corner of this element

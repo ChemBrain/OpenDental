@@ -174,8 +174,15 @@ namespace OpenDental {
 				return;
 			}
 			//test saving defaults
-			if(MsgBox.Show(this,true,"Set as default?") && SaveTabPrefs()) {
-				DataValid.SetInvalid(InvalidType.Prefs);
+			if(textBackupFromPath.Text!=PrefC.GetString(PrefName.BackupFromPath)
+				|| textBackupToPath.Text!=PrefC.GetString(PrefName.BackupToPath)
+				|| textBackupRestoreFromPath.Text!=PrefC.GetString(PrefName.BackupRestoreFromPath)
+				|| textBackupRestoreToPath.Text!=PrefC.GetString(PrefName.BackupRestoreToPath)
+				|| textBackupRestoreAtoZToPath.Text!=PrefC.GetString(PrefName.BackupRestoreAtoZToPath)) 
+			{
+				if(MsgBox.Show(this,MsgBoxButtons.YesNo,"Set as default?") && SaveTabPrefs()) {
+					DataValid.SetInvalid(InvalidType.Prefs);
+				}
 			}
 			string dbName=MiscData.GetCurrentDatabase();
 			if(InnoDb.HasInnoDbTables(dbName)) {

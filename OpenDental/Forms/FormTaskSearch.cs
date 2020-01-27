@@ -22,6 +22,7 @@ namespace OpenDental {
 		public long GotoKeyNum;
 		public bool IsSelectionMode;
 		public long SelectedTaskNum;
+		public string TaskNum;
 
 		public FormTaskSearch(List<long> listPreLoadedTask=null) {
 			InitializeComponent();
@@ -57,6 +58,10 @@ namespace OpenDental {
 			if(_listPreLoadedTaskNums!=null) {
 				listTaskNums=_listPreLoadedTaskNums;
 				textTaskNum.Text=string.Join(",",listTaskNums);//Reflect taskNums in UI
+			}
+			if(!string.IsNullOrEmpty(TaskNum)) {
+				listTaskNums.Add(PIn.Long(TaskNum));
+				textTaskNum.Text=string.Join(",",listTaskNums);
 			}
 			_tableTasks=Tasks.GetDataSet(userNum,new List<long>(),listTaskNums," "," "," "," ",textDescription.Text,0,0,checkBoxIncludesTaskNotes.Checked,
 				checkBoxIncludeCompleted.Checked,true,checkReportServer.Checked);

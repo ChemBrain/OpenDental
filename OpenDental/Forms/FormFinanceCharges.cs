@@ -771,6 +771,7 @@ namespace OpenDental{
 					Ledgers.AgingExceptionHandler(ex,this,isOnLoad);
 					result=false;
 				});
+			Cursor=Cursors.Default;
 			Prefs.UpdateString(PrefName.AgingBeginDateTime,"");//clear lock on pref whether aging was successful or not
 			return result;
 		}

@@ -49,6 +49,7 @@ namespace OpenDentBusiness{
 		AudaxCeph,
 		///<summary>Avalara Inc.</summary>
 		AvaTax,
+		BencoPracticeManagement,
 		BioPAK,
 		///<summary>Newer version of MediaDent. Uses OLE COM interface.</summary>
 		CADI,

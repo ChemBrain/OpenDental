@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace OpenDentBusiness {
 	public class RpServiceDateView {
-		public static DataTable GetData(long patNum,bool isFamily) {
+		public static DataTable GetData(long patNum,bool isFamily,bool isDetailed) {
 			if(RemotingClient.RemotingRole==RemotingRole.ClientWeb) {
-				return Meth.GetTable(MethodBase.GetCurrentMethod(),patNum,isFamily);
+				return Meth.GetTable(MethodBase.GetCurrentMethod(),patNum,isFamily,isDetailed);
 			}
 			int payPlanVersion=PIn.Int(PrefC.GetStringNoCache(PrefName.PayPlansVersion));
 			if(payPlanVersion==0) {
@@ -125,7 +125,7 @@ namespace OpenDentBusiness {
 					END) AS 'Pvdr',
 					(CASE dup.Num
 						WHEN 1
-							THEN '' -- intentionally blank
+							THEN {(isDetailed ? "IF(core.Type = 'Proc', FORMAT(core.InsCredits,2),'')": "''")} 
 						WHEN 2
 							THEN '' -- intentionally blank
 						WHEN 3
@@ -135,7 +135,7 @@ namespace OpenDentBusiness {
 					END) AS 'InsBal',
 					(CASE dup.Num
 						WHEN 1
-							THEN '' -- intentionally blank
+							THEN {(isDetailed ? "IF(core.Type = 'Proc', FORMAT(core.Charge - (core.ProcCredits + core.InsCredits),2),'')" : "''")}
 						WHEN 2
 							THEN '' -- intentionally blank
 						WHEN 3
@@ -157,8 +157,7 @@ namespace OpenDentBusiness {
 					SELECT 4
 				) dup
 					ON IF(dup.Num = 2 AND (core.Type LIKE '%Att.' || core.Type LIKE 'Proc'),FALSE,TRUE) -- only join on the 2 row when there are unallocated transactions on a day. 
-				GROUP BY (CASE
-							WHEN dup.Num = 1 -- per transaction
+				GROUP BY (CASE WHEN dup.Num = 1 -- per transaction
 								THEN CONCAT(core.TranNum,'|',core.ProcDate,'|',core.Type) -- unique identifier for transaction rows
 							WHEN dup.Num IN (2,3) -- per date of service, including an extra row per date for unallocated transactions identifier
 								THEN CONCAT(dup.Num,'-',core.ProcDate) -- unique identifier for date of service row
@@ -166,7 +165,7 @@ namespace OpenDentBusiness {
 								THEN dup.Num -- only need to have one row here
 						END)
 				) display
-				/*ensure final order is what we need it to be*/		
+				/*ensure final order is what we need it to be*/
 				ORDER BY
 					ISNULL(display.ProcDate),
 					display.ProcDate,

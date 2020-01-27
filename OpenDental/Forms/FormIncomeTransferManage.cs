@@ -91,6 +91,9 @@ namespace OpenDental {
 
 		private void TransferClaimsPayAsTotal() {
 			ClaimProcs.FixClaimsNoProcedures(_listFamilyPatNums);
+			if(!ProcedureCodes.GetContainsKey("ZZZFIX")) {
+				Cache.Refresh(InvalidType.ProcCodes);//Refresh local cache only because middle tier has already inserted the signal.
+			}
 			try {
 				_claimTransferResult=ClaimProcs.TransferClaimsAsTotalToProcedures(_listFamilyPatNums);
 			}

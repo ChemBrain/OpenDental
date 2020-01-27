@@ -543,7 +543,6 @@ namespace OpenDental{
 				sheetfieldCopy.FieldName=field.FieldName;
 				sheetfieldCopy.FieldType=field.FieldType;
 				sheetfieldCopy.FontIsBold=field.FontIsBold;
-				sheetfieldCopy.FontIsBold=field.FontIsBold;
 				sheetfieldCopy.FontName=field.FontName;
 				sheetfieldCopy.FontSize=field.FontSize;
 				sheetfieldCopy.Height=field.Height;
@@ -559,6 +558,8 @@ namespace OpenDental{
 				sheetfieldCopy.FieldValue=field.FieldValue;
 				sheetfieldCopy.TextAlign=field.TextAlign;
 				sheetfieldCopy.ItemColor=field.ItemColor;
+				sheetfieldCopy.UiLabelMobile=field.UiLabelMobile;
+				sheetfieldCopy.UiLabelMobileRadioButton=field.UiLabelMobileRadioButton;
 				if(sheetfieldCopy.FieldType==SheetFieldType.SigBox && !string.IsNullOrWhiteSpace(sheetfieldCopy.FieldValue)) {
 					sheetfieldCopy.DateTimeSig=newSheet.DateTimeSheet;
 				}

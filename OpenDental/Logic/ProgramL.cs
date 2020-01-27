@@ -61,6 +61,10 @@ namespace OpenDental{
 				AudaxCeph.SendData(prog,pat);
 				return;
 			}
+			else if(prog.ProgName==ProgramName.BencoPracticeManagement.ToString()) {
+				Benco.SendData(prog);
+				return;
+			}
 			else if(prog.ProgName==ProgramName.BioPAK.ToString()) {
 				BioPAK.SendData(prog,pat);
 				return;

@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Data;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using OpenDental.UI;
 using OpenDentBusiness;
@@ -1560,7 +1561,27 @@ namespace OpenDental {
 		}
 
 		public void Search_Clicked() {
+			bool isClipMatch=false;
+			string taskNum="";
+			try {
+				if(Clipboard.ContainsText()) {
+					string txtClip="";
+					txtClip=Clipboard.GetText();
+					if(Regex.IsMatch(txtClip,@"^TaskNum:\d+$")){//very restrictive specific match for "TaskNum:##"
+						taskNum=txtClip.Substring(8);
+						if(!taskNum.IsNullOrEmpty()) {
+							Clipboard.Clear();
+							isClipMatch=true;
+						}
+					}
+				}
+			} catch {
+				//do nothing, not sure how to handle external exceptions
+			}
 			FormTaskSearch FormTS=new FormTaskSearch();
+			if(isClipMatch) {
+				FormTS.TaskNum=taskNum;
+			}
 			FormTS.Show(this);
 		}
 

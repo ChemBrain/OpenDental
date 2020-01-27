@@ -260,7 +260,10 @@ namespace OpenDental{
 
 		private void FormAbout_Load(object sender, System.EventArgs e) {
 			string softwareName=PrefC.GetString(PrefName.SoftwareName);
-			if(softwareName!="Open Dental Software") {
+			if(Programs.GetCur(ProgramName.BencoPracticeManagement).Enabled) {
+				pictureOpenDental.Image=Properties.Resources.bencoLogo;
+			}
+			if(softwareName!="Open Dental Software" && !Programs.GetCur(ProgramName.BencoPracticeManagement).Enabled) {
 				pictureOpenDental.Visible=false;
 			}
 			labelVersion.Text=Lan.g(this,"Version:")+" "+Application.ProductVersion;

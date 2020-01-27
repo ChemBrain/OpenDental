@@ -477,8 +477,8 @@ namespace OpenDentBusiness{
 								DateTime datePlanStart=DateTime.MinValue;
 								DateTime datePlanEnd=DateTime.MinValue;
 								List<DTP271> listPlanDates=x271.GetListDtpSubscriber();
-								List<DTP271> listPlanStartDates=listPlanDates.FindAll(x => x.Segment.Get(1)=="346");//346 => Plan Start.
-								List<DTP271> listPlanEndDates=listPlanDates.FindAll(x => x.Segment.Get(1)=="347");//347 => Plan End.
+								List<DTP271> listPlanStartDates=listPlanDates.FindAll(x => x.Segment.Get(1)=="539");//539 => Policy Effective
+								List<DTP271> listPlanEndDates=listPlanDates.FindAll(x => x.Segment.Get(1)=="540");//540 => Policy Expiration
 								//If the 271 specifies more than 1 date we will always use the last one for both plan start and plan end.
 								if(listPlanStartDates.Count>0) {
 									datePlanStart=X12Parse.ToDate(listPlanStartDates.Last().Segment.Get(3));//Mimics FormInsPlan.butGetElectronic_Click(...)
@@ -559,31 +559,31 @@ namespace OpenDentBusiness{
 			return Lans.g("InsVerifyService",$"Group number mismatch, current:{insPlanGroupNum}, received:{x271GroupNum}");
 		}
 
-		///<summary>Checks to see if a plan start and plan end date was specified in the given x271 object. 
-		///Silenty updates DateEffective and DateTerm for the given inssub if the date received is valid. Returns an error string if
-		///the patient's appointment date does not fall in the range of the received date(s).</summary>
-		public static string ValidatePlanDates(DateTime datePlanStart,DateTime datePlanEnd,InsSub insSub,long aptNum) {
-			if(datePlanStart==DateTime.MinValue && datePlanEnd==DateTime.MinValue) {//No plan date information was received from the 271, nothing to validate.
+		///<summary>Checks to see if a policy start and policy end date was specified in the given x271 object. 
+		///Will always update InsSub.DateTerm if a valid policy start date was received, but only updates InsSub.DateEffective if a valid date was receieved.
+		///Returns an error string if the patient's appointment date does not fall in the range of the received date(s).</summary>
+		public static string ValidatePlanDates(DateTime datePolicyStart,DateTime datePolicyEnd,InsSub insSub,long aptNum) {
+			//No policy date information was received from the 271, nothing to validate.
+			if(datePolicyStart.Year<=1880 && datePolicyEnd.Year<=1880) {
 				return "";
 			}
-			if(datePlanStart.Date!=DateTime.MinValue) {
-				insSub.DateEffective=datePlanStart;
-				InsSubs.Update(insSub);
+			//Only update the policy start date if we get a valid value.
+			if(datePolicyStart.Year>=1880) {
+				insSub.DateEffective=datePolicyStart;
 			}
-			if(datePlanEnd.Date!=DateTime.MinValue) {
-				insSub.DateTerm=datePlanEnd;
-				InsSubs.Update(insSub);
-			}
+			//If we are sent an invalid start date, but a valid end date, we will update just the end date. Verified with NADG.
+			insSub.DateTerm=datePolicyEnd;
+			InsSubs.Update(insSub);
 			DateTime aptDate=Appointments.GetOneApt(aptNum).AptDateTime.Date;
-			if(datePlanEnd==DateTime.MinValue && datePlanStart>aptDate) {//No end date, but we have a start date, and plan starts in the future
-				return Lans.g("InsVerifyService",$"Plan does not start until {datePlanStart.ToShortDateString()}");
+			if(datePolicyEnd.Year<=1880 && datePolicyStart>aptDate) {//No end date, but we have a start date, and plan starts in the future
+				return Lans.g("InsVerifyService",$"Policy does not start until {datePolicyStart.ToShortDateString()}");
 			}
-			else if(datePlanStart==DateTime.MinValue && datePlanEnd<aptDate) {//No start date, but we have an end date, and plan ended in the past
-				return Lans.g("InsVerifyService",$"Inactive coverage.  Plan ended {datePlanEnd.ToShortDateString()}");
+			else if(datePolicyStart.Year<=1880 && datePolicyEnd<aptDate) {//No start date, but we have an end date, and plan ended in the past
+				return Lans.g("InsVerifyService",$"Inactive coverage.  Policy ended {datePolicyEnd.ToShortDateString()}");
 			}
 			//Carriers will sometimes send a valid start date, but a plan end date of Datetime.MinValue. This is considered a valid scenario and must be excluded from our validation.
-			else if(datePlanEnd!=DateTime.MinValue && !DateTime.Today.Between(datePlanStart,datePlanEnd)) {
-				return Lans.g("InsVerifyService",$"Invalid plan dates: {datePlanStart.ToShortDateString()} - {datePlanEnd.ToShortDateString()}");
+			else if(datePolicyEnd.Year>1880 && !DateTime.Today.Between(datePolicyStart,datePolicyEnd)) {
+				return Lans.g("InsVerifyService",$"Invalid policy dates: {datePolicyStart.ToShortDateString()} - {datePolicyEnd.ToShortDateString()}");
 			}
 			return "";
 		}

@@ -295,6 +295,13 @@ namespace DataConnectionBase {
 				_crashedTableTimeoutSecondsT=value;
 			}
 		}
+
+		///<summary>True if a connecion has been made to the database.</summary>
+		public static bool HasDatabaseConnection {
+			get {
+				return !string.IsNullOrEmpty(GetServerName()) || !string.IsNullOrEmpty(GetConnectionString());
+			}
+		}
 		#endregion
 
 		#region Getters

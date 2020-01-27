@@ -1824,9 +1824,16 @@ namespace OpenDental{
 					return;
 				}
 			}
-			if(comboProv.GetSelectedProvNum()!=0 && !comboProv.GetSelected<Provider>().IsNotPerson) {//Override is a person.
-				MsgBox.Show(this,"E-claim Billing Prov Override cannot be a person.");
-				return;
+			long claimBillingOverrideProvNum=comboProv.GetSelectedProvNum();
+			if(claimBillingOverrideProvNum!=0) {
+				Provider provClaimBillingOverride=comboProv.GetSelected<Provider>();
+				if(provClaimBillingOverride==null) {//Hidden provider, need to get them the normal way
+					provClaimBillingOverride=Providers.GetProv(claimBillingOverrideProvNum);//Can return null if the provider doesn't exist
+				}
+				if(provClaimBillingOverride!=null && !provClaimBillingOverride.IsNotPerson) {//Override is a person.
+					MsgBox.Show(this,"E-claim Billing Prov Override cannot be a person.");
+					return;
+				}
 			}
 			if(ProvCur.IsNew == false && comboProv.GetSelectedProvNum()==ProvCur.ProvNum) {//Override is the same provider.
 				MsgBox.Show(this,"E-claim Billing Prov Override cannot be the same provider.");

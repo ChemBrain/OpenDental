@@ -92,9 +92,16 @@ namespace OpenDental{
 			}
 			_listClinics=Clinics.GetDeepCopy(true);
 			_listUserAlertTypesOld=AlertSubs.GetAllForUser(UserCur.UserNum);
-			List<long> listSubscribedClinics=_listUserAlertTypesOld.Select(x => x.ClinicNum).Distinct().ToList();
+			List<long> listSubscribedClinics;
+			bool isAllClinicsSubscribed=false;
+			if(_listUserAlertTypesOld.Select(x => x.ClinicNum).Contains(-1)) {//User subscribed to all clinics
+				isAllClinicsSubscribed=true;
+				listSubscribedClinics=_listClinics.Select(x => x.ClinicNum).Distinct().ToList();
+			}
+			else {
+				listSubscribedClinics=_listUserAlertTypesOld.Select(x => x.ClinicNum).Distinct().ToList();
+			}
 			List<long> listAlertCatNums=_listUserAlertTypesOld.Select(x => x.AlertCategoryNum).Distinct().ToList();
-			bool isAllClinicsSubscribed=listSubscribedClinics.Count==_listClinics.Count+1;//Plus 1 for HQ
 			listAlertSubMulti.Items.Clear();
 			_listAlertCategories=AlertCategories.GetDeepCopy();
 			List<long> listUserAlertCatNums=_listUserAlertTypesOld.Select(x => x.AlertCategoryNum).ToList();
@@ -418,10 +425,7 @@ namespace OpenDental{
 			List<long> listClinics=new List<long>();
 			foreach(int index in listAlertSubsClinicsMulti.SelectedIndices) {
 				if(index==0) {//All
-					listClinics.Add(0);//Add HQ
-					foreach(Clinic clinicCur in _listClinics) {
-						listClinics.Add(clinicCur.ClinicNum);
-					}
+					listClinics.Add(-1);//Add All
 					break;
 				}
 				if(index==1) {//HQ
