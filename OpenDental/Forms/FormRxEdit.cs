@@ -42,13 +42,12 @@ namespace OpenDental{
 		private ComboBox comboSendStatus;
 		private TextBox textDosageCode;
 		private Label labelDosageCode;
-		private ComboBox comboProvNum;
+		private UI.ComboBoxPlus comboProvNum;
 		private UI.Button butPickProv;
 		private Label label7;
 		///<summary>If the Rx has already been printed, this will contain the archived sheet. The print button will be not visible, and the view button will be visible.</summary>
 		private Sheet sheet;
 		private Label labelCPOE;
-		private long _provNumSelected;
 		private UI.Button butAudit;
 		private Label label10;
 		private ODtextBox textPharmInfo;
@@ -58,7 +57,6 @@ namespace OpenDental{
 		private Label labelProcedure;
 		private Label labelDaysOfSupply;
 		private ValidDouble textDaysOfSupply;
-		private List<Provider> _listProviders;
 		private ODtextBox textPatInstructions;
 		private Label label11;
 		private UI.Button butPrintPatInstructions;
@@ -117,7 +115,7 @@ namespace OpenDental{
 			this.comboSendStatus = new System.Windows.Forms.ComboBox();
 			this.textDosageCode = new System.Windows.Forms.TextBox();
 			this.labelDosageCode = new System.Windows.Forms.Label();
-			this.comboProvNum = new System.Windows.Forms.ComboBox();
+			this.comboProvNum = new OpenDental.UI.ComboBoxPlus();
 			this.butPickProv = new OpenDental.UI.Button();
 			this.label7 = new System.Windows.Forms.Label();
 			this.textNotes = new OpenDental.ODtextBox();
@@ -375,11 +373,9 @@ namespace OpenDental{
 			// comboProvNum
 			// 
 			this.comboProvNum.Location = new System.Drawing.Point(138, 245);
-			this.comboProvNum.MaxDropDownItems = 30;
 			this.comboProvNum.Name = "comboProvNum";
 			this.comboProvNum.Size = new System.Drawing.Size(254, 21);
 			this.comboProvNum.TabIndex = 9;
-			this.comboProvNum.SelectionChangeCommitted += new System.EventHandler(this.comboProvNum_SelectionChangeCommitted);
 			// 
 			// butPickProv
 			// 
@@ -551,6 +547,7 @@ namespace OpenDental{
 			this.comboClinic.Name = "comboClinic";
 			this.comboClinic.Size = new System.Drawing.Size(235, 21);
 			this.comboClinic.TabIndex = 25;
+			this.comboClinic.SelectionChangeCommitted += new System.EventHandler(this.comboClinic_SelectionChangeCommitted);
 			// 
 			// FormRxEdit
 			// 
@@ -659,22 +656,6 @@ namespace OpenDental{
 				}
 			}
 			//security is handled on the Rx button click in the Chart module
-			_provNumSelected=RxPatCur.ProvNum;
-			comboProvNum.Items.Clear();
-			_listProviders=Providers.GetDeepCopy(true);
-			for(int i=0;i<_listProviders.Count;i++) {
-				comboProvNum.Items.Add(_listProviders[i].GetLongDesc());//Only visible provs added to combobox.
-				if(_listProviders[i].ProvNum==RxPatCur.ProvNum) {
-					comboProvNum.SelectedIndex=i;//Sets combo text too.
-				}
-			}
-			if(_provNumSelected==0) {//Is new
-				comboProvNum.SelectedIndex=0;
-				_provNumSelected=_listProviders[0].ProvNum;
-			}
-			if(comboProvNum.SelectedIndex==-1) {//The provider exists but is hidden
-				comboProvNum.Text=Providers.GetLongDesc(_provNumSelected);//Appends "(hidden)" to the end of the long description.
-			}
 			textDate.Text=RxPatCur.RxDate.ToString("d");
 			checkControlled.Checked=RxPatCur.IsControlled;
 			comboProcCode.Items.Clear();
@@ -743,23 +724,35 @@ namespace OpenDental{
 			textPharmInfo.Text=RxPatCur.ErxPharmacyInfo;
 			textPharmacy.Text=Pharmacies.GetDescription(RxPatCur.PharmacyNum);
 			comboClinic.SelectedClinicNum=RxPatCur.ClinicNum;
+			FillComboProvNum();
 		}
 
-		private void comboProvNum_SelectionChangeCommitted(object sender,EventArgs e) {
-			_provNumSelected=_listProviders[comboProvNum.SelectedIndex].ProvNum;
+		///<summary>Fill the provider combobox with items depending on the clinic selected</summary>
+		private void FillComboProvNum() {
+			comboProvNum.Items.Clear();
+			comboProvNum.Items.AddProvsAbbr(Providers.GetProvsForClinic(comboClinic.SelectedClinicNum));
+			if(RxPatCur.ProvNum==0) {//If new Rx									 
+				if(comboProvNum.Items.Count==0) {//No items in dropdown
+					//Use clinic default prov.  We need some default selection.
+					comboProvNum.SetSelectedProvNum(Providers.GetDefaultProvider(comboClinic.SelectedClinicNum).ProvNum);
+				}
+				else {
+					comboProvNum.SetSelected(0);//First in list
+				}
+			}
+			else {
+				comboProvNum.SetSelectedProvNum(RxPatCur.ProvNum);//Use prov from Rx
+			}
 		}
 
 		private void butPickProv_Click(object sender,EventArgs e) {
-			FormProviderPick formP=new FormProviderPick();
-			if(comboProvNum.SelectedIndex > -1) {//Initial formP selection if selected prov is not hidden.
-				formP.SelectedProvNum=_provNumSelected;
-			}
-			formP.ShowDialog();
-			if(formP.DialogResult!=DialogResult.OK) {
+			FormProviderPick FormPP = new FormProviderPick(comboProvNum.Items.GetAll<Provider>());
+			FormPP.SelectedProvNum=comboProvNum.GetSelectedProvNum();
+			FormPP.ShowDialog();
+			if(FormPP.DialogResult!=DialogResult.OK) {
 				return;
 			}
-			comboProvNum.SelectedIndex=Providers.GetIndex(formP.SelectedProvNum);
-			_provNumSelected=formP.SelectedProvNum;
+			comboProvNum.SetSelectedProvNum(FormPP.SelectedProvNum);
 		}
 
 		private void butPick_Click(object sender,EventArgs e) {
@@ -790,18 +783,18 @@ namespace OpenDental{
 				MessageBox.Show(Lan.g(this,"Please fix data entry errors first."));
 				return false;
 			}
-			Provider prov=Providers.GetProv(_provNumSelected);
-			if(prov==null) {
-				MessageBox.Show(Lan.g(this,"Please select a valid provider."));
+			long selectedProvNum=comboProvNum.GetSelectedProvNum();
+			if(selectedProvNum==0) {//should not happen
+				MessageBox.Show(Lan.g(this,"Invalid provider."));
 				return false;
 			}
 			//Prevents prescriptions from being added that have a provider selected that is past their term date
-			List<long> listInvalidProvNums=Providers.GetInvalidProvsByTermDate(new List<long> { _provNumSelected },DateTime.Now);
+			List<long> listInvalidProvNums=Providers.GetInvalidProvsByTermDate(new List<long> { selectedProvNum },DateTime.Now);
 			if(listInvalidProvNums.Count > 0) {
 				MsgBox.Show(this,"The provider selected has a Term Date prior to today. Please select another provider.");
 				return false;
 			}
-			RxPatCur.ProvNum=_provNumSelected;
+			RxPatCur.ProvNum=selectedProvNum;
 			RxPatCur.RxDate=PIn.Date(textDate.Text);
 			RxPatCur.Drug=textDrug.Text;
 			RxPatCur.IsControlled=checkControlled.Checked;
@@ -825,7 +818,7 @@ namespace OpenDental{
 			RxPatCur.ClinicNum=(comboClinic.SelectedClinicNum==-1 ? RxPatCur.ClinicNum : comboClinic.SelectedClinicNum);//If no selection, don't change the ClinicNum
 			// hook for additional authorization before prescription is saved
 			bool[] authorized=new bool[1] { false };
-			if(Plugins.HookMethod(this,"FormRxEdit.SaveRx_Authorize",authorized,prov,RxPatCur,_rxPatOld)) {
+			if(Plugins.HookMethod(this,"FormRxEdit.SaveRx_Authorize",authorized,Providers.GetProv(selectedProvNum),RxPatCur,_rxPatOld)) {
 				if(!authorized[0]) {
 					return false;
 				}
@@ -931,6 +924,11 @@ namespace OpenDental{
 			FormSheetFillEdit.ShowForm(sheet,FormSheetFillEdit_FormClosing);
 		}
 
+		private void comboClinic_SelectionChangeCommitted(object sender,EventArgs e) {
+			//When the clinic changes we need to refill the provider combo for the new clinic.
+			FillComboProvNum();
+		}
+
 		///<summary>Event handler for closing FormSheetFillEdit when it is non-modal.</summary>
 		private void FormSheetFillEdit_FormClosing(object sender,FormClosingEventArgs e) {
 			if(((FormSheetFillEdit)sender).DialogResult==DialogResult.OK) { //if user clicked cancel, then we can just stay in this form.
@@ -952,13 +950,6 @@ namespace OpenDental{
 			DialogResult=DialogResult.Cancel;
 		}
 
-		
-
-		
-
-		
-
-		
 
 	}
 }

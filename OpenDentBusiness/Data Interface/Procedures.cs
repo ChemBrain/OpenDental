@@ -156,7 +156,8 @@ namespace OpenDentBusiness {
 				+" FROM patient "
 				+" LEFT JOIN payplan ON payplan.Guarantor = patient.PatNum "
 				+" LEFT JOIN payplancharge ON payplancharge.PayPlanNum = payplan.PayPlanNum "
-				+" LEFT JOIN procedurelog ON procedurelog.ProcNum = payplancharge.ProcNum "
+				+" LEFT JOIN payplanlink ON payplanlink.PayPlanNum=payplan.PayPlanNum AND payplanlink.LinkType="+(POut.Int((int)PayPlanLinkType.Procedure))
+				+" LEFT JOIN procedurelog ON procedurelog.ProcNum = payplancharge.ProcNum OR procedurelog.ProcNum=payplanlink.FKey"
 				+" INNER JOIN procedurecode ON procedurecode.CodeNum = procedurelog.CodeNum "
 				+" WHERE patient.PatNum IN ("+String.Join(",",listPatNums)+") "
 				+" AND ProcStatus = "+POut.Int((int)stat)+" "
