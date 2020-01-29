@@ -295,7 +295,6 @@ namespace OpenDentBusiness {
 						rx.SendStatus=RxSendStatus.Unsent;
 						break;
 				}
-				rx.Notes=medication.Notes;
 				rx.Refills=medication.Refills;
 				rx.Disp=medication.Quantity;//In DoseSpot, the Quanitity textbox's label says "Dispense".
 				rx.Drug=medication.DisplayName;
@@ -312,7 +311,8 @@ namespace OpenDentBusiness {
 					}
 				}
 				rx.PatNum=patNum;
-				rx.Sig=medication.Notes;
+				rx.Sig=medication.Directions;
+				rx.Notes=medication.RxNotes;
 				rx.RxDate=DateTime.MinValue;
 				//If none of dates have values, the RxDate will be MinValue.
 				//This is acceptable if DoseSpot doesn't give us anything, which should never happen.
@@ -347,6 +347,13 @@ namespace OpenDentBusiness {
 					}
 					else {
 						rx.ErxGuid=rxOld.ErxGuid;//Maintain the ErxGuid that was already assigned for the Rx.
+						//These fields are possibly set above, preserve old values if they are not.
+						rx.Disp=rx.Disp==null?rxOld.Disp:rx.Disp;
+						rx.Refills=rx.Refills==null?rxOld.Refills:rx.Refills;
+						rx.Notes=rx.Notes==null?rxOld.Notes:rx.Notes;
+						rx.PatientInstruction=rx.PatientInstruction==null?rxOld.PatientInstruction:rx.PatientInstruction;
+						rx.ErxPharmacyInfo=rx.ErxPharmacyInfo==null?rxOld.ErxPharmacyInfo:rx.ErxPharmacyInfo;
+						rx.IsControlled=rxOld.IsControlled;
 					}
 				}
 				else {
@@ -1836,10 +1843,18 @@ namespace OpenDentBusiness {
 				return Prescription.PharmacyId;
 			}
 		}
-		public string Notes {
+		public string Directions {
 			get {
 				if(IsSelfReported) {
 					return Medication.Comment;
+				}
+				return Prescription.Directions;
+			}
+		}
+		public string RxNotes {
+			get {
+				if(IsSelfReported) {
+					return null;
 				}
 				return Prescription.PharmacyNotes;
 			}

@@ -20,7 +20,8 @@ namespace OpenDentBusiness{
 			//E.g. there are several procedures attached to the payment plan and the down payment only covers one and a half (partial proc).
 			terms.PeriodPayment=(decimal)terms.DownPayment;
 			terms.APR=0;//downpayments should pay on principal only
-			List<PayPlanCharge> listDownPayments=PayPlanEdit.GetListExpectedCharges(new List<PayPlanCharge>(),terms,family,listPayPlanLinks,payplan,true);
+			List<PayPlanCharge> listDownPayments=PayPlanEdit.GetListExpectedCharges(new List<PayPlanCharge>(),terms,family,listPayPlanLinks,payplan,true
+				,true,new List<PaySplit>());
 			listDownPayments.ForEach(x => {
 				x.Note="Down Payment";
 				x.ChargeDate=DateTime.Today.Date;

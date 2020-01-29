@@ -59,6 +59,55 @@ namespace OpenDentBusiness{
 			return Crud.PayPlanCrud.SelectMany(command);
 		}
 
+		///<summary>Returns a list of overpaid payplans from the listPayPlanNums. Only necessary for Dynamic Payment Plans. 
+		///Returns an empty list if none are overpaid.</summary>
+		public static List<PayPlan> GetOverpaidPayPlans(List<long> listPayPlanNums) {
+			if(RemotingClient.RemotingRole==RemotingRole.ClientWeb) {
+				return Meth.GetObject<List<PayPlan>>(MethodBase.GetCurrentMethod(),listPayPlanNums);
+			}
+			List<PayPlan> listDynamicPayPlansForPatient=new List<PayPlan>();
+			foreach(long payPlanNum in listPayPlanNums){
+				PayPlan payPlanCur=PayPlans.GetOne(payPlanNum);
+				if(payPlanCur.IsDynamic) {//Only add Dynamic PayPlans to the list since they are all we care about
+					listDynamicPayPlansForPatient.Add(payPlanCur);
+				}
+			}
+			List<PayPlanLink> listPayPlanLinksAll=PayPlanLinks.GetForPayPlans(listPayPlanNums);
+			List<PayPlanLink> listProcedureLinksForPayPlan=listPayPlanLinksAll.Where(x => x.LinkType==PayPlanLinkType.Procedure).ToList();
+			List<PayPlanLink> listAdjustmentLinksForPayPlan=listPayPlanLinksAll.Where(x => x.LinkType==PayPlanLinkType.Adjustment).ToList();
+			List<PayPlanCharge> listPayPlanCharges=PayPlanCharges.GetForPayPlans(listPayPlanNums);
+			List<Procedure> listProcsAttachedToPayPlan=Procedures.GetManyProc(listProcedureLinksForPayPlan.Select(x => x.FKey).ToList(),false);
+			List<ClaimProc> listClaimProcsForProcs=ClaimProcs.GetForProcs(listProcedureLinksForPayPlan.Select(x => x.FKey).ToList());
+			List<Adjustment> listAdjForProcs=Adjustments.GetForProcs(listProcedureLinksForPayPlan.Select(x => x.FKey).ToList());
+			decimal chargedAmt=0;
+			decimal expectedPatPortion=0;
+			List<PayPlan> listPayPlansOverpaid=new List<PayPlan>();
+			foreach(long payPlanNum in listPayPlanNums) {
+				List<PayPlanLink> listLinksForPayPlan=listPayPlanLinksAll.FindAll(x => x.PayPlanNum==payPlanNum);
+				foreach(PayPlanLink payPlanLink in listLinksForPayPlan) {//for each procedure 
+					if(!listProcedureLinksForPayPlan.IsNullOrEmpty() && payPlanLink.LinkType == PayPlanLinkType.Procedure) {
+						chargedAmt=(decimal)listPayPlanCharges.FindAll(x => x.FKey==payPlanLink.FKey && x.LinkType==payPlanLink.LinkType).Sum(x => x.Principal);//current amount charged
+						List<ClaimProc> listClaimProcsForProcedure=listClaimProcsForProcs.FindAll(x => x.ProcNum==payPlanLink.FKey);
+						Procedure proc=listProcsAttachedToPayPlan.FirstOrDefault(x => x.ProcNum==payPlanLink.FKey);
+						if(proc!=null) {
+							expectedPatPortion=ClaimProcs.GetPatPortion(proc,listClaimProcsForProcedure,listAdjForProcs);
+						}
+					}
+					else if(!listAdjustmentLinksForPayPlan.IsNullOrEmpty() && payPlanLink.LinkType==PayPlanLinkType.Adjustment) {
+						//If an adjustment exists for any of the procs on the plan, allow it to - well - adjust!
+						chargedAmt=(decimal)listPayPlanCharges.FindAll(x => x.FKey==payPlanLink.FKey && x.LinkType==payPlanLink.LinkType).Sum(x => x.Principal);
+					}
+					//The amount billed for production is not greater than the amount the patient owes, meaning we dont want it in the overpaid list
+					if(chargedAmt.IsGreaterThan(expectedPatPortion)) {
+						listPayPlansOverpaid.Add(PayPlans.GetOne(payPlanLink.PayPlanNum));
+						break;
+					}
+				}
+
+			}
+			return listPayPlansOverpaid;
+		}
+
 		///<summary>Determines if there are any valid plans with that patient as the guarantor.</summary>
 		public static List<PayPlan> GetValidPlansNoIns(long guarNum) {
 			if(RemotingClient.RemotingRole==RemotingRole.ClientWeb) {

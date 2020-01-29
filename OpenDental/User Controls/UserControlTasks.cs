@@ -1579,10 +1579,19 @@ namespace OpenDental {
 				//do nothing, not sure how to handle external exceptions
 			}
 			FormTaskSearch FormTS=new FormTaskSearch();
-			if(isClipMatch) {
-				FormTS.TaskNum=taskNum;
+			if(!isClipMatch) {//if there is no match, open the form as it normally would
+				FormTS.Show(this);
+				return;
 			}
-			FormTS.Show(this);
+			FormTS.TaskNum=taskNum;
+			Task task=Tasks.GetOne(PIn.Long(taskNum));
+			if(task==null) {//if the task doesn't match, open the form but pass in the task to search
+				FormTS.Show(this);
+				return;
+			}
+			FormTaskEdit FormTE=new FormTaskEdit(task);//don't show the task search form and just open up the task that has been found
+			FormTE.Show();
+			FormTE.BringToFront();
 		}
 
 		public void TaskGoToEvent(object sender,CancelEventArgs e) {

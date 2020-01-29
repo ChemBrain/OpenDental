@@ -2908,7 +2908,8 @@ namespace OpenDental.UI{
 				RectangleF rect=_listApptLayoutInfos[i].RectangleBounds;
 				g.TranslateTransform(rect.X,rect.Y);
 				DrawOneAppt(g,dataRow,patternShowing,rect.Width,rect.Height);
-				g.ResetTransform();
+				//g.ResetTransform();
+				g.TranslateTransform(-rect.X,-rect.Y);
 			}
 		}
 

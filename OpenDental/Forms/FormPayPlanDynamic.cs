@@ -33,6 +33,8 @@ namespace OpenDental {
 		private bool _isSigOldValid;
 		///<summary>List of attached production. Contains both from db and ones attempting to add.</summary>
 		private List<PayPlanLink> _listPayPlanLinks=new List<PayPlanLink>();
+		///<summary>List of pay splits that are associated to the current pay plan.</summary>
+		private List<PaySplit> _listPaySplits=new List<PaySplit>();
 		///<summary>In memory list of attached production for this payment plan</summary>
 		private List<PayPlanProductionEntry> _listPayPlanProductionEntries=new List<PayPlanProductionEntry>();
 		///<summary>Flag for when the user has modified terms but has not saved yet.</summary>
@@ -65,7 +67,9 @@ namespace OpenDental {
 				_listPayPlanChargesDb=PayPlanCharges.GetForPayPlan(_payPlanCur.PayPlanNum).OrderBy(x => x.ChargeDate).ToList();
 				_listPayPlanLinks=PayPlanLinks.GetListForPayplan(_payPlanCur.PayPlanNum);
 				_listPayPlanProductionEntries=PayPlanProductionEntry.GetProductionForLinks(_listPayPlanLinks).OrderBy(x => x.CreditDate).ToList();
-				_listSplitsForCharges=PaySplits.GetForPayPlanCharges(_listPayPlanChargesDb.Select(x => x.PayPlanChargeNum).ToList());
+				_listPaySplits=PaySplits.GetForPayPlans(new List<long>(){_payPlanCur.PayPlanNum});
+				_listSplitsForCharges=
+					_listPaySplits.Where(x => _listPayPlanChargesDb.Select(y => y.PayPlanChargeNum).ToList().Contains(x.PayPlanChargeNum)).ToList();
 			}
 			#endregion
 			#region Fill and Set UI Fields
@@ -120,6 +124,12 @@ namespace OpenDental {
 						butPrint.Visible=false;
 						butSignPrint.Visible=true;					
 					}
+				}
+			}
+			List<PayPlan> listOverPaidPayPlans=PayPlans.GetOverpaidPayPlans(new List<long>{_payPlanCur.PayPlanNum});
+			foreach(PayPlan payPlan in listOverPaidPayPlans) {
+				if(_payPlanCur.PayPlanNum==payPlan.PayPlanNum) {
+					labelOverpaidWarning.Visible=true;
 				}
 			}
 			FillCharges();
@@ -232,12 +242,12 @@ namespace OpenDental {
 				//they have a down payment (possibly broken into multiple charges for differing providers) that has not yet been put into the database.
 				List<PayPlanCharge> listForDownPayment=PayPlanCharges.GetForDownPayment(terms,_famCur,_listPayPlanLinks,_payPlanCur);
 				listChargesExpected.AddRange(listForDownPayment);
-				terms.PrincipalAmount-=terms.DownPayment;//down payment hasn't been inserted into the db yet, so we need to handle it here.
-				listChargesExpected.AddRange(PayPlanEdit.GetListExpectedCharges(_listPayPlanChargesDb,terms,_famCur,_listPayPlanLinks,_payPlanCur,false,
-					listForDownPayment.Count,0));
+				listChargesExpected.AddRange(PayPlanEdit.GetListExpectedCharges(_listPayPlanChargesDb,terms,_famCur,_listPayPlanLinks,_listPaySplits
+					,_payPlanCur,false,listForDownPayment.Count,0,false));
 			}
 			else {
-				listChargesExpected.AddRange(PayPlanEdit.GetListExpectedCharges(_listPayPlanChargesDb,terms,_famCur,_listPayPlanLinks,_payPlanCur,false));
+				listChargesExpected.AddRange(PayPlanEdit.GetListExpectedCharges(_listPayPlanChargesDb,terms,_famCur,_listPayPlanLinks,_payPlanCur,false
+					,listPaySplits:_listPaySplits));
 			}
 			if(!terms.AreTermsValid) {
 				MsgBox.Show("This payment plan will never be paid off. The interest is too high or the payment amount is too low.");
@@ -1129,7 +1139,8 @@ namespace OpenDental {
 			}
 			if(terms.DateFirstPayment.Date==DateTime.Today) {
 				//immediately call the code to run the "service" on this payment plan in case they created a plan who's first charge is today. 
-				List<PayPlanCharge> listCharges=PayPlanEdit.GetListExpectedCharges(_listPayPlanChargesDb,terms,_famCur,_listPayPlanLinks,_payPlanCur,true)
+				List<PayPlanCharge> listCharges=PayPlanEdit.GetListExpectedCharges(_listPayPlanChargesDb,terms,_famCur,_listPayPlanLinks,_payPlanCur,true
+					,listPaySplits:_listPaySplits)
 					.FindAll(x => x.ChargeDate <= DateTime.Today);
 				if(listCharges.Count > 0) {
 					PayPlanCharges.InsertMany(listCharges);

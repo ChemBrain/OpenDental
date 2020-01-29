@@ -770,36 +770,47 @@ namespace OpenDentBusiness {
 		#endregion
 		#region Dynamic Payment Plans
 		public static List<PayPlanCharge> GetListExpectedCharges(List<PayPlanCharge> listChargesInDB,PayPlanTerms terms,Family famCur
-			,List<PayPlanLink> listPayPlanLinks,PayPlan payplan,bool isNextPeriodOnly)
+			,List<PayPlanLink> listPayPlanLinks,PayPlan payplan,bool isNextPeriodOnly,bool isForDownPaymentCharge=false,List<PaySplit> listPaySplits=null)
 		{
 			//no remoting role check; no call to db
+			if(listPaySplits==null) {
+				listPaySplits=PaySplits.GetForPayPlans(new List<long>(){payplan.PayPlanNum});
+			}
 			int chargesCount=listChargesInDB.Count; 
 			int periodCount=listChargesInDB.DistinctBy(x => x.ChargeDate.Date).Count();
 			if(terms.DownPayment!=0 && listChargesInDB.Count!=0 && terms.DateFirstPayment.Date!=listChargesInDB[0].ChargeDate.Date) {
 				periodCount--;//down payment does not count towards the period count since it was made before the start date.
 			}
-			return GetListExpectedCharges(listChargesInDB,terms,famCur,listPayPlanLinks,payplan,isNextPeriodOnly,chargesCount,periodCount);
+			return GetListExpectedCharges(listChargesInDB,terms,famCur,listPayPlanLinks,listPaySplits,payplan,isNextPeriodOnly,chargesCount,periodCount
+				,isForDownPaymentCharge);
 		}
 
 		///<summary>Purpose is to calculate expected charges that have not come due yet, based on current terms. Does not include down payment. </summary>
 		public static List<PayPlanCharge> GetListExpectedCharges(List<PayPlanCharge> listChargesInDB,PayPlanTerms terms,Family famCur
-			,List<PayPlanLink> listPayPlanLinks,PayPlan payplan,bool isNextPeriodOnly,int chargesCount,int periodCount)
+			,List<PayPlanLink> listPayPlanLinks,List<PaySplit> listPaySplits,PayPlan payplan,bool isNextPeriodOnly,int chargesCount,int periodCount
+			,bool isForDownPaymentCharge)
 		{
 			//no remoting role check; no call to db
 			List<PayPlanCharge> listExpectedCharges=new List<PayPlanCharge>();
 			//Get production attached to credits attached to the payment plan (what we will be making charges for)
 			List<PayPlanProductionEntry> listCreditsAndProduction=PayPlanProductionEntry.GetWithAmountRemaining(listPayPlanLinks,listChargesInDB);
 			double periodRate=CalcPeriodRate(terms.APR,terms.Frequency);
-			decimal remainingPrincipal=(decimal)terms.PrincipalAmount-(decimal)listChargesInDB.Sum(x => x.Principal);
+			decimal principalRemaining=CalculatePrincipalAmtRemaining(terms.PrincipalAmount,terms.DownPayment,listPaySplits,listChargesInDB);
+			//If plan has no charges in DB yet, and method isn't being called to create down payment charges,
+			//we must subtract the down payment from the principal so it is not considered in interest calculations.
+			if(listChargesInDB.Count==0 && !isForDownPaymentCharge) {
+				terms.PrincipalAmount-=terms.DownPayment;
+			}
+			decimal sumPrincipalNotYetCharged=(decimal)terms.PrincipalAmount-(decimal)listChargesInDB.Sum(x => x.Principal);
 			int maxPayPlanCharges=2000;//ceiling of payplan charges should not go beyond 2000
-			while(remainingPrincipal > 0 && chargesCount < maxPayPlanCharges) {
+			while(sumPrincipalNotYetCharged > 0 && chargesCount < maxPayPlanCharges) {
 				DateTime periodDate=CalcNextPeriodDate(terms.DateFirstPayment,periodCount,terms.Frequency);
-				double principalForPeriod=CalculatePrincipalAmountForPeriod(remainingPrincipal,periodRate,terms,periodCount);
-				double interestForPeriod=CalculateInterestAmountForPeriod(remainingPrincipal,periodRate,terms,periodCount,principalForPeriod);
+				double principalForPeriod=CalculatePrincipalAmountForPeriod(sumPrincipalNotYetCharged,principalRemaining,periodRate,terms,periodCount);
+				double interestForPeriod=CalculateInterestAmountForPeriod(principalRemaining,periodRate,terms,periodCount,principalForPeriod);
 				if(principalForPeriod.IsEqual(0)) {
 					break;
 				}
-				if((decimal.Compare(remainingPrincipal,(decimal)terms.PrincipalAmount) > 0 && interestForPeriod > 0)) {
+				if((decimal.Compare(sumPrincipalNotYetCharged,(decimal)terms.PrincipalAmount) > 0 && interestForPeriod > 0)) {
 					//The principal is actually increasing or staying the same with each payment.
 					terms.AreTermsValid=false;
 					listExpectedCharges.Clear();
@@ -821,7 +832,8 @@ namespace OpenDentBusiness {
 					chargeCur=CreateDebitChargeDynamic(payplan,famCur,entry.ProvNum,entry.ClinicNum,principalForCharge,interestForPeriod
 						,periodDate,"",entry.PriKey,entry.LinkType);
 					entry.AmountRemaining-=(decimal)principalForCharge;
-					remainingPrincipal-=(decimal)chargeCur.Principal;
+					sumPrincipalNotYetCharged-=(decimal)chargeCur.Principal;
+					principalRemaining=Math.Max(0,principalRemaining-(decimal)chargeCur.Principal);
 					principalForPeriod-=chargeCur.Principal;
 					curPayAmount+=(decimal)chargeCur.Principal;
 					listExpectedCharges.Add(chargeCur);
@@ -834,6 +846,36 @@ namespace OpenDentBusiness {
 				}
 			}
 			return listExpectedCharges;//returns all expected for the entire life of the payment plan. 
+		}
+
+		///<summary>Returns the difference between the principal and sum of pay splits that apply to the principal.
+		///If the sum of pay splits that apply to the principal is less than the downpayment amount, 
+		///then the difference between the principal and the down payment amount is returned instead.</summary>
+		private static decimal CalculatePrincipalAmtRemaining(double principalAmount,double downPayment,List<PaySplit> listPaySplitsForPayPlan
+			,List<PayPlanCharge> listChargesInDB)
+		{
+			decimal totalPaymentAmtForPrincipal=0;
+			//Get list of dates for periods that have been charged so far.
+			List<DateTime> listPeriodDates=listChargesInDB
+				.OrderBy(x => x.ChargeDate)
+				.Select(x => x.ChargeDate)
+				.Distinct()
+				.ToList();
+			foreach(DateTime periodDate in listPeriodDates) {
+				decimal sumPrincipalForPeriod=(decimal)listChargesInDB.Where(x => x.ChargeDate==periodDate).Sum(x => x.Principal);
+				decimal sumInterestForPeriod=(decimal)listChargesInDB.Where(x => x.ChargeDate==periodDate).Sum(x => x.Interest);
+				//Sum of paysplits for charges in period.
+				decimal sumPaySplitsForPeriod=(decimal)listPaySplitsForPayPlan
+					.Where(x => listChargesInDB.Where(y => y.ChargeDate==periodDate).Select(y => y.PayPlanChargeNum).Contains(x.PayPlanChargeNum))
+					.Sum(x => x.SplitAmt);
+				//Subtract amount paid to interest for the period from sum.
+				sumPaySplitsForPeriod-=Math.Min(sumInterestForPeriod,Math.Max(0,sumPaySplitsForPeriod-sumPrincipalForPeriod));
+				totalPaymentAmtForPrincipal+=sumPaySplitsForPeriod;
+			}
+			//Add any payments applied to payment plan that are not linked to a PayPlanCharge.
+			totalPaymentAmtForPrincipal+=(decimal)listPaySplitsForPayPlan.Where(x => x.PayPlanChargeNum==0).Sum(x => x.SplitAmt);
+			//If this is negative due to entire plan being overpaid, return 0 to prevent negative interest. Must subtract down payment amount at minimum.
+			return Math.Max(0,(decimal)principalAmount-(Math.Max((decimal)downPayment,totalPaymentAmtForPrincipal)));
 		}
 
 		public static decimal CalculatePeriodPayment(double apr,PayPlanFrequency frequency,decimal periodPayment,int payCount,int roundDec
@@ -863,11 +905,13 @@ namespace OpenDentBusiness {
 			return periodPaymentAmt;
 		}
 
-		private static double CalculatePrincipalAmountForPeriod(decimal totalPrincipal,double periodRate,PayPlanTerms terms,int periodCount) {
-			double interest=Math.Round(((double)totalPrincipal*periodRate),terms.RoundDec);//will be the same, except for possibly the last charge.
+		private static double CalculatePrincipalAmountForPeriod(decimal sumPrincipalNotYetCharged,decimal principalRemaining,double periodRate,PayPlanTerms terms,int periodCount) {
+			//sumPrincipalNotCharged is the sum of the principal that is expected to be charged out in the future
+			//principalRemaining is how much principal has not been paid yet.
+			double interest=Math.Round(((double)principalRemaining*periodRate),terms.RoundDec);//will be the same, except for possibly the last charge.
 			double principal=0;
-			if(totalPrincipal < terms.PeriodPayment - (decimal)interest) {
-				principal=(double)totalPrincipal;
+			if(sumPrincipalNotYetCharged < (terms.PeriodPayment - (decimal)interest)) {
+				principal=(double)sumPrincipalNotYetCharged;
 			}
 			else {
 				principal=(double)terms.PeriodPayment-interest;
@@ -875,22 +919,22 @@ namespace OpenDentBusiness {
 			if(terms.PayCount > 0 && periodCount==(terms.PayCount - 1)) {
 				//using # payments and this is the last payment. Purpose is to fix any rounding issues. Corrects principal when off by pennies. 
 				//principal will decrease slightly and interest will increase slightly to keep payment amounts consistent. 
-				principal=(double)totalPrincipal;
+				principal=(double)sumPrincipalNotYetCharged;
 				if(periodRate!=0) {
 					//Interest amount on last entry must stay zero for payplans with zero APR. Force payment amount to match the rest of the period payments
 					interest=((double)terms.PeriodPayment)-principal;
 				}
 			}
-			else if(terms.PayCount==0 && totalPrincipal+(decimal)interest <= terms.PeriodPayment) {
-				principal=(double)totalPrincipal;//all remaining principal.
+			else if(terms.PayCount==0 && sumPrincipalNotYetCharged+(decimal)interest <= terms.PeriodPayment) {
+				principal=(double)sumPrincipalNotYetCharged;//all remaining principal.
 			}
 			return principal;
 		}
 
-		private static double CalculateInterestAmountForPeriod(decimal totalPrincipal,double periodRate,PayPlanTerms terms,int periodCount
-			,double principalForCharge) 
+		private static double CalculateInterestAmountForPeriod(decimal principalRemaining,double periodRate,PayPlanTerms terms,int periodCount
+			,double principalForCharge)
 		{
-			double interest=Math.Round(((double)totalPrincipal*periodRate),terms.RoundDec);//will be the same, except for possibly the last charge.
+			double interest=Math.Round(((double)principalRemaining*periodRate),terms.RoundDec);//will be the same, except for possibly the last charge.
 			if(terms.PayCount > 0 && periodCount==(terms.PayCount - 1)) {
 				if(periodRate!=0) {
 					//Interest amount on last entry must stay zero for payplans with zero APR. Force payment amount to match the rest of the period payments

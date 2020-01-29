@@ -30,6 +30,7 @@
 			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
 			this.menuStrip = new System.Windows.Forms.MenuStrip();
 			this.setupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.CallCenterThreshToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.escalationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.mapToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.phonesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -128,13 +129,14 @@
             this.confRoomsToolStripMenuItem});
 			this.menuStrip.Location = new System.Drawing.Point(6, 0);
 			this.menuStrip.Name = "menuStrip";
-			this.menuStrip.Size = new System.Drawing.Size(450, 24);
+			this.menuStrip.Size = new System.Drawing.Size(568, 24);
 			this.menuStrip.TabIndex = 71;
 			this.menuStrip.Text = "menuStrip1";
 			// 
 			// setupToolStripMenuItem
 			// 
 			this.setupToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.CallCenterThreshToolStripMenuItem,
             this.escalationToolStripMenuItem,
             this.mapToolStripMenuItem,
             this.phonesToolStripMenuItem});
@@ -142,24 +144,31 @@
 			this.setupToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
 			this.setupToolStripMenuItem.Text = "Settings";
 			// 
+			// CallCenterThreshToolStripMenuItem
+			// 
+			this.CallCenterThreshToolStripMenuItem.Name = "CallCenterThreshToolStripMenuItem";
+			this.CallCenterThreshToolStripMenuItem.Size = new System.Drawing.Size(192, 22);
+			this.CallCenterThreshToolStripMenuItem.Text = "Call Center Thresholds";
+			this.CallCenterThreshToolStripMenuItem.Click += new System.EventHandler(this.callCenterThreshToolStripMenuItem_Click);
+			// 
 			// escalationToolStripMenuItem
 			// 
 			this.escalationToolStripMenuItem.Name = "escalationToolStripMenuItem";
-			this.escalationToolStripMenuItem.Size = new System.Drawing.Size(127, 22);
+			this.escalationToolStripMenuItem.Size = new System.Drawing.Size(192, 22);
 			this.escalationToolStripMenuItem.Text = "Escalation";
 			this.escalationToolStripMenuItem.Click += new System.EventHandler(this.escalationToolStripMenuItem_Click);
 			// 
 			// mapToolStripMenuItem
 			// 
 			this.mapToolStripMenuItem.Name = "mapToolStripMenuItem";
-			this.mapToolStripMenuItem.Size = new System.Drawing.Size(127, 22);
+			this.mapToolStripMenuItem.Size = new System.Drawing.Size(192, 22);
 			this.mapToolStripMenuItem.Text = "Map";
 			this.mapToolStripMenuItem.Click += new System.EventHandler(this.mapToolStripMenuItem_Click);
 			// 
 			// phonesToolStripMenuItem
 			// 
 			this.phonesToolStripMenuItem.Name = "phonesToolStripMenuItem";
-			this.phonesToolStripMenuItem.Size = new System.Drawing.Size(127, 22);
+			this.phonesToolStripMenuItem.Size = new System.Drawing.Size(192, 22);
 			this.phonesToolStripMenuItem.Text = "Phones";
 			this.phonesToolStripMenuItem.Click += new System.EventHandler(this.phonesToolStripMenuItem_Click);
 			// 
@@ -173,7 +182,7 @@
 			// toggleTriageToolStripMenuItem
 			// 
 			this.toggleTriageToolStripMenuItem.Name = "toggleTriageToolStripMenuItem";
-			this.toggleTriageToolStripMenuItem.Size = new System.Drawing.Size(118, 20);
+			this.toggleTriageToolStripMenuItem.Size = new System.Drawing.Size(116, 20);
 			this.toggleTriageToolStripMenuItem.Text = "Toggle Triage View";
 			this.toggleTriageToolStripMenuItem.Click += new System.EventHandler(this.toggleTriageToolStripMenuItem_Click);
 			// 
@@ -942,5 +951,6 @@
 		private MapAreaRoomControl labelCustDownCount;
 		private EscalationViewControl officesDownView;
 		private InternalTools.Phones.UserControlMapDetails userControlMapDetails1;
+		private System.Windows.Forms.ToolStripMenuItem CallCenterThreshToolStripMenuItem;
 	}
 }

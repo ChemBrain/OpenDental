@@ -29,7 +29,7 @@ namespace OpenDental {
 		///<summary>The site that is associated to the first three octets of the computer that has launched this map.</summary>
 		private Site _siteCur;
 		//preferences for setting triage alert colors
-		private int _triageRedCalls,_triageRedTime,_voicemailCalls,_voicemailTime,_triageCalls,_triageTime,_triageTimeWarning;
+		private int _triageRedCalls,_triageRedTime,_voicemailCalls,_voicemailTime,_triageCalls,_triageTime,_triageTimeWarning,_triageCallsWarning;
 		///<summary>Tracks when chat boxes for map need to be set red.</summary>
 		private int _chatRedCount=2;
 		///<summary>Tracks when chat boxes for map need to be set red.</summary>
@@ -154,6 +154,7 @@ namespace OpenDental {
 		private void FillTriagePreferences() {
 			_triageRedCalls=PrefC.GetInt(PrefName.TriageRedCalls);
 			_triageCalls=PrefC.GetInt(PrefName.TriageCalls);
+			_triageCallsWarning=PrefC.GetInt(PrefName.TriageCallsWarning);
 			_triageRedTime=PrefC.GetInt(PrefName.TriageRedTime);
 			_triageTime=PrefC.GetInt(PrefName.TriageTime);
 			_triageTimeWarning=PrefC.GetInt(PrefName.TriageTimeWarning);
@@ -547,13 +548,13 @@ namespace OpenDental {
 			else {
 				this.labelTriageRedTimeSpan.Text=timeBehind.ToStringmmss();
 			}
-			if(calls>_triageRedCalls) { //we are behind
+			if(calls>=_triageRedCalls) { //we are behind
 				labelTriageRedCalls.SetAlertColors();
 			}
 			else { //we are ok
 				labelTriageRedCalls.SetNormalColors();
 			}
-			if(timeBehind>TimeSpan.FromMinutes(_triageRedTime)) { //we are behind
+			if(timeBehind>=TimeSpan.FromMinutes(_triageRedTime)) { //we are behind
 				labelTriageRedTimeSpan.SetAlertColors();
 			}
 			else { //we are ok
@@ -569,13 +570,13 @@ namespace OpenDental {
 			else {
 				this.labelVoicemailTimeSpan.Text=timeBehind.ToStringmmss();
 			}
-			if(calls>_voicemailCalls) { //we are behind
+			if(calls>=_voicemailCalls) { //we are behind
 				labelVoicemailCalls.SetAlertColors();
 			}
 			else { //we are ok
 				labelVoicemailCalls.SetNormalColors();
 			}
-			if(timeBehind>TimeSpan.FromMinutes(_voicemailTime)) { //we are behind
+			if(timeBehind>=TimeSpan.FromMinutes(_voicemailTime)) { //we are behind
 				labelVoicemailTimeSpan.SetAlertColors();
 			}
 			else { //we are ok
@@ -597,16 +598,19 @@ namespace OpenDental {
 			else { //we don't have any calls with no notes nor any red triage tasks so display count of total tasks
 				labelTriageCalls.Text="("+callsWithNotes.ToString()+")";
 			}
-			if(callsWithNoNotes+triageRed>_triageCalls) { //we are behind
+			if(callsWithNoNotes+triageRed>=_triageCalls) { //we are behind
 				labelTriageCalls.SetAlertColors();
+			}
+			else if(callsWithNoNotes+triageRed>=_triageCallsWarning) { //we are approaching being behind
+				labelTriageCalls.SetWarnColors();
 			}
 			else { //we are ok
 				labelTriageCalls.SetNormalColors();
 			}
-			if(timeBehind>TimeSpan.FromMinutes(_triageTime)) { //we are behind
+			if(timeBehind>=TimeSpan.FromMinutes(_triageTime)) { //we are behind
 				labelTriageTimeSpan.SetAlertColors();
 			}
-			else if(timeBehind>TimeSpan.FromMinutes(_triageTimeWarning)) { //we are approaching being behind
+			else if(timeBehind>=TimeSpan.FromMinutes(_triageTimeWarning)) { //we are approaching being behind
 				labelTriageTimeSpan.SetWarnColors();
 			}
 			else { //we are ok
@@ -634,13 +638,13 @@ namespace OpenDental {
 			}
 			#endregion
 			#region set label colors
-			if(listUnclaimedSessions.Count>_chatRedCount) {
+			if(listUnclaimedSessions.Count>=_chatRedCount) {
 				labelChatCount.SetAlertColors();
 			}
 			else {
 				labelChatCount.SetNormalColors();
 			}
-			if(chatBehind>TimeSpan.FromMinutes(_chatRedTimeMin)) {
+			if(chatBehind>=TimeSpan.FromMinutes(_chatRedTimeMin)) {
 				labelChatTimeSpan.SetAlertColors();
 			}
 			else {
@@ -692,6 +696,18 @@ namespace OpenDental {
 			FillCombo();
 			FillMapAreaPanel();
 			SecurityLogs.MakeLogEntry(Permissions.Setup,0,"MapHQ layout changed");
+		}
+
+		private void callCenterThreshToolStripMenuItem_Click(object sender,EventArgs e) {
+			if(!Security.IsAuthorized(Permissions.Setup)) {
+				return;
+			}
+			FormMapHQPrefs TriagePref=new FormMapHQPrefs();
+			TriagePref.ShowDialog();
+			if(TriagePref.DialogResult!=DialogResult.OK) {
+				return;
+			}
+			FillTriagePreferences();
 		}
 
 		private void escalationToolStripMenuItem_Click(object sender,EventArgs e) {

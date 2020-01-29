@@ -2472,6 +2472,14 @@ namespace OpenDentBusiness {
 			long programNum=Db.NonQ(command);
 			command=$"INSERT INTO toolbutitem (ProgramNum,ToolBar,ButtonText) VALUES ({POut.Long(programNum)},7,'Benco');"; //7 = Main Toolbar
 			Db.NonQ(command);
+			//We are running this section of code for HQ only
+			//This is very uncommon and normally manual queries should be run instead of doing a convert script.
+			command="SELECT ValueString FROM preference WHERE PrefName='DockPhonePanelShow'";
+			DataTable tableTriage=Db.GetTable(command);
+			if(tableTriage.Rows.Count > 0 && PIn.Bool(tableTriage.Rows[0][0].ToString())) {
+				command="INSERT INTO preference(PrefName,ValueString) VALUES('TriageCallsWarning','35')";
+				Db.NonQ(command);
+			}
 		}
 
 	}

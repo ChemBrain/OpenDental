@@ -755,6 +755,12 @@
     <Compile Include="InternalTools\Job Manager\UserControlSprintManager.Designer.cs">
       <DependentUpon>UserControlSprintManager.cs</DependentUpon>
     </Compile>
+    <Compile Include="InternalTools\Phones\FormMapHQPrefs.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="InternalTools\Phones\FormMapHQPrefs.Designer.cs">
+      <DependentUpon>FormMapHQPrefs.cs</DependentUpon>
+    </Compile>
     <Compile Include="InternalTools\Phones\FormMapHQ.Designer.cs">
       <DependentUpon>FormMapHQ.cs</DependentUpon>
     </Compile>
@@ -5640,6 +5646,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="InternalTools\Job Manager\UserControlSprintManager.resx">
       <DependentUpon>UserControlSprintManager.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="InternalTools\Phones\FormMapHQPrefs.resx">
+      <DependentUpon>FormMapHQPrefs.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="InternalTools\Phones\UserControlMapDetails.resx">
       <DependentUpon>UserControlMapDetails.cs</DependentUpon>
