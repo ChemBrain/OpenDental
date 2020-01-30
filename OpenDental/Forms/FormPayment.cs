@@ -4025,6 +4025,8 @@ namespace OpenDental {
 		private void checkPayTypeNone_CheckedChanged(object sender,EventArgs e) {
 			//this fires before the click event.  The Checked property also reflects the new value.
 			if(checkPayTypeNone.Checked) {
+				checkShowAll.Checked=false;
+				checkShowAll.Enabled=false;
 				listPayType.Visible=false;
 				panelXcharge.Visible=false;
 				butPay.Text=Lan.g(this,"Transfer");
@@ -4045,6 +4047,7 @@ namespace OpenDental {
 				checkIncludeExplicitCreditsOnly.Visible=false;
 			}
 			else {
+				checkShowAll.Enabled=true;
 				listPayType.Visible=true;
 				panelXcharge.Visible=true;
 				butPay.Text=Lan.g(this,"Pay");

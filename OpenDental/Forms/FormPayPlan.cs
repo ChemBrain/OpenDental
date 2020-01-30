@@ -2200,6 +2200,7 @@ namespace OpenDental{
 				adj.AdjNote=Lan.g(this,"Payment plan adjustment");
 				adj.SecUserNumEntry=Security.CurUser.UserNum;
 				adj.SecDateTEdit=DateTime.Now;
+				adj.ClinicNum=comboClinic.SelectedClinicNum;
 				if(Defs.GetDef(DefCat.AdjTypes,PrefC.GetLong(PrefName.PayPlanAdjType))!=null) {
 					adj.AdjType=Defs.GetDef(DefCat.AdjTypes,PrefC.GetLong(PrefName.PayPlanAdjType)).DefNum;
 				}

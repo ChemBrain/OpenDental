@@ -357,7 +357,12 @@ namespace OpenDental.UI{
 			if(_listSelectedIndices.Count==0){
 				return default;//usually null. For an enum, this will be item 0.
 			}
-			return (T)Items.GetObjectAt(_listSelectedIndices[0]);
+			try {
+				return (T)Items.GetObjectAt(_listSelectedIndices[0]);
+			} 
+			catch {
+				return default;
+			}
 		}
 
 		///<summary>Only for comboBoxes with a list of Defs. This is a specific use of GetSelectedKey. If selected index is -1, it will try to grab the key that was passed in earlier with SetSelectedDefNum.  If there is none, then it will return 0.</summary>

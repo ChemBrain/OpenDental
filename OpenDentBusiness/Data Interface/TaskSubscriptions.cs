@@ -80,7 +80,28 @@ namespace OpenDentBusiness{
 			List<Task> listNewReminderTasks=GetUnreadReminderTasks(curUserNum).FindAll(x => !x.TaskNum.In(listReminderTaskNumsOld));
 			//Set any past unread Reminder tasks as read.
 			TaskUnreads.SetRead(curUserNum,listNewReminderTasks.FindAll(x => x.DateTimeEntry<DateTime.Now).ToArray());
+			//Get all future reminders in the newly subscribed Tasklist (and sub Tasklists) that the user was not previously subscribed to.
+			List<Task> listFutureReminders=GetNewReadReminders(listExistingSubscriptionNums,subscribeToTaskListNum,curUserNum)
+				.Where(x => x.DateTimeEntry>=DateTime.Now).ToList();
+			//We already know these tasks do not have any TaskUnreads (due to GetNewReadReminders->Tasks.RefreshChildren()), safe to insert TaskUnreads.
+			TaskUnreads.InsertManyForTasks(listFutureReminders,curUserNum);
 			return true;
+		}
+
+		///<summary>Gets all Read Reminders in a TaskList/Task hierarchy that the user was not already subscribed to.</summary>
+		private static List<Task> GetNewReadReminders(List<long> listExistingSubscriptions,long taskListNum,long curUserNum) {
+			List<Task> listReminders=new List<Task>();
+			if(taskListNum.In(listExistingSubscriptions)) {
+				//We are only looking for Reminders that we were not already subscribed to.
+				return listReminders;
+			}
+			long userNumInbox=TaskLists.GetMailboxUserNum(taskListNum);//Can be 0, not a user inbox.
+			foreach(TaskList taskList in TaskLists.RefreshChildren(taskListNum,curUserNum,userNumInbox,TaskType.Reminder)) {
+				listReminders.AddRange(GetNewReadReminders(listExistingSubscriptions,taskList.TaskListNum,curUserNum));
+			}
+			listReminders.AddRange(Tasks.RefreshChildren(taskListNum,false,DateTime.MinValue,curUserNum,userNumInbox,TaskType.Reminder,false
+				,GlobalTaskFilterType.None).Where(x => !x.IsUnread));//IsUnread field set accurately by Tasks.RefreshChildren(...)
+			return listReminders;
 		}
 
 		///<summary>Gets all unread Reminder Tasks for curUserNum.  Mimics logic in FormOpenDental.SignalsTick.</summary>
@@ -104,10 +125,19 @@ namespace OpenDentBusiness{
 				Meth.GetVoid(MethodBase.GetCurrentMethod(),taskListNum,userNum);
 				return;
 			}
+			//Get all future unread reminders
+			List<Task> listFutureUnreadReminders=Tasks.GetNewTasksThisUser(userNum,0)//Use clinicnum=0 to get all tasks, no task clinic filtering.
+				.Where(x => Tasks.IsReminderTask(x) && x.DateTimeEntry>=DateTime.Now)
+				.ToList();
 			string command="DELETE FROM tasksubscription "
 				+"WHERE UserNum="+POut.Long(userNum)
 				+" AND TaskListNum="+POut.Long(taskListNum);
 			Db.NonQ(command);
+			List<Task> listStillSubscribed=Tasks.GetNewTasksThisUser(userNum,0)//Use clinicnum=0 to get all tasks, no task clinic filtering.
+				.Where(x => Tasks.IsReminderTask(x) && x.DateTimeEntry>=DateTime.Now).ToList();
+			List<Task> listUnSubTasksForUser=listFutureUnreadReminders.Where(x => !x.TaskNum.In(listStillSubscribed.Select(y => y.TaskNum))).ToList();
+			//Set unsubbed reminders in the future to be read so reminders wont show in NewForUser tasklist.
+			TaskUnreads.SetRead(userNum,listUnSubTasksForUser.ToArray());
 		}
 
 		///<summary>Moves all subscriptions from taskListOld to taskListNew. Used when cutting and pasting a tasklist. Can also be used when deleting a tasklist to remove all subscriptions from the tasklist by sending in 0 as taskListNumNew.</summary>

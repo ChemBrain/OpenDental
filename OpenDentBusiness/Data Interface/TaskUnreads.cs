@@ -4,6 +4,7 @@ using System.Data;
 using System.Reflection;
 using System.Text;
 using System.Linq;
+using CodeBase;
 
 namespace OpenDentBusiness{
 	///<summary></summary>
@@ -35,6 +36,29 @@ namespace OpenDentBusiness{
 				return taskUnread.TaskUnreadNum;
 			}
 			return Crud.TaskUnreadCrud.Insert(taskUnread);
+		}
+
+		///<summary>Batch inserts one TaskUnread for every entry in listTasks.
+		///Does not validate if the tasks were previously unread or not.  Do not use this method if caller has not already validated that inserting many
+		///TaskUnreads will not create duplicates.  All values in listTask will have IsUnread set true.</summary>
+		public static void InsertManyForTasks(List<Task> listTasks,long currUserNum) {
+			if(listTasks.IsNullOrEmpty() || currUserNum==0) {
+				//Do not insert any TaskUnreads if none given or invalid usernum.
+				return;
+			}
+			if(RemotingClient.RemotingRole==RemotingRole.ClientWeb){
+				Meth.GetVoid(MethodBase.GetCurrentMethod(),listTasks,currUserNum);
+				return;
+			}
+			List<TaskUnread> listUnreads=new List<TaskUnread>();
+			foreach(Task task in listTasks) {
+				listUnreads.Add(new TaskUnread(){ 
+					TaskNum=task.TaskNum,
+					UserNum=currUserNum
+				});
+				task.IsUnread=true;
+			}
+			Crud.TaskUnreadCrud.InsertMany(listUnreads);
 		}
 
 		///<summary>Sets a task read by a user by deleting all the matching taskunreads.  Quick and efficient to run any time.</summary>

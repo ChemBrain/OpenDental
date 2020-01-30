@@ -4067,6 +4067,9 @@ namespace OpenDental.UI{
 						y+=h;
 						continue;
 					case "Horizontal Line":
+						if(showingPatientPicture && y<117) { //height of pat picture is 100 and the y offset is 17
+							y=117;
+						}
 						y+=3;
 						Pen penGray=new Pen(Brushes.Gray,1.5f);
 						g.DrawLine(penGray,3,y,widthBubble-3,y);
@@ -4203,10 +4206,10 @@ namespace OpenDental.UI{
 			}
 			#endregion infoBubble Text
 			if(showingPatientPicture) { //only draw the pat picture if the display field is present
+				using(SolidBrush brushBackColor = new SolidBrush(Color.FromArgb(232,220,190))){
+					g.FillRectangle(brushBackColor,rectanglePict);
+				}
 				if(bitmapPatPict==null){
-					using(SolidBrush brushBackColor = new SolidBrush(Color.FromArgb(232,220,190))){
-						g.FillRectangle(brushBackColor,rectanglePict);
-					}
 					StringFormat stringFormat=new StringFormat();
 					stringFormat.Alignment=StringAlignment.Center;
 					RectangleF rectangleFUnavail=new RectangleF(rectanglePict.X,rectanglePict.Y+40F,rectanglePict.Width,30);
