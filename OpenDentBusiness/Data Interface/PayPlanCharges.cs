@@ -117,7 +117,7 @@ namespace OpenDentBusiness{
 			return Crud.PayPlanChargeCrud.SelectMany(command);
 		}
 
-		///<summary>Takes a procNum and returns a list of all payment plan charge credits associated to the procedure.
+		///<summary>Takes a procNum and returns a list of all payment plan charges associated to the procedure.
 		///Returns an empty list if there are none.</summary>
 		public static List<PayPlanCharge> GetFromProc(long procNum) {
 			if(RemotingClient.RemotingRole==RemotingRole.ClientWeb) {
@@ -125,6 +125,19 @@ namespace OpenDentBusiness{
 			}
 			string command=$"SELECT * FROM payplancharge WHERE payplancharge.ProcNum={POut.Long(procNum)} OR (payplancharge.LinkType=" +
 				$"{POut.Int((int)PayPlanLinkType.Procedure)} AND payplancharge.FKey={POut.Long(procNum)})";
+			return Crud.PayPlanChargeCrud.SelectMany(command);
+		}
+
+		///<summary>Gets a list of all payment plan charges of type Credit associated to the procedures for patient payment plans.</summary>
+		public static List<PayPlanCharge> GetPatientPayPlanCreditsForProcs(List<long> listProcNums) {
+			if(listProcNums.Count==0) {
+				return new List<PayPlanCharge>();
+			}
+			if(RemotingClient.RemotingRole==RemotingRole.ClientWeb) {
+				return Meth.GetObject<List<PayPlanCharge>>(MethodBase.GetCurrentMethod(),listProcNums);
+			}
+			string command=$"SELECT * FROM payplancharge WHERE payplancharge.ProcNum IN({string.Join(",",listProcNums.Select(x => POut.Long(x)))})" +
+				$" AND payplancharge.ChargeType={POut.Int((int)PayPlanChargeType.Credit)}";
 			return Crud.PayPlanChargeCrud.SelectMany(command);
 		}
 

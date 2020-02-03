@@ -23,6 +23,8 @@ using CodeBase;
 using Health.Direct.Common.Certificates;
 using OpenDentBusiness.Email;
 using OpenDentBusiness.FileIO;
+using System.Net.Security;
+using MailKit.Security;
 
 namespace OpenDentBusiness{
 	///<summary>An email message is always attached to a patient.</summary>
@@ -819,6 +821,38 @@ namespace OpenDentBusiness{
 			{
 				return;
 			}
+			//Verify that we can connect to Google using OAuth before moving on as we can't refresh tokens from OpenDentalEmail Processor.
+			if(!emailAddress.AccessToken.IsNullOrEmpty() && emailAddress.SMTPserver=="smtp.gmail.com") {
+				using MailKit.Net.Smtp.SmtpClient clientMK=new MailKit.Net.Smtp.SmtpClient();
+				try {
+					clientMK.Connect(emailAddress.SMTPserver,emailAddress.ServerPort,SecureSocketOptions.Auto);
+					// Note: only needed if the SMTP server requires authentication
+					clientMK.Authenticate(new SaslMechanismOAuth2(emailAddress.EmailUsername,emailAddress.AccessToken));
+				}
+				catch(AuthenticationException ae) {//Hopefully their token is just expired. Refresh and attempt to send again.
+					ae.DoNothing();
+					try {
+						//Move retry and save to emailmessages.wireemailunsecure
+						clientMK.Disconnect(true);
+						string accessToken=Google.MakeRefreshAccessTokenRequest(emailAddress.RefreshToken);
+						clientMK.Connect(emailAddress.SMTPserver,emailAddress.ServerPort,SecureSocketOptions.Auto);
+						clientMK.Authenticate(new SaslMechanismOAuth2(emailAddress.EmailUsername,accessToken));
+						emailAddress.AccessToken=accessToken;
+						EmailAddresses.Update(emailAddress);
+						EmailAddresses.RefreshCache();
+					}
+					catch(Exception ex) {//Didn't work, display error.
+						throw new Exception("Unable to authenticate with Google: "+ex.Message);//This will bubble up to the UI level and be caught in a copypaste box.
+					}
+				}
+				catch(Exception e) {//Need this catch to dispose our client before bubbling up to the UI.
+					throw new Exception($"Error sending email with OAuth authorization: {e.Message}");//This will bubble up to the UI level and be caught in a copypaste box.
+				}
+				finally {
+					clientMK.Disconnect(true);
+					clientMK.Dispose();
+				}
+			}
 			emailMessage.UserNum=Security.CurUser.UserNum;
 			SendEmail.WireEmailUnsecure(ODEmailAddressToBasic(emailAddress),ODEmailMessageToBasic(emailMessage),nameValueCollectionHeaders,arrayAlternateViews);
 			SecurityLogs.MakeLogEntry(Permissions.EmailSend,emailMessage.PatNum,"Email Sent");
@@ -886,11 +920,191 @@ namespace OpenDentBusiness{
 		private static List<EmailMessage> ReceiveFromInboxThreadSafe(int receiveCount,EmailAddress emailAddressInbox,ref List<string> listSkipMsgUids) {
 			//No need to check RemotingRole; no call to db.
 			List<EmailMessage> retVal=new List<EmailMessage>();
-			//This code is modified from the example at: http://hpop.sourceforge.net/exampleFetchAllMessages.php
-			using(OpenPop.Pop3.Pop3Client client=new OpenPop.Pop3.Pop3Client()) {//The client disconnects from the server when being disposed.
-				client.Connect(emailAddressInbox.Pop3ServerIncoming,emailAddressInbox.ServerPortIncoming,emailAddressInbox.UseSSL,180000,180000,null);//3 minute timeout, just as for sending emails.
-				client.Authenticate(emailAddressInbox.EmailUsername.Trim(),MiscUtils.Decrypt(emailAddressInbox.EmailPassword),OpenPop.Pop3.AuthenticationMethod.UsernameAndPassword);
-				List <string> listMsgUids=client.GetMessageUids();//Get all unique identifiers for each email in the inbox.
+			if(!emailAddressInbox.AccessToken.IsNullOrEmpty() && emailAddressInbox.Pop3ServerIncoming=="pop.gmail.com") {
+				return RetrieveFromInboxOAuth(emailAddressInbox,ref listSkipMsgUids,receiveCount);
+			}
+			else {
+				//This code is modified from the example at: http://hpop.sourceforge.net/exampleFetchAllMessages.php
+				using(OpenPop.Pop3.Pop3Client client = new OpenPop.Pop3.Pop3Client()) {//The client disconnects from the server when being disposed.
+					client.Connect(emailAddressInbox.Pop3ServerIncoming,emailAddressInbox.ServerPortIncoming,emailAddressInbox.UseSSL,180000,180000,null);//3 minute timeout, just as for sending emails.
+					client.Authenticate(emailAddressInbox.EmailUsername.Trim(),MiscUtils.Decrypt(emailAddressInbox.EmailPassword),OpenPop.Pop3.AuthenticationMethod.UsernameAndPassword);
+					List <string> listMsgUids=client.GetMessageUids();//Get all unique identifiers for each email in the inbox.
+					List<EmailMessageUid> listDownloadedMsgUids=EmailMessageUids.GetForRecipientAddress(emailAddressInbox.EmailUsername.Trim());
+					List<string> listDownloadedMsgUidStrs=new List<string>();
+					for(int i = 0;i<listDownloadedMsgUids.Count;i++) {
+						listDownloadedMsgUidStrs.Add(listDownloadedMsgUids[i].MsgId);
+					}
+					int msgDownloadedCount=0;
+					for(int i = 0;i<listMsgUids.Count;i++) {
+						int msgIndex=i+1;//The message indicies are 1-based.
+						string strMsgUid=listMsgUids[i];//Example: 1420562540.886638.p3plgemini22-06.prod.phx.2602059520
+						OpenPop.Mime.Header.MessageHeader messageHeader=null;
+						if(strMsgUid.Length==0) {
+							//Message Uids are commonly used, but are optional according to the RFC822 email standard.
+							//Uids are assgined by the sending client application, so they could be anything, but are supposed to be unique.
+							//Additionally, most email servers are probably smart enough to create a Uid for any message where the Uid is missing.
+							//In the worst case scenario, we create a Uid for the message based off of the message header information, which takes a little extra time, 
+							//but is better than downloading old messages again, especially if some of those messages contain large attachments.
+							messageHeader=client.GetMessageHeaders(msgIndex);//Takes 1-2 seconds to get this information from the server.  The message, minus body and minus attachments.
+							strMsgUid=messageHeader.DateSent.ToString("yyyyMMddHHmmss")+emailAddressInbox.EmailUsername.Trim()+messageHeader.From.Address+messageHeader.Subject;
+						}
+						if(strMsgUid.Length>4000) {//The EmailMessageUid.MsgId field is only 4000 characters in size.
+							strMsgUid=strMsgUid.Substring(0,4000);
+						}
+						if(listDownloadedMsgUidStrs.Contains(strMsgUid)) {
+							continue;//Skip emails which have already been downloaded.
+						}
+						//messageHeader will only be defined if we created our own unique ID manually above.  MessageId is optional, just as the message UIDs are.
+						if(messageHeader!=null && messageHeader.MessageId!="") {
+							//The MessageId is usually generated by the email server.
+							//The message does not have a UID, and the ID that we made up has not been downloaded before.  As a last resort we check the MessageId in 
+							//the message header.  MessageId is different than the UID.  We should have used the MessageId as the second option in the past, but now 
+							//we are stuck using it as a third option, because using MessageId as a second option would cause old emails to download again.
+							strMsgUid=messageHeader.MessageId;//Example: xtbzX6Pumwpcn9NjhAJn5A@mcmail1.mcr.colo.comodo.net
+							if(strMsgUid.Length>4000) {//The EmailMessageUid.MsgId field is only 4000 characters in size.
+								strMsgUid=strMsgUid.Substring(0,4000);
+							}
+							if(listDownloadedMsgUidStrs.Contains(strMsgUid)) {
+								continue;//Skip emails which have already been downloaded.
+							}
+						}
+						if(!listSkipMsgUids.IsNullOrEmpty() && listSkipMsgUids.Contains(strMsgUid)) {
+							continue;
+						}
+						if(listSkipMsgUids!=null) {
+							listSkipMsgUids.Add(strMsgUid);
+						}
+						//At this point, we know that the email is one which we have not downloaded yet.
+						OpenPop.Mime.Message openPopMsg;
+						try {
+							openPopMsg=client.GetMessage(msgIndex);//This is where the entire raw email is downloaded.
+						}
+						catch(Exception ex) {
+							//Certain error messages should be treated as "downloaded" so that we do not waste time trying to download these email messages again.
+							if(ex.Message=="The specified media type is invalid."
+								|| ex.Message=="Invalid length for a Base-64 char array or string."
+								|| ex.Message.StartsWith("'binary' is not a supported encoding name. "
+									+"For information on defining a custom encoding, see the documentation for the Encoding.RegisterProvider method.")
+								|| ex.Message.StartsWith("'Cp1252' is not a supported encoding name. "
+									+"For information on defining a custom encoding, see the documentation for the Encoding.RegisterProvider method.")) {
+								EmailMessageUid emailMessageUid=new EmailMessageUid();
+								emailMessageUid.RecipientAddress=emailAddressInbox.EmailUsername.Trim();
+								emailMessageUid.MsgId=strMsgUid;
+								EmailMessageUids.Insert(emailMessageUid);//Remember Uid was downloaded, to avoid email duplication the next time the inbox is refreshed.
+								listDownloadedMsgUidStrs.Add(strMsgUid);
+							}
+							continue;
+						}
+						try {
+							bool isEmailFromInbox=true;
+							if(openPopMsg.Headers.From.ToString().ToLower().Contains(emailAddressInbox.EmailUsername.Trim().ToLower())) {//The email Recipient and email From addresses are the same.
+																																		 //The email Recipient and email To or CC or BCC addresses are the same.  We have verified that a user can send an email to themself using only CC or BCC.
+								if(String.Join(",",openPopMsg.Headers.To).ToLower().Contains(emailAddressInbox.EmailUsername.Trim().ToLower()) ||
+									String.Join(",",openPopMsg.Headers.Cc).ToLower().Contains(emailAddressInbox.EmailUsername.Trim().ToLower()) ||
+									String.Join(",",openPopMsg.Headers.Bcc).ToLower().Contains(emailAddressInbox.EmailUsername.Trim().ToLower())) {
+									//Download this message because it was clearly sent from the user to theirself.
+								}
+								else {
+									//Gmail will report sent email as if it is part of the Inbox. These emails will have the From address as the Recipient address, but the To address will be a different address.
+									isEmailFromInbox=false;
+								}
+							}
+							if(isEmailFromInbox) {
+								string strRawEmail=openPopMsg.MessagePart.BodyEncoding.GetString(openPopMsg.RawMessage);
+								EmailMessage emailMessage=ProcessRawEmailMessageIn(strRawEmail,0,emailAddressInbox,true);//Inserts to db.
+								retVal.Add(emailMessage);
+								msgDownloadedCount++;
+							}
+							EmailMessageUid emailMessageUid=new EmailMessageUid();
+							emailMessageUid.RecipientAddress=emailAddressInbox.EmailUsername.Trim();
+							emailMessageUid.MsgId=strMsgUid;
+							EmailMessageUids.Insert(emailMessageUid);//Remember Uid was downloaded, to avoid email duplication the next time the inbox is refreshed.
+							listDownloadedMsgUidStrs.Add(strMsgUid);
+						}
+						catch(ThreadAbortException) {
+							//This can happen if the application is exiting. We need to leave right away so the program does not lock up.
+							//Otherwise, this loop could continue for a while if there are a lot of messages to download.
+							throw;
+						}
+						catch {
+							//If one particular email fails to download, then skip it for now and move on to the next email.
+						}
+						if(receiveCount>0 && msgDownloadedCount>=receiveCount) {
+							break;
+						}
+					}
+				}
+			}
+			//Since this function is fired automatically based on the inbox check interval, we also try to send the oldest unsent Ack.
+			//The goal is to keep trying to send the Acks at a reasonable interval until they are successfully delivered.
+			SendOldestUnsentAck(emailAddressInbox);
+			return retVal;
+		}
+
+		///<summary>Use token based authentication to retrieve emails.</summary>
+		private static List<EmailMessage> RetrieveFromInboxOAuth(EmailAddress emailAddressInbox,ref List<string> listSkipMsgUids,int receiveCount) {
+			List<EmailMessage> retVal=new List<EmailMessage>();
+			//DEBUG pass this in to the Pop3Client: new MailKit.ProtocolLogger(Console.OpenStandardOutput())
+			using MailKit.Net.Pop3.Pop3Client clientMK=new MailKit.Net.Pop3.Pop3Client(){
+				Timeout=180000,
+				//This validation callback method was written by the creator of Mailkit and can be found here:
+				//https://github.com/jstedfast/MailKit/issues/307
+				ServerCertificateValidationCallback=(sender,certificate,chain,sslPolicyErrors) => {
+					if(sslPolicyErrors==SslPolicyErrors.None) {
+						return true;
+					}
+					// if there are errors in the certificate chain, look at each error to determine the cause.
+					if((sslPolicyErrors & SslPolicyErrors.RemoteCertificateChainErrors)!=0) {
+						if(chain!=null && chain.ChainStatus!=null) {
+							foreach(var status in chain.ChainStatus) {
+								if((certificate.Subject==certificate.Issuer) && (status.Status==X509ChainStatusFlags.UntrustedRoot)) {
+									// self-signed certificates with an untrusted root are valid. 
+									continue;
+								}
+								else if(status.Status!=X509ChainStatusFlags.NoError) {
+									// if there are any other errors in the certificate chain, the certificate is invalid,
+									// so the method returns false.
+									return false;
+								}
+							}
+						}
+						// When processing reaches this line, the only errors in the certificate chain are 
+						// untrusted root errors for self-signed certificates. These certificates are valid
+						// for default Exchange server installations, so return true.
+						return true;
+					}
+					return false;
+				}
+			};
+			#region Authenticate with AccessToken
+			try {
+				//We were always getting a revocation unknown error, and since we don't use a certificate we will never actually be "revoked"
+				//so there is no need to check for it.
+				clientMK.CheckCertificateRevocation=false;
+				clientMK.Connect(emailAddressInbox.Pop3ServerIncoming,emailAddressInbox.ServerPortIncoming);
+				clientMK.Authenticate(new MailKit.Security.SaslMechanismOAuth2(emailAddressInbox.EmailUsername,emailAddressInbox.AccessToken));
+			}
+			catch(Exception e) {
+				e.DoNothing();
+				clientMK.Disconnect(true);
+				try {
+					string accessToken=Google.MakeRefreshAccessTokenRequest(emailAddressInbox.RefreshToken);
+					clientMK.Connect(emailAddressInbox.Pop3ServerIncoming,emailAddressInbox.ServerPortIncoming);
+					clientMK.Authenticate(new MailKit.Security.SaslMechanismOAuth2(emailAddressInbox.EmailUsername,accessToken));
+					emailAddressInbox.AccessToken=accessToken;
+					EmailAddresses.Update(emailAddressInbox);
+					EmailAddresses.RefreshCache();
+				}
+				catch(Exception ex) {
+					clientMK.Disconnect(true);
+					clientMK.Dispose();
+					throw ex;
+				}
+			}
+			#endregion
+			#region Access E-Mails
+			try {
+				List<string> listMsgUids=clientMK.GetMessageUids().ToList();//Get all unique identifiers for each email in the inbox.
 				List<EmailMessageUid> listDownloadedMsgUids=EmailMessageUids.GetForRecipientAddress(emailAddressInbox.EmailUsername.Trim());
 				List<string> listDownloadedMsgUidStrs=new List<string>();
 				for(int i=0;i<listDownloadedMsgUids.Count;i++) {
@@ -898,37 +1112,13 @@ namespace OpenDentBusiness{
 				}
 				int msgDownloadedCount=0;
 				for(int i=0;i<listMsgUids.Count;i++) {
-					int msgIndex=i+1;//The message indicies are 1-based.
-					string strMsgUid=listMsgUids[i];//Example: 1420562540.886638.p3plgemini22-06.prod.phx.2602059520
-					OpenPop.Mime.Header.MessageHeader messageHeader=null;
-					if(strMsgUid.Length==0) {
-						//Message Uids are commonly used, but are optional according to the RFC822 email standard.
-						//Uids are assgined by the sending client application, so they could be anything, but are supposed to be unique.
-						//Additionally, most email servers are probably smart enough to create a Uid for any message where the Uid is missing.
-						//In the worst case scenario, we create a Uid for the message based off of the message header information, which takes a little extra time, 
-						//but is better than downloading old messages again, especially if some of those messages contain large attachments.
-						messageHeader=client.GetMessageHeaders(msgIndex);//Takes 1-2 seconds to get this information from the server.  The message, minus body and minus attachments.
-						strMsgUid=messageHeader.DateSent.ToString("yyyyMMddHHmmss")+emailAddressInbox.EmailUsername.Trim()+messageHeader.From.Address+messageHeader.Subject;
-					}
-					if(strMsgUid.Length>4000) {//The EmailMessageUid.MsgId field is only 4000 characters in size.
-						strMsgUid=strMsgUid.Substring(0,4000);
-					}
-					if(listDownloadedMsgUidStrs.Contains(strMsgUid)) {
+					int msgIndex=i;//The message indicies are 1-based.
+					if(listDownloadedMsgUidStrs.Contains(listMsgUids[i])) {
 						continue;//Skip emails which have already been downloaded.
 					}
-					//messageHeader will only be defined if we created our own unique ID manually above.  MessageId is optional, just as the message UIDs are.
-					if(messageHeader!=null && messageHeader.MessageId!="") {
-						//The MessageId is usually generated by the email server.
-						//The message does not have a UID, and the ID that we made up has not been downloaded before.  As a last resort we check the MessageId in 
-						//the message header.  MessageId is different than the UID.  We should have used the MessageId as the second option in the past, but now 
-						//we are stuck using it as a third option, because using MessageId as a second option would cause old emails to download again.
-						strMsgUid=messageHeader.MessageId;//Example: xtbzX6Pumwpcn9NjhAJn5A@mcmail1.mcr.colo.comodo.net
-						if(strMsgUid.Length>4000) {//The EmailMessageUid.MsgId field is only 4000 characters in size.
-							strMsgUid=strMsgUid.Substring(0,4000);
-						}
-						if(listDownloadedMsgUidStrs.Contains(strMsgUid)) {
-							continue;//Skip emails which have already been downloaded.
-						}
+					string strMsgUid=listMsgUids[i];//Example: 1420562540.886638.p3plgemini22-06.prod.phx.2602059520
+					if(strMsgUid.Length>4000) {//The EmailMessageUid.MsgId field is only 4000 characters in size.
+						strMsgUid=strMsgUid.Substring(0,4000);
 					}
 					if(!listSkipMsgUids.IsNullOrEmpty() && listSkipMsgUids.Contains(strMsgUid)) {
 						continue;
@@ -937,35 +1127,15 @@ namespace OpenDentBusiness{
 						listSkipMsgUids.Add(strMsgUid);
 					}
 					//At this point, we know that the email is one which we have not downloaded yet.
-					OpenPop.Mime.Message openPopMsg;
+					MimeKit.MimeMessage mimeKitMsg;
 					try {
-						openPopMsg=client.GetMessage(msgIndex);//This is where the entire raw email is downloaded.
-					}
-					catch(Exception ex) {
-						//Certain error messages should be treated as "downloaded" so that we do not waste time trying to download these email messages again.
-						if(ex.Message=="The specified media type is invalid."
-							|| ex.Message=="Invalid length for a Base-64 char array or string."
-							|| ex.Message.StartsWith("'binary' is not a supported encoding name. "
-								+"For information on defining a custom encoding, see the documentation for the Encoding.RegisterProvider method.")
-							|| ex.Message.StartsWith("'Cp1252' is not a supported encoding name. "
-								+"For information on defining a custom encoding, see the documentation for the Encoding.RegisterProvider method."))
-						{
-							EmailMessageUid emailMessageUid=new EmailMessageUid();
-							emailMessageUid.RecipientAddress=emailAddressInbox.EmailUsername.Trim();
-							emailMessageUid.MsgId=strMsgUid;
-							EmailMessageUids.Insert(emailMessageUid);//Remember Uid was downloaded, to avoid email duplication the next time the inbox is refreshed.
-							listDownloadedMsgUidStrs.Add(strMsgUid);
-						}
-						continue;
-					}
-					try {
+						mimeKitMsg=clientMK.GetMessage(msgIndex);//This is where the entire raw email is downloaded.
 						bool isEmailFromInbox=true;
-						if(openPopMsg.Headers.From.ToString().ToLower().Contains(emailAddressInbox.EmailUsername.Trim().ToLower())) {//The email Recipient and email From addresses are the same.
-							//The email Recipient and email To or CC or BCC addresses are the same.  We have verified that a user can send an email to themself using only CC or BCC.
-							if(String.Join(",",openPopMsg.Headers.To).ToLower().Contains(emailAddressInbox.EmailUsername.Trim().ToLower()) ||
-								String.Join(",",openPopMsg.Headers.Cc).ToLower().Contains(emailAddressInbox.EmailUsername.Trim().ToLower()) ||
-								String.Join(",",openPopMsg.Headers.Bcc).ToLower().Contains(emailAddressInbox.EmailUsername.Trim().ToLower()))
-							{
+						if(mimeKitMsg.Headers[MimeKit.HeaderId.From].ToString().ToLower().Contains(emailAddressInbox.EmailUsername.Trim().ToLower())) {//The email Recipient and email From addresses are the same.
+							 //The email Recipient and email To or CC or BCC addresses are the same.  We have verified that a user can send an email to themself using only CC or BCC.
+							if(String.Join(",",mimeKitMsg.Headers[MimeKit.HeaderId.To]).ToLower().Contains(emailAddressInbox.EmailUsername.Trim().ToLower()) ||
+								String.Join(",",mimeKitMsg.Headers[MimeKit.HeaderId.Cc]).ToLower().Contains(emailAddressInbox.EmailUsername.Trim().ToLower()) ||
+								String.Join(",",mimeKitMsg.Headers[MimeKit.HeaderId.Bcc]).ToLower().Contains(emailAddressInbox.EmailUsername.Trim().ToLower())) {
 								//Download this message because it was clearly sent from the user to theirself.
 							}
 							else {
@@ -974,7 +1144,7 @@ namespace OpenDentBusiness{
 							}
 						}
 						if(isEmailFromInbox) {
-							string strRawEmail=openPopMsg.MessagePart.BodyEncoding.GetString(openPopMsg.RawMessage);
+							string strRawEmail=mimeKitMsg.ToString();
 							EmailMessage emailMessage=ProcessRawEmailMessageIn(strRawEmail,0,emailAddressInbox,true);//Inserts to db.
 							retVal.Add(emailMessage);
 							msgDownloadedCount++;
@@ -998,9 +1168,14 @@ namespace OpenDentBusiness{
 					}
 				}
 			}
-			//Since this function is fired automatically based on the inbox check interval, we also try to send the oldest unsent Ack.
-			//The goal is to keep trying to send the Acks at a reasonable interval until they are successfully delivered.
-			SendOldestUnsentAck(emailAddressInbox);
+			catch(Exception ex) {
+				throw ex;
+			}
+			finally {
+				clientMK.Disconnect(true);
+				clientMK.Dispose();
+			}
+			#endregion
 			return retVal;
 		}
 
@@ -1384,6 +1559,8 @@ namespace OpenDentBusiness{
 			emailAddress.ServerPort=odAddress.ServerPort;
 			emailAddress.SMTPserver=odAddress.SMTPserver;
 			emailAddress.UseSSL=odAddress.UseSSL;
+			emailAddress.AccessToken=odAddress.AccessToken;
+			emailAddress.RefreshToken=odAddress.RefreshToken;
 			return emailAddress;
 		}
 
@@ -2343,13 +2520,28 @@ namespace OpenDentBusiness{
       return forwardMessage;
     }
 
-		///<summary>This method sets message.HtmlText by putting the BodyText into an HTML body.</summary>
+		///<summary>This method sets message.HtmlText by putting the BodyText into an HTML body.  Will only set HtmlText,AreImagesDownloaded,HtmlType if
+		///the email contains HTML tags.  If HTML tags are not found, makes no changes.</summary>
 		///<exception cref="ApplicationException">For BodyText not properly formatted as HTML.</exception>
 		public static void PrepHtmlEmail(EmailMessage message) {
 			//No need to check RemotingRole; no call to db.
-			message.HtmlText=MarkupEdit.TranslateToXhtml(message.BodyText,isPreviewOnly:false,hasWikiPageTitles:false,isEmail:true);
+			if(!ContainsOdHtmlTags(message.BodyText)) {
+				//OD will not allow the user to save the email edit window if they have included a '<' or '>' without prefixing '&'.
+				message.BodyText=message.BodyText.Replace("&<","<");
+				message.BodyText=message.BodyText.Replace("&>",">");
+				return;
+			}
+			string xhtml=MarkupEdit.TranslateToXhtml(message.BodyText,isPreviewOnly:false,hasWikiPageTitles:false,isEmail:true);
+			message.HtmlText=xhtml;
 			message.AreImagesDownloaded=true;
 			message.HtmlType=EmailType.Html;
+		}		
+
+		///<summary>Determines if the given text contains any HTML tags, ex <a href="opendental.com">opendental.com</a> or any Od wiki syntax tags that
+		///would result in HTML tags being added to the text when run through MarkupEdit.TranslateToXhtml()</summary>
+		public static bool ContainsOdHtmlTags(string text) {
+			Regex tagRegex=new Regex(@"<\s*([^ >]+)[^>]*>.*?<\s*/\s*\1\s*>");
+			return tagRegex.IsMatch(text??"") || MarkupEdit.ContainsOdMarkupForEmail(text??"");
 		}
 
 		#endregion Helpers

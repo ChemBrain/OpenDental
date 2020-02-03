@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using OpenDentBusiness;
 using CodeBase;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace OpenDental{
 ///<summary></summary>
@@ -44,6 +45,13 @@ namespace OpenDental{
 		private UI.Button butPickUserod;
 		private Label labelUserod;
 		private TextBox textUserod;
+		private TextBox textAccessToken;
+		private TextBox textRefreshToken;
+		private UI.Button butAuthGoogle;
+		private Label labelAccess;
+		private Label labelRefresh;
+		private GroupBox groupGoogleAuth;
+		private UI.Button butClearTokens;
 		private bool _isNew;
 
 		///<summary></summary>
@@ -116,16 +124,24 @@ namespace OpenDental{
 			this.butPickUserod = new OpenDental.UI.Button();
 			this.labelUserod = new System.Windows.Forms.Label();
 			this.textUserod = new System.Windows.Forms.TextBox();
+			this.textAccessToken = new System.Windows.Forms.TextBox();
+			this.textRefreshToken = new System.Windows.Forms.TextBox();
+			this.butAuthGoogle = new OpenDental.UI.Button();
+			this.labelAccess = new System.Windows.Forms.Label();
+			this.labelRefresh = new System.Windows.Forms.Label();
+			this.groupGoogleAuth = new System.Windows.Forms.GroupBox();
+			this.butClearTokens = new OpenDental.UI.Button();
 			this.groupOutgoing.SuspendLayout();
 			this.groupIncoming.SuspendLayout();
 			this.groupUserod.SuspendLayout();
+			this.groupGoogleAuth.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// butCancel
 			// 
 			this.butCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.butCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-			this.butCancel.Location = new System.Drawing.Point(509, 443);
+			this.butCancel.Location = new System.Drawing.Point(509, 544);
 			this.butCancel.Name = "butCancel";
 			this.butCancel.Size = new System.Drawing.Size(75, 24);
 			this.butCancel.TabIndex = 7;
@@ -135,7 +151,7 @@ namespace OpenDental{
 			// butOK
 			// 
 			this.butOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.butOK.Location = new System.Drawing.Point(428, 443);
+			this.butOK.Location = new System.Drawing.Point(428, 544);
 			this.butOK.Name = "butOK";
 			this.butOK.Size = new System.Drawing.Size(75, 24);
 			this.butOK.TabIndex = 6;
@@ -200,9 +216,9 @@ namespace OpenDental{
 			// 
 			// label4
 			// 
-			this.label4.Location = new System.Drawing.Point(18, 26);
+			this.label4.Location = new System.Drawing.Point(100, 26);
 			this.label4.Name = "label4";
-			this.label4.Size = new System.Drawing.Size(177, 20);
+			this.label4.Size = new System.Drawing.Size(95, 20);
 			this.label4.TabIndex = 0;
 			this.label4.Text = "Password";
 			this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -235,9 +251,9 @@ namespace OpenDental{
 			// checkSSL
 			// 
 			this.checkSSL.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-			this.checkSSL.Location = new System.Drawing.Point(21, 47);
+			this.checkSSL.Location = new System.Drawing.Point(103, 47);
 			this.checkSSL.Name = "checkSSL";
-			this.checkSSL.Size = new System.Drawing.Size(190, 17);
+			this.checkSSL.Size = new System.Drawing.Size(108, 17);
 			this.checkSSL.TabIndex = 3;
 			this.checkSSL.Text = "Use SSL";
 			this.checkSSL.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -256,7 +272,7 @@ namespace OpenDental{
 			this.butDelete.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.butDelete.Image = global::OpenDental.Properties.Resources.deleteX;
 			this.butDelete.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-			this.butDelete.Location = new System.Drawing.Point(12, 443);
+			this.butDelete.Location = new System.Drawing.Point(12, 544);
 			this.butDelete.Name = "butDelete";
 			this.butDelete.Size = new System.Drawing.Size(75, 24);
 			this.butDelete.TabIndex = 8;
@@ -274,7 +290,7 @@ namespace OpenDental{
 			this.groupOutgoing.Controls.Add(this.textSender);
 			this.groupOutgoing.Controls.Add(this.textPort);
 			this.groupOutgoing.Controls.Add(this.label5);
-			this.groupOutgoing.Location = new System.Drawing.Point(12, 73);
+			this.groupOutgoing.Location = new System.Drawing.Point(12, 188);
 			this.groupOutgoing.Name = "groupOutgoing";
 			this.groupOutgoing.Size = new System.Drawing.Size(572, 180);
 			this.groupOutgoing.TabIndex = 4;
@@ -307,7 +323,7 @@ namespace OpenDental{
 			this.groupIncoming.Controls.Add(this.label10);
 			this.groupIncoming.Controls.Add(this.textPortIncoming);
 			this.groupIncoming.Controls.Add(this.label11);
-			this.groupIncoming.Location = new System.Drawing.Point(12, 259);
+			this.groupIncoming.Location = new System.Drawing.Point(12, 374);
 			this.groupIncoming.Name = "groupIncoming";
 			this.groupIncoming.Size = new System.Drawing.Size(572, 116);
 			this.groupIncoming.TabIndex = 5;
@@ -367,7 +383,7 @@ namespace OpenDental{
 			// 
 			this.label12.Location = new System.Drawing.Point(416, 6);
 			this.label12.Name = "label12";
-			this.label12.Size = new System.Drawing.Size(178, 20);
+			this.label12.Size = new System.Drawing.Size(145, 20);
 			this.label12.TabIndex = 0;
 			this.label12.Text = "(full email address)";
 			this.label12.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -375,7 +391,7 @@ namespace OpenDental{
 			// butRegisterCertificate
 			// 
 			this.butRegisterCertificate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.butRegisterCertificate.Location = new System.Drawing.Point(197, 443);
+			this.butRegisterCertificate.Location = new System.Drawing.Point(197, 544);
 			this.butRegisterCertificate.Name = "butRegisterCertificate";
 			this.butRegisterCertificate.Size = new System.Drawing.Size(122, 24);
 			this.butRegisterCertificate.TabIndex = 9;
@@ -387,7 +403,7 @@ namespace OpenDental{
 			this.groupUserod.Controls.Add(this.butPickUserod);
 			this.groupUserod.Controls.Add(this.labelUserod);
 			this.groupUserod.Controls.Add(this.textUserod);
-			this.groupUserod.Location = new System.Drawing.Point(13, 381);
+			this.groupUserod.Location = new System.Drawing.Point(13, 496);
 			this.groupUserod.Name = "groupUserod";
 			this.groupUserod.Size = new System.Drawing.Size(571, 42);
 			this.groupUserod.TabIndex = 10;
@@ -422,11 +438,81 @@ namespace OpenDental{
 			this.textUserod.Size = new System.Drawing.Size(218, 20);
 			this.textUserod.TabIndex = 0;
 			// 
+			// textAccessToken
+			// 
+			this.textAccessToken.Location = new System.Drawing.Point(185, 54);
+			this.textAccessToken.Name = "textAccessToken";
+			this.textAccessToken.ReadOnly = true;
+			this.textAccessToken.Size = new System.Drawing.Size(218, 20);
+			this.textAccessToken.TabIndex = 11;
+			// 
+			// textRefreshToken
+			// 
+			this.textRefreshToken.Location = new System.Drawing.Point(185, 80);
+			this.textRefreshToken.Name = "textRefreshToken";
+			this.textRefreshToken.ReadOnly = true;
+			this.textRefreshToken.Size = new System.Drawing.Size(218, 20);
+			this.textRefreshToken.TabIndex = 12;
+			// 
+			// butAuthGoogle
+			// 
+			this.butAuthGoogle.Location = new System.Drawing.Point(185, 23);
+			this.butAuthGoogle.Name = "butAuthGoogle";
+			this.butAuthGoogle.Size = new System.Drawing.Size(135, 24);
+			this.butAuthGoogle.TabIndex = 13;
+			this.butAuthGoogle.Text = "Authorize with Google";
+			this.butAuthGoogle.UseVisualStyleBackColor = true;
+			this.butAuthGoogle.Click += new System.EventHandler(this.butAuthGoogle_Click);
+			// 
+			// labelAccess
+			// 
+			this.labelAccess.Location = new System.Drawing.Point(67, 51);
+			this.labelAccess.Name = "labelAccess";
+			this.labelAccess.Size = new System.Drawing.Size(116, 20);
+			this.labelAccess.TabIndex = 14;
+			this.labelAccess.Text = "Access Token";
+			this.labelAccess.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// labelRefresh
+			// 
+			this.labelRefresh.Location = new System.Drawing.Point(64, 77);
+			this.labelRefresh.Name = "labelRefresh";
+			this.labelRefresh.Size = new System.Drawing.Size(115, 20);
+			this.labelRefresh.TabIndex = 15;
+			this.labelRefresh.Text = "Refresh Token";
+			this.labelRefresh.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// groupGoogleAuth
+			// 
+			this.groupGoogleAuth.Controls.Add(this.butClearTokens);
+			this.groupGoogleAuth.Controls.Add(this.textAccessToken);
+			this.groupGoogleAuth.Controls.Add(this.labelRefresh);
+			this.groupGoogleAuth.Controls.Add(this.textRefreshToken);
+			this.groupGoogleAuth.Controls.Add(this.labelAccess);
+			this.groupGoogleAuth.Controls.Add(this.butAuthGoogle);
+			this.groupGoogleAuth.Location = new System.Drawing.Point(12, 70);
+			this.groupGoogleAuth.Name = "groupGoogleAuth";
+			this.groupGoogleAuth.Size = new System.Drawing.Size(572, 112);
+			this.groupGoogleAuth.TabIndex = 16;
+			this.groupGoogleAuth.TabStop = false;
+			this.groupGoogleAuth.Text = "Gmail Authorization";
+			// 
+			// butClearTokens
+			// 
+			this.butClearTokens.Location = new System.Drawing.Point(408, 52);
+			this.butClearTokens.Name = "butClearTokens";
+			this.butClearTokens.Size = new System.Drawing.Size(90, 23);
+			this.butClearTokens.TabIndex = 16;
+			this.butClearTokens.Text = "Clear Tokens";
+			this.butClearTokens.UseVisualStyleBackColor = true;
+			this.butClearTokens.Click += new System.EventHandler(this.butClearTokens_Click);
+			// 
 			// FormEmailAddressEdit
 			// 
 			this.AcceptButton = this.butOK;
 			this.CancelButton = this.butCancel;
-			this.ClientSize = new System.Drawing.Size(600, 483);
+			this.ClientSize = new System.Drawing.Size(600, 584);
+			this.Controls.Add(this.groupGoogleAuth);
 			this.Controls.Add(this.groupUserod);
 			this.Controls.Add(this.butRegisterCertificate);
 			this.Controls.Add(this.label12);
@@ -443,7 +529,7 @@ namespace OpenDental{
 			this.Controls.Add(this.label3);
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.MaximizeBox = false;
-			this.MaximumSize = new System.Drawing.Size(616, 563);
+			this.MaximumSize = new System.Drawing.Size(616, 700);
 			this.MinimizeBox = false;
 			this.Name = "FormEmailAddressEdit";
 			this.ShowInTaskbar = false;
@@ -455,6 +541,8 @@ namespace OpenDental{
 			this.groupIncoming.PerformLayout();
 			this.groupUserod.ResumeLayout(false);
 			this.groupUserod.PerformLayout();
+			this.groupGoogleAuth.ResumeLayout(false);
+			this.groupGoogleAuth.PerformLayout();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -486,6 +574,8 @@ namespace OpenDental{
 				else {
 					groupUserod.Visible=false;
 				}
+				textAccessToken.Text=_emailAddressCur.AccessToken;
+				textRefreshToken.Text=_emailAddressCur.RefreshToken;
 			}
 		}
 
@@ -537,6 +627,40 @@ namespace OpenDental{
 			}
 		}
 
+		private void butClearTokens_Click(object sender,EventArgs e) {
+			textAccessToken.Text="";
+			textRefreshToken.Text="";
+		}
+
+		private void butAuthGoogle_Click(object sender,EventArgs e) {
+			try {
+				string url=Google.GetGoogleAuthorizationUrl(textUsername.Text);
+				Process.Start(url);
+				InputBox inputbox=new InputBox("Please enter the authorization code from your browser");
+				inputbox.setTitle("Google Account Authorization");
+				inputbox.ShowDialog();
+				if(inputbox.DialogResult!=DialogResult.OK) {
+					return;
+				}
+				if(string.IsNullOrWhiteSpace(inputbox.textResult.Text)) {
+					throw new ODException(Lan.g(this,"There was no authorization code entered."));
+				}
+				string authCode=inputbox.textResult.Text;
+				GoogleTokens tokens=Google.MakeAccessTokenRequest(authCode);
+				if(tokens.errorMessage!="") {
+					throw new Exception(tokens.errorMessage);
+				}
+				textAccessToken.Text=tokens.AccessToken;
+				textRefreshToken.Text=tokens.RefreshToken;
+			}
+			catch(ODException ae) {
+				MsgBox.Show(ae.Message);
+			}
+			catch(Exception ex) {
+				MsgBox.Show("Error: "+ex.Message);
+			}
+		}
+
 		private void butOK_Click(object sender, System.EventArgs e) {
 			try {
 				PIn.Int(textPort.Text);
@@ -560,6 +684,21 @@ namespace OpenDental{
 			if(EmailAddresses.AddressExists(textUsername.Text,_emailAddressCur.EmailAddressNum)) {
 				MsgBox.Show(this,"This email address already exists.");
 				return;
+			}
+			_emailAddressCur.AccessToken=textAccessToken.Text;
+			_emailAddressCur.RefreshToken=textRefreshToken.Text;
+			if((!string.IsNullOrWhiteSpace(_emailAddressCur.AccessToken) || !string.IsNullOrWhiteSpace(_emailAddressCur.RefreshToken))//If has a token
+				&&( _emailAddressCur.SMTPserver!=PIn.String(textSMTPserver.Text) || _emailAddressCur.Pop3ServerIncoming!=PIn.String(textSMTPserverIncoming.Text)))//And changed a server
+			{
+				if(!MsgBox.Show(MsgBoxButtons.OKCancel,"There is an access token associated to this email address.  "
+					+"Changing servers will wipe out the access token and may require reauthentication.  Continue?"))
+				{
+					return;
+				}
+				_emailAddressCur.AccessToken="";
+				_emailAddressCur.RefreshToken="";
+				//TODO: If this is a google token, we may want to tell Google we no longer require access to their account.
+				//This will limit our total number of active users
 			}
 			_emailAddressCur.SMTPserver=PIn.String(textSMTPserver.Text);
 			_emailAddressCur.EmailUsername=PIn.String(textUsername.Text);

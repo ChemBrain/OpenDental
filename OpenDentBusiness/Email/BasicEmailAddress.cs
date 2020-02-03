@@ -19,6 +19,10 @@ namespace OpenDentBusiness.Email {
 		public int ServerPort;
 		///<summary>If SSL should be used.</summary>
 		public bool UseSSL;
+		///<summary>OAuth token used for account authorization.</summary>
+		public string AccessToken;
+		///<summary>OAuth token used to refresh the AccessToken.</summary>
+		public string RefreshToken;
 
 	}
 

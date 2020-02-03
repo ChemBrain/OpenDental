@@ -176,6 +176,7 @@ namespace OpenDental{
 				}
 				if(calcH<=field.Height //calc height is smaller
 					&& field.FieldName!="StatementPayPlan" //allow this grid to shrink and disappear.
+					&& field.FieldName!="StatementDynamicPayPlan" //allow this grid to shrink and disappear.
 					&& field.FieldName!="TreatPlanBenefitsFamily" //allow this grid to shrink and disappear.
 					&& field.FieldName!="TreatPlanBenefitsIndividual") //allow this grid to shrink and disappear.
 				{
@@ -659,6 +660,7 @@ namespace OpenDental{
 					retVal.Add(new DisplayField { Category=DisplayFieldCategory.None,InternalName="Age90plus",Description="over 90",ColumnWidth=75,ItemOrder=++i });
 					retVal.Add(new DisplayField { Category=DisplayFieldCategory.None,InternalName="AcctTotal",Description="Total",ColumnWidth=75,ItemOrder=++i });
 					break;
+				case "StatementDynamicPayPlan":
 				case "StatementPayPlan":
 					retVal.Add(new DisplayField { Category=DisplayFieldCategory.None,InternalName="date",Description="Date",ColumnWidth=80,ItemOrder=++i });
 					retVal.Add(new DisplayField { Category=DisplayFieldCategory.None,InternalName="description",Description="Description",ColumnWidth=250,ItemOrder=++i });
@@ -796,6 +798,7 @@ namespace OpenDental{
 					retVal.Add("StatementEnclosed");
 					retVal.Add("StatementMain");
 					retVal.Add("StatementPayPlan");
+					retVal.Add("StatementDynamicPayPlan");
 					retVal.Add("StatementInvoicePayment");
 					break;
 				case SheetTypeEnum.MedLabResults:

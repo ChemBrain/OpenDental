@@ -21,7 +21,10 @@ namespace OpenDentBusiness.SheetFramework {
 					retVal=GetTable_StatementAging(stmt,patGuar);
 					break;
 				case "StatementPayPlan":
-					retVal=GetTable_StatementPayPlan(dataSet);
+					retVal=GetTable_StatementPayPlan(dataSet,false);
+					break;
+				case "StatementDynamicPayPlan":
+					retVal=GetTable_StatementPayPlan(dataSet,true);
 					break;
 				case "StatementEnclosed":
 					retVal=GetTable_StatementEnclosed(dataSet,stmt,patGuar);
@@ -193,10 +196,13 @@ namespace OpenDentBusiness.SheetFramework {
 			return retVal;
 		}
 		///<Summary>DataSet should be prefilled with AccountModules.GetAccount() before calling this method.</Summary>
-		private static DataTable GetTable_StatementPayPlan(DataSet dataSet) {
+		private static DataTable GetTable_StatementPayPlan(DataSet dataSet,bool isDynamicPaymentPlan) {
 			DataTable retVal=new DataTable();
 			foreach(DataTable t in dataSet.Tables) {
-				if(!t.TableName.StartsWith("payplan")) {
+				if(!isDynamicPaymentPlan && !t.TableName.StartsWith("payplan")) {
+					continue;
+				}
+				if(isDynamicPaymentPlan && !t.TableName.StartsWith("dynamicPayPlan")) {
 					continue;
 				}
 				retVal=t.Clone();

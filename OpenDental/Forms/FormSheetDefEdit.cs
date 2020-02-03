@@ -597,9 +597,14 @@ namespace OpenDental {
 			switch(sheetFieldDef.FieldName) {
 				#region StatementPayPlan
 				case "StatementPayPlan":
-					sSize=g.MeasureString("Payment Plans",new Font(FontFamily.GenericSansSerif,10,FontStyle.Bold));
+				case "StatementDynamicPayPlan":
+					string text="Payment Plans";
+					if(sheetFieldDef.FieldName=="StatementDynamicPayPlan") {
+						text="Dynamic Payment Plans";
+					}
+					sSize=g.MeasureString(text,new Font(FontFamily.GenericSansSerif,10,FontStyle.Bold));
 					g.FillRectangle(Brushes.White,sheetFieldDef.XPos,yPosGrid,odGrid.Width,heightGridTitle);
-					g.DrawString("Payment Plans",new Font(FontFamily.GenericSansSerif,10,FontStyle.Bold),new SolidBrush(Color.Black),sheetFieldDef.XPos+(sheetFieldDef.Width-sSize.Width)/2,yPosGrid);
+					g.DrawString(text,new Font(FontFamily.GenericSansSerif,10,FontStyle.Bold),new SolidBrush(Color.Black),sheetFieldDef.XPos+(sheetFieldDef.Width-sSize.Width)/2,yPosGrid);
 					yPosGrid+=heightGridTitle;
 					break;
 				#endregion
@@ -718,12 +723,16 @@ namespace OpenDental {
 				yPosGrid+=heightGridRow;
 			}
 			#region drawFooter
-			if(sheetFieldDef.FieldName=="StatementPayPlan") {
+			if(sheetFieldDef.FieldName=="StatementPayPlan" || sheetFieldDef.FieldName=="StatementDynamicPayPlan") {
+				string text="Payment Plan Amount Due: "+"0.00";
+				if(sheetFieldDef.FieldName=="StatementDynamicPayPlan") {
+					text="Dynamic Payment Plan Amount Due: "+"0.00";
+				}
 				RectangleF rf=new RectangleF(sheetFieldDef.Width-sheetFieldDef.Width-60,yPosGrid,sheetFieldDef.Width,heightGridTitle);
 				g.FillRectangle(Brushes.White,rf);
 				StringFormat sf=new StringFormat();
 				sf.Alignment=StringAlignment.Far;
-				g.DrawString("Payment Plan Amount Due: "+"0.00",new Font(FontFamily.GenericSansSerif,10,FontStyle.Bold),new SolidBrush(Color.Black),rf,sf);
+				g.DrawString(text,new Font(FontFamily.GenericSansSerif,10,FontStyle.Bold),new SolidBrush(Color.Black),rf,sf);
 			}
 			if(sheetFieldDef.FieldName=="StatementInvoicePayment") {
 				RectangleF rf=new RectangleF(sheetFieldDef.Width-sheetFieldDef.Width-60,yPosGrid,sheetFieldDef.Width,heightGridTitle);

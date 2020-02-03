@@ -144,7 +144,10 @@ namespace CentralManager {
 		private void RunTransfer() {
 			//Get data from the source connection. This will have all the patients selected from the sourceconnection
 			string stringFailedConns="";
-			_listSheetsForSelectedPats=GetDataFromSourceConnection(_sourceConnection);
+			ODThread odThread=new ODThread(GetDataFromSourceConnection, new object[]{ _sourceConnection });
+			odThread.GroupName="FetchSheets";
+			odThread.Start();
+			ODThread.JoinThreadsByGroupName(Timeout.Infinite,"FetchSheets");
 			if(_listSheetsForSelectedPats.IsNullOrEmpty()) {
 				string connString=CentralConnections.GetConnectionString(_sourceConnection);
 				stringFailedConns+=connString+"\r\n";
@@ -191,14 +194,12 @@ namespace CentralManager {
 			return true;
 		}
 
-		private List<Sheet> GetDataFromSourceConnection(CentralConnection conn) {
-			if(!CentralConnectionHelper.SetCentralConnection(conn,false)) {
-				conn.ConnectionStatus=Lans.g(this,"OFFLINE");
-				return new List<Sheet>();
-			}
-			List<Sheet> listSheetsToTransfer=new List<Sheet>();
+		private void GetDataFromSourceConnection(ODThread oDThread) {
+			CentralConnection conn=(CentralConnection)oDThread.Parameters[0];
+			_listSheetsForSelectedPats=new List<Sheet>();
+			CentralConnectionHelper.SetCentralConnection(conn,false);
 			List<long> listPatNumsToTransfer=_listPatientDataRows.Select(x=>PIn.Long(x["PatNum"].ToString())).ToList();
-			return GetSheetsForTransfer(listPatNumsToTransfer);
+			_listSheetsForSelectedPats=GetSheetsForTransfer(listPatNumsToTransfer);
 		}
 
 		private List<Sheet> GetSheetsForTransfer(List<long> listPatNumsToTransfer) {

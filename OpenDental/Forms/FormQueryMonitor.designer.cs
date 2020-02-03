@@ -119,7 +119,7 @@ namespace OpenDental {
 			// 
 			// label4
 			// 
-			this.label4.Location = new System.Drawing.Point(532, 20);
+			this.label4.Location = new System.Drawing.Point(544, 20);
 			this.label4.Name = "label4";
 			this.label4.Size = new System.Drawing.Size(96, 17);
 			this.label4.TabIndex = 7;
@@ -137,7 +137,7 @@ namespace OpenDental {
 			// 
 			// label2
 			// 
-			this.label2.Location = new System.Drawing.Point(94, 20);
+			this.label2.Location = new System.Drawing.Point(82, 20);
 			this.label2.Name = "label2";
 			this.label2.Size = new System.Drawing.Size(96, 17);
 			this.label2.TabIndex = 5;
@@ -146,23 +146,23 @@ namespace OpenDental {
 			// 
 			// textElapsed
 			// 
-			this.textElapsed.Location = new System.Drawing.Point(634, 19);
+			this.textElapsed.Location = new System.Drawing.Point(646, 18);
 			this.textElapsed.Name = "textElapsed";
 			this.textElapsed.Size = new System.Drawing.Size(111, 20);
 			this.textElapsed.TabIndex = 4;
 			// 
 			// textDateTimeStop
 			// 
-			this.textDateTimeStop.Location = new System.Drawing.Point(415, 19);
+			this.textDateTimeStop.Location = new System.Drawing.Point(415, 18);
 			this.textDateTimeStop.Name = "textDateTimeStop";
-			this.textDateTimeStop.Size = new System.Drawing.Size(111, 20);
+			this.textDateTimeStop.Size = new System.Drawing.Size(123, 20);
 			this.textDateTimeStop.TabIndex = 3;
 			// 
 			// textDateTimeStart
 			// 
-			this.textDateTimeStart.Location = new System.Drawing.Point(196, 19);
+			this.textDateTimeStart.Location = new System.Drawing.Point(184, 18);
 			this.textDateTimeStart.Name = "textDateTimeStart";
-			this.textDateTimeStart.Size = new System.Drawing.Size(111, 20);
+			this.textDateTimeStart.Size = new System.Drawing.Size(123, 20);
 			this.textDateTimeStart.TabIndex = 2;
 			// 
 			// label1

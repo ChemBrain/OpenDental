@@ -31,6 +31,10 @@ namespace OpenDentBusiness {
     ///<summary>Webmail ProvNum.  Just makes it easier to know what email address the user picked in the inbox. Not a DB column.</summary>
     [CrudColumn(IsNotDbColumn=true)]
     public long WebmailProvNum;
+		///<summary>Needed for OAuth.</summary>
+		public string AccessToken;
+		///<summary>Needed for OAuth.</summary>
+		public string RefreshToken;
 
     ///<summary>We assume the email settings are implicit if the server port is 465.</summary>
     public bool IsImplicitSsl {

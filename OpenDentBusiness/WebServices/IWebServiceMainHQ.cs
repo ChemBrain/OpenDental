@@ -65,5 +65,6 @@ namespace OpenDentBusiness {
 		string SetSupplementalBackupStatus(string officeData);
 		string ThankYouSend(string officeData);
 		string SetSmsPatientPhoneOptIn(string officeData);
+		string GetGoogleAccessToken(string authCode,bool isRefreshToken);
 	}
 }

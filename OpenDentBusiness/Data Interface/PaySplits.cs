@@ -218,6 +218,9 @@ namespace OpenDentBusiness{
 
 		///<summary>For a given PayPlan, returns a list of PaySplits associated to that PayPlan.</summary>
 		public static List<PaySplit> GetForPayPlans(List<long> listPayPlanNums) {
+			if(listPayPlanNums.Count==0) {
+				return new List<PaySplit>();
+			}
 			if(RemotingClient.RemotingRole==RemotingRole.ClientWeb) {
 				return Meth.GetObject<List<PaySplit>>(MethodBase.GetCurrentMethod(),listPayPlanNums);
 			}

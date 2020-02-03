@@ -1426,6 +1426,9 @@ namespace OpenDental {
 					case "StatementPayPlan.charges":
 					case "StatementPayPlan.credits":
 					case "StatementPayPlan.balance":
+					case "StatementDynamicPayPlan.charges":
+					case "StatementDynamicPayPlan.credits":
+					case "StatementDynamicPayPlan.balance":
 					case "StatementInvoicePayment.amt":
 					case "TreatPlanMain.Fee":
 					case "TreatPlanMain.Pri Ins":
@@ -1550,16 +1553,21 @@ namespace OpenDental {
 								}
 							}
 							break;
+						case "StatementDynamicPayPlan":
 						case "StatementPayPlan":
-							SizeF sSize=TextRenderer.MeasureText("Payment Plans",new Font("Arial",10,FontStyle.Bold));
+							string text="Payment Plans";
+							if(field.FieldName=="StatementDynamicPayPlan") {
+								text="Dynamic Payment Plans";
+							}
+							SizeF sSize=TextRenderer.MeasureText(text,new Font("Arial",10,FontStyle.Bold));
 							if(gx==null) {
 								g.FillRectangle(Brushes.White,field.XPos,printRowCur.YPos-_yPosPrint,odGrid.Width,heightGridTitle);
-								g.DrawString("Payment Plans",new Font("Arial",10,FontStyle.Bold),new SolidBrush(Color.Black),field.XPos+(field.Width-sSize.Width)/2,printRowCur.YPos-_yPosPrint);
+								g.DrawString(text,new Font("Arial",10,FontStyle.Bold),new SolidBrush(Color.Black),field.XPos+(field.Width-sSize.Width)/2,printRowCur.YPos-_yPosPrint);
 							}
 							else {
 								gx.DrawRectangle(Brushes.White,field.XPos,printRowCur.YPos-_yPosPrint-1,odGrid.Width,heightGridTitle);
 								using(Font _font=new Font("Arial",10,FontStyle.Bold)) {
-									GraphicsHelper.DrawStringX(gx,"Payment Plans",
+									GraphicsHelper.DrawStringX(gx,text,
 										new XFont(_font.FontFamily.ToString(),_font.Size,XFontStyle.Bold),XBrushes.Black,
 										new RectangleF(field.XPos,printRowCur.YPos-_yPosPrint-1,odGrid.Width,heightGridTitle),HorizontalAlignment.Center);
 									//gx.DrawString("Payment Plans",new XFont(_font.FontFamily.ToString(),_font.Size,XFontStyle.Bold),new SolidBrush(Color.Black),field.XPos+(field.Width-sSize.Width)/2,yPosGrid);
@@ -1652,23 +1660,30 @@ namespace OpenDental {
 				if(printRowCur.IsFooterRow) {
 					_yAdjCurRow+=2;
 					switch(field.FieldName) {
+						case "StatementDynamicPayPlan":
 						case "StatementPayPlan":
+							string descript="patientPayPlanDue";
+							string textAmountDue="Payment Plan Amount Due: ";
+							if(field.FieldName=="StatementDynamicPayPlan") {
+								descript="dynamicPayPlanDue";
+								textAmountDue="Dynamic Payment Plan Amount Due:";
+							}
 							DataTable tableMisc=dataSet.Tables["misc"];
 							if(tableMisc==null) {
 								tableMisc=new DataTable();
 							}
-							double payPlanDue=tableMisc.Rows.OfType<DataRow>().Where(x => x["descript"].ToString()=="payPlanDue").Sum(x => PIn.Double(x["value"].ToString()));
+							double payPlanDue=tableMisc.Rows.OfType<DataRow>().Where(x => x["descript"].ToString()==descript).Sum(x => PIn.Double(x["value"].ToString()));
 							if(gx==null) {
 								RectangleF rf=new RectangleF(sheet.Width-60-field.Width,printRowCur.YPos-_yPosPrint+_yAdjCurRow,field.Width,heightGridTitle);
 								g.FillRectangle(Brushes.White,rf);
 								StringFormat sf=new StringFormat();
 								sf.Alignment=StringAlignment.Far;
-								g.DrawString("Payment Plan Amount Due: "+payPlanDue.ToString("c"),new Font("Arial",9,FontStyle.Bold),new SolidBrush(Color.Black),rf,sf);
+								g.DrawString(textAmountDue+payPlanDue.ToString("c"),new Font("Arial",9,FontStyle.Bold),new SolidBrush(Color.Black),rf,sf);
 							}
 							else {
 								gx.DrawRectangle(Brushes.White,p(sheet.Width-field.Width-60),p(printRowCur.YPos-_yPosPrint+_yAdjCurRow),p(field.Width),p(heightGridTitle));
 								using(Font _font=new Font("Arial",9,FontStyle.Bold)) {
-									GraphicsHelper.DrawStringX(gx,"Payment Plan Amount Due: "+payPlanDue.ToString("c"),new XFont(_font.FontFamily.ToString(),_font.Size,XFontStyle.Bold),XBrushes.Black,new RectangleF(sheet.Width-field.Width-60,printRowCur.YPos-_yPosPrint+_yAdjCurRow,field.Width,heightGridTitle),HorizontalAlignment.Right);
+									GraphicsHelper.DrawStringX(gx,textAmountDue+payPlanDue.ToString("c"),new XFont(_font.FontFamily.ToString(),_font.Size,XFontStyle.Bold),XBrushes.Black,new RectangleF(sheet.Width-field.Width-60,printRowCur.YPos-_yPosPrint+_yAdjCurRow,field.Width,heightGridTitle),HorizontalAlignment.Right);
 								}
 							}
 							break;

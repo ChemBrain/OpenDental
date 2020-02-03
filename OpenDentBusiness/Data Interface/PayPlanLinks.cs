@@ -52,7 +52,19 @@ namespace OpenDentBusiness{
 			if(RemotingClient.RemotingRole==RemotingRole.ClientWeb) {
 				return Meth.GetObject<List<PayPlanLink>>(MethodBase.GetCurrentMethod(),fKey,linkType);
 			}
-			string command=$"SELECT * FROM payplanlink WHERE payplanlink.FKey={POut.Long(fKey)} AND payplanlink.LinkType={POut.Int((int)linkType)} ";
+			return GetForFKeysAndLinkType(new List<long> { fKey },linkType);
+		}
+
+		///<summary>Gets all of the payplanlink entries for the given fKey and linkType.</summary>
+		public static List<PayPlanLink> GetForFKeysAndLinkType(List<long> listFKeys,PayPlanLinkType linkType) {
+			if(listFKeys.IsNullOrEmpty()) {
+				return new List<PayPlanLink>();
+			}
+			if(RemotingClient.RemotingRole==RemotingRole.ClientWeb) {
+				return Meth.GetObject<List<PayPlanLink>>(MethodBase.GetCurrentMethod(),listFKeys,linkType);
+			}
+			string command=$"SELECT * FROM payplanlink WHERE payplanlink.FKey IN ({string.Join(",",listFKeys.Select(x => POut.Long(x)))}) " +
+				$"AND payplanlink.LinkType={POut.Int((int)linkType)} ";
 			return Crud.PayPlanLinkCrud.SelectMany(command);
 		}
 		#endregion Get Methods

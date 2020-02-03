@@ -353,6 +353,7 @@ namespace OpenDental{
 					claimErrors+=errorTitle+createClaimDataWrapper.ErrorMessage+"\r\n";
 				}
 				claimCreatedCount+=createClaimDataWrapper.ClaimCreatedCount;
+				SecurityLogs.MakeLogEntry(Permissions.ClaimEdit,patCur.PatNum,"New claim created for "+patCur.LName+","+patCur.FName);
 				patNumOld=patCur.PatNum;
 			}
 			FillGrid();

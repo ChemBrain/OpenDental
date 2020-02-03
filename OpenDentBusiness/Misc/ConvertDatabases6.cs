@@ -2482,5 +2482,12 @@ namespace OpenDentBusiness {
 			}
 		}
 
+		private static void To19_4_15() {
+			//Gmail OAuth2.0
+			string command="ALTER TABLE emailaddress ADD AccessToken varchar(255) NOT NULL";
+			Db.NonQ(command);
+			command="ALTER TABLE emailaddress ADD RefreshToken varchar(255) NOT NULL";
+			Db.NonQ(command);
+		}
 	}
 }

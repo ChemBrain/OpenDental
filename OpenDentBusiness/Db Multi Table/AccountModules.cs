@@ -66,7 +66,8 @@ namespace OpenDentBusiness {
 			LoadData retVal=new LoadData();
 			retVal.DataSetMain=new DataSet();
 			bool singlePatient=!intermingled;//so one or the other will be true
-			decimal payPlanDue=0;
+			decimal patientPayPlanDue=0;
+			decimal dynamicPayPlanDue=0;
 			decimal balanceForward=0;
 			//Gets 3 tables: account(or account###,account###,etc), patient, payplan.
 			DataSet dataSetAccount=new DataSet();
@@ -95,7 +96,7 @@ namespace OpenDentBusiness {
 			});//Benefits.Refresh
 			Action getAccount=new Action(() => {
 				Logger.LogAction("Get Account",LogPath.AccountModule,() => dataSetAccount=GetAccount(patNum,fromDate,toDate,intermingled,singlePatient,0
-				,showProcBreakdown,showPayNotes,false,showAdjNotes,false,pat,fam,out payPlanDue,out balanceForward));
+				,showProcBreakdown,showPayNotes,false,showAdjNotes,false,pat,fam,out patientPayPlanDue,out dynamicPayPlanDue,out balanceForward));
 				for(int i=0;i<dataSetAccount.Tables.Count;i++) {
 					retVal.DataSetMain.Tables.Add(dataSetAccount.Tables[i].Copy());
 				}
@@ -142,7 +143,7 @@ namespace OpenDentBusiness {
 			});//ClaimProcs.GetHistList
 			Action getMisc=new Action(() => {
 				Logger.LogAction("GetMisc",LogPath.AccountModule,() =>	
-					retVal.DataSetMain.Tables.Add(GetMisc(fam,patNum,payPlanDue,balanceForward,StmtType.NotSet,null)));
+					retVal.DataSetMain.Tables.Add(GetMisc(fam,patNum,patientPayPlanDue,dynamicPayPlanDue,balanceForward,StmtType.NotSet,null)));
 			});//GetMisc
 			Action getFamily=new Action(() => {
 				//GetFamily is called twice because we need to refresh the family data after running aging.
@@ -716,15 +717,17 @@ namespace OpenDentBusiness {
 				}
 				//Add each family account to the data set that is included in superfamily billing.
 				Family fam=Patients.GetFamily(guarantor.PatNum);
-				decimal payPlanDue=0;
+				decimal patientPayPlanDue=0;
+				decimal dynamicPayPlanDue=0;
 				decimal balanceForward=0;
 				DataSet account=GetAccount(guarantor.PatNum,stmtCur.DateRangeFrom,stmtCur.DateRangeTo,true,false,stmtCur.StatementNum,showProcBreakdown,
 					PrefC.GetBool(PrefName.StatementShowNotes),stmtCur.IsInvoice,PrefC.GetBool(PrefName.StatementShowAdjNotes),true,guarantor,fam,
-					out payPlanDue,out balanceForward,stmtCur,isComputeAging,doIncludePatLName,listPayPlanNums,doShowHiddenPaySplits:doShowHiddenPaySplits);
+					out patientPayPlanDue,out dynamicPayPlanDue,out balanceForward,stmtCur,isComputeAging,doIncludePatLName,listPayPlanNums,
+					doShowHiddenPaySplits:doShowHiddenPaySplits);
 				//Setting the PatNum for all rows to the guarantor so that each family will be interminged in one grid. 
 				account.Tables["account"].Rows.Cast<DataRow>().ToList().ForEach(x => x["PatNum"]=guarantor.PatNum);
 				account.Tables.Add(GetApptTable(fam,false,guarantor.PatNum));
-				account.Tables.Add(GetMisc(fam,guarantor.PatNum,payPlanDue,balanceForward,stmtCur.StatementType,account));
+				account.Tables.Add(GetMisc(fam,guarantor.PatNum,patientPayPlanDue,dynamicPayPlanDue,balanceForward,stmtCur.StatementType,account));
 				listPayPlanNums=listPayPlanNums.Union(account.Tables["payplan"].Select().Select(x => PIn.Long(x["PayPlanNum"].ToString()))
 					.Where(x => x > 0)).ToList();
 				retVal.Merge(account);//This works for the purposes we need it for.  Sheets framework auto-splits entries by patnum.
@@ -796,13 +799,14 @@ namespace OpenDentBusiness {
 			}
 			Family fam=Patients.GetFamily(patNum);
 			Patient pat=fam.GetPatient(patNum);
-			decimal payPlanDue=0;
+			decimal patientPayPlanDue=0;
+			decimal dynamicPayPlanDue=0;
 			decimal balanceForward=0;
 			DataSet retVal=GetAccount(patNum,stmt.DateRangeFrom,stmt.DateRangeTo,stmt.Intermingled,stmt.SinglePatient,stmt.StatementNum,showProcBreakdown,
-				PrefC.GetBool(PrefName.StatementShowNotes),stmt.IsInvoice,PrefC.GetBool(PrefName.StatementShowAdjNotes),true,pat,fam,out payPlanDue,
-				out balanceForward,stmt,isComputeAging,doIncludePatLName,doShowHiddenPaySplits:doShowHiddenPaySplits);
+				PrefC.GetBool(PrefName.StatementShowNotes),stmt.IsInvoice,PrefC.GetBool(PrefName.StatementShowAdjNotes),true,pat,fam,out patientPayPlanDue,
+				out dynamicPayPlanDue,out balanceForward,stmt,isComputeAging,doIncludePatLName,doShowHiddenPaySplits:doShowHiddenPaySplits);
 			retVal.Tables.Add(GetApptTable(fam,stmt.SinglePatient,patNum));
-			retVal.Tables.Add(GetMisc(fam,patNum,payPlanDue,balanceForward,stmt.StatementType,retVal));//table=misc; Just holds some info we can't find anywhere else.
+			retVal.Tables.Add(GetMisc(fam,patNum,patientPayPlanDue,dynamicPayPlanDue,balanceForward,stmt.StatementType,retVal));//table=misc; Just holds some info we can't find anywhere else.
 			return retVal;
 		}
 
@@ -815,8 +819,8 @@ namespace OpenDentBusiness {
 		///statement list was generated.  We use DateLastAging to determine if computing aging is necessary.</summary>
 		private static DataSet GetAccount(long patNum,DateTime fromDate,DateTime toDate,bool intermingled,bool singlePatient,long statementNum
 			,bool showProcBreakdown,bool showPayNotes,bool isInvoice,bool showAdjNotes,bool isForStatementPrinting
-			,Patient pat,Family fam,out decimal payPlanDue,out decimal balanceForward,Statement stmt=null,bool isComputeAging=true
-			,bool doIncludePatLName=false,List<long> listPayPlanNumsExclude=null,bool doShowHiddenPaySplits=false) 
+			,Patient pat,Family fam,out decimal patientPayPlanDue,out decimal dynamicPayPlanDue,out decimal balanceForward,Statement stmt=null
+			,bool isComputeAging=true,bool doIncludePatLName=false,List<long> listPayPlanNumsExclude=null,bool doShowHiddenPaySplits=false) 
 		{
 			//No need to check RemotingRole; this method contains out parameters.
 			if(stmt==null) {
@@ -824,7 +828,8 @@ namespace OpenDentBusiness {
 				stmt=new Statement() { StatementType=StmtType.NotSet };
 			}
 			DataSet retVal=new DataSet();
-			payPlanDue=0;
+			patientPayPlanDue=0;
+			dynamicPayPlanDue=0;
 			balanceForward=0;
 			bool isReseller=false;//Used to display data in the account module differently when patient is a reseller.
 			//HQ only, find out if this patient is a reseller.
@@ -1328,7 +1333,8 @@ namespace OpenDentBusiness {
 				//if this GROUP BY changes, the foreach loop below must be changed to match
 				+"GROUP BY paysplit.DatePay,paysplit.PayPlanNum,paysplit.PayNum,paysplit.PatNum,paysplit.ClinicNum ";
 			//Payment query 2
-			if(!string.IsNullOrWhiteSpace(familyPatNums)) {//familyPatNums always contains at least 'patNum'.
+			if(!string.IsNullOrWhiteSpace(familyPatNums) && stmt.StatementType!=StmtType.LimitedStatement) {//Should not show in limited statements
+				//familyPatNums always contains at least 'patNum'.
 				//Gets all payments paid by this patient but split to someone outside the family, if we don't do this then splits paid out of family will only be 
 				//visible on the account of the patient it was paid _to_ and not on the patient who made the payment, which can cause confusion. This will, 
 				//instead, create a payment row on their account with a 0 splitAmt, but clicking into it will allow them to see where the money was paid to and 
@@ -1810,6 +1816,7 @@ namespace OpenDentBusiness {
 				+"SUM(CASE WHEN payplancharge.ChargeDate<="+DbHelper.Curdate()+" THEN payplancharge.Principal ELSE 0 END) principalDue_,"
 				+"SUM(CASE WHEN payplancharge.ChargeDate<="+DbHelper.Curdate()+" THEN payplancharge.Interest ELSE 0 END) interestDue_,"
 				+"MAX(carrier.CarrierName) CarrierName,payplan.CompletedAmt,payplan.Guarantor,payplan.PatNum,payplan.PayPlanDate,payplan.PayPlanNum,"
+				+"payplan.APR,payplan.DownPayment,payplan.ChargeFrequency,payplan.PayAmt,"
 				+"payplan.PlanNum,payplan.IsClosed,payplan.PlanCategory,MAX(payplancharge.SecDateTEntry) SecDateTEntry, "
 				+"COALESCE(MAX(payplancharge.ClinicNum),0) ClinicNum,payplan.IsDynamic "
 				+"FROM payplan "
@@ -2094,7 +2101,7 @@ namespace OpenDentBusiness {
 								THEN claimproc.InsEstTotalOverride ELSE claimproc.InsPayEst END)*-1,0))
 							+SUM(COALESCE((CASE WHEN claimproc.Status IN ({POut.Int((int)ClaimProcStatus.Received)},{POut.Int((int)ClaimProcStatus.Supplemental)},
 								{POut.Int((int)ClaimProcStatus.CapClaim)}) THEN claimproc.WriteOff WHEN claimproc.WriteOffEstOverride!=-1 
-								THEN claimproc.WriteOffEstOverride ELSE claimproc.WriteOffEst END)*-1,0)) Fee
+								THEN claimproc.WriteOffEstOverride WHEN claimproc.WriteOffEst!=-1 THEN claimproc.WriteOffEst ELSE 0 END)*-1,0)) Fee
 							,procedurelog.ProcNum Num,payplanlink.LinkType,payplanlink.PayPlanLinkNum,procedurelog.ClinicNum,procedurelog.ProvNum 
 						FROM payplanlink 
 						INNER JOIN procedurelog ON procedurelog.ProcNum=payplanlink.FKey AND payplanlink.LinkType={POut.Int((int)PayPlanLinkType.Procedure)} 
@@ -2167,6 +2174,7 @@ namespace OpenDentBusiness {
 					rows.Add(row);
 				}
 			}
+			SetPrincipalAndInterestForDynamicPayPlans(rawPayPlan);
 			#endregion
 			#region Installment Plans
 			//Installment plans----------------------------------------------------------------------------------
@@ -2177,8 +2185,11 @@ namespace OpenDentBusiness {
 			}
 			else {
 				//Always includes the payment plan breakdown for statements, receipts, and invoices.  LimitedStatements will return an empty payplan table.
-				retVal.Tables.Add(GetPayPlansForStatement(rawPayPlan,rawPay,fromDate,toDate,singlePatient,rawClaimPay,fam,pat,out payPlanDue,
+				//Called twice. Once for regular pay plans and again for dynamic payplans as these now have separate grids on statements.
+				retVal.Tables.Add(GetPayPlansForStatement(rawPayPlan,rawPay,fromDate,toDate,singlePatient,rawClaimPay,fam,pat,out patientPayPlanDue,
 					stmt.StatementType,listPayPlanNumsExclude));
+				retVal.Tables.Add(GetPayPlansForStatement(rawPayPlan,rawPay,fromDate,toDate,singlePatient,rawClaimPay,fam,pat,out dynamicPayPlanDue,
+					stmt.StatementType,listPayPlanNumsExclude,true));
 			}
 			#endregion Installment Plans
 			//Sorting-----------------------------------------------------------------------------------------
@@ -2330,6 +2341,55 @@ namespace OpenDentBusiness {
 				patName=fam.GetNameInFamFirst(patNum);
 			}
 			return patName;
+		}
+
+		///<summary>Calculates and sets the correct values for rows that represent dynamic pay plans in the rawPayPlan table created in GetAccount().
+		///This is needed GetAccount() sets the principal_ and interest_ columns to the sum of charges and interest that have been posted,
+		///but doesn't calculate expected charges and interest for dynamic pay plans.</summary>
+		private static void SetPrincipalAndInterestForDynamicPayPlans(DataTable rawPayPlan) {
+			//Get list of PayPlanNums for dynamic pay plans.
+			List<long> listDynamicPayPlanNums=rawPayPlan.Select()
+				.Where(x => PIn.Bool(x["IsDynamic"].ToString()))
+				.Select(x => PIn.Long(x["PayPlanNum"].ToString())).ToList();
+			//Get all charges for dynamic pay plans.
+			Dictionary<long,List<PayPlanCharge>> dictPayPlanCharges=PayPlanCharges.GetForPayPlans(listDynamicPayPlanNums)
+					.GroupBy(x => x.PayPlanNum)
+					.ToDictionary(x => x.Key,x => x.ToList());
+			//Get all splits for dynamic pay plans.
+			Dictionary<long,List<PaySplit>> dictPaySplits=PaySplits.GetForPayPlans(listDynamicPayPlanNums)
+					.GroupBy(x => x.PayPlanNum)
+					.ToDictionary(x => x.Key,x => x.ToList());
+			foreach(DataRow rowPayPlan in rawPayPlan.Rows) {
+				if(!PIn.Bool(rowPayPlan["IsDynamic"].ToString())) {
+					continue;//Skip pay plan if it isn't dynamic.
+				}
+				//Get lists of charges and pay splits for pay plan.
+				long payPlanNumCur=PIn.Long(rowPayPlan["PayPlanNum"].ToString());
+				if(!dictPayPlanCharges.TryGetValue(payPlanNumCur,out List<PayPlanCharge> listPayPlanChargesInDb)) {
+					listPayPlanChargesInDb=new List<PayPlanCharge>();
+				}
+				if(!dictPaySplits.TryGetValue(payPlanNumCur,out List<PaySplit> listPaySplits)) {
+					listPaySplits=new List<PaySplit>();
+				}
+				//Completed amount actually holds principal for dynamic pay plans.
+				//May need to do more for getting estimated principal if treatment planned work can be added in future versions.
+				double principal=PIn.Double(rowPayPlan["CompletedAmt"].ToString());
+				double pastInterestTotal=PIn.Double(rowPayPlan["interest_"].ToString());//interest_ holds interest that has been posted so far.
+				double downPayment=PIn.Double(rowPayPlan["DownPayment"].ToString());
+				double principalRemaining=PayPlanEdit.CalculatePrincipalAmtRemaining(principal,downPayment,listPaySplits,listPayPlanChargesInDb);
+				double periodRate=
+					PayPlanEdit.CalcPeriodRate(PIn.Double(rowPayPlan["APR"].ToString()),PIn.Enum<PayPlanFrequency>(rowPayPlan["ChargeFrequency"].ToString()));
+				double payAmount=PIn.Double(rowPayPlan["PayAmt"].ToString());
+				//accumulate expected charges and interest until principalRemaining is at 0.
+				double expectedInterestTotal=0;
+				while(principalRemaining.IsGreaterThanOrEqualToZero()) {
+					double interestForPeriod=principalRemaining*periodRate;
+					principalRemaining+=interestForPeriod-payAmount;
+					expectedInterestTotal+=interestForPeriod;
+				}
+				rowPayPlan["principal_"]=(decimal)principal;//Setting principal_ to correct amount in table.
+				rowPayPlan["interest_"]=(decimal)(pastInterestTotal+expectedInterestTotal);
+			}
 		}
 
 		private static void SetBalForwardRow(DataRow row,decimal amt,long patNum){
@@ -2504,11 +2564,22 @@ namespace OpenDentBusiness {
 		///amortization items to show.  toDate is typically 10 days in the future.  This method cannot be called by the Middle Tier due to its use of an
 		///out parameter.  LimitedStatements will return an empty DataTable.</summary>
 		private static DataTable GetPayPlansForStatement(DataTable rawPayPlan,DataTable rawPay,DateTime fromDate,DateTime toDate,bool singlePatient,
-			DataTable rawClaimPay,Family fam,Patient pat,out decimal payPlanDue,StmtType statementType,List<long> listPayPlanNumsExclude)
+			DataTable rawClaimPay,Family fam,Patient pat,out decimal payPlanDue,StmtType statementType,List<long> listPayPlanNumsExclude,
+			bool isForDynamic=false)
 		{
 			//No need to check RemotingRole; no call to db.
 			//We may need to add installment plans to this grid some day.  No time right now.
-			DataTable table=new DataTable("payplan");
+			string tableName="payplan";
+			string descriptionPayPlanType="Payment Plan.";
+			string descriptionPrincipal="Original Loan Principal:";
+			string descriptionInterest="Accumulated Interest:";
+			if(isForDynamic) {
+				tableName="dynamicPayPlan";
+				descriptionPayPlanType="Dynamic Payment Plan.";
+				descriptionPrincipal="Total Estimated Principal:";
+				descriptionInterest="Total Estimated Interest:";
+			}
+			DataTable table=new DataTable(tableName);
 			DataRow row;
 			SetTableColumns(table);//this will allow it to later be fully integrated into a single grid.
 			payPlanDue=0;
@@ -2522,6 +2593,12 @@ namespace OpenDentBusiness {
 			DataTable rawAmort;
 			long payPlanNum;
 			for(int i=0;i<rawPayPlan.Rows.Count;i++){//loop through the payment plans (usually zero or one)
+				if(!isForDynamic && PIn.Bool(rawPayPlan.Rows[i]["IsDynamic"].ToString())) {
+					continue;
+				}
+				if(isForDynamic && !PIn.Bool(rawPayPlan.Rows[i]["IsDynamic"].ToString())) {
+					continue;
+				}
 				payPlanNum=PIn.Long(rawPayPlan.Rows[i]["PayPlanNum"].ToString());
 				if(listPayPlanNumsExclude!=null && payPlanNum.In(listPayPlanNumsExclude)) {
 					continue;//likely this payment plan has already shown up on another super family member
@@ -2558,10 +2635,10 @@ namespace OpenDentBusiness {
 				row["DateTime"]=DateTime.MinValue;
 				row["date"]="";
 				row["dateTimeSort"]=PIn.DateT(rawPayPlan.Rows[i]["SecDateTEntry"].ToString());//SecDateTEntry will be used for sorting if RandomKeys is enabled
-				string description=Lans.g("AccountModule","Payment Plan.")+"\r\n"
-					+Lans.g("AccountModule","Original Loan Principal:")+" "+princ.ToString("c")+"\r\n";
+				string description=Lans.g("AccountModule",descriptionPayPlanType)+"\r\n"
+					+Lans.g("AccountModule",descriptionPrincipal)+" "+princ.ToString("c")+"\r\n";
 				if(interest!=0) {
-					description+=Lans.g("AccountModule","Accumulated Interest:")+" "+interest.ToString("c")+"\r\n";
+					description+=Lans.g("AccountModule",descriptionInterest)+" "+interest.ToString("c")+"\r\n";
 				}
 				description+=Lans.g("AccountModule","Amount Remaining:")+" "+bal.ToString("c");			
 				row["description"]=description;
@@ -2750,9 +2827,11 @@ namespace OpenDentBusiness {
 			return table;
 		}
 
-		public static DataTable GetMisc(Family fam,long patNum,decimal payPlanDue,decimal balanceForward,StmtType statementType,DataSet ds) {
+		public static DataTable GetMisc(Family fam,long patNum,decimal patientPayPlanDue,decimal dynamicPayPlanDue,decimal balanceForward
+			,StmtType statementType,DataSet ds)
+		{
 			if(RemotingClient.RemotingRole==RemotingRole.ClientWeb) {
-				return Meth.GetTable(MethodBase.GetCurrentMethod(),fam,patNum,payPlanDue,balanceForward,statementType,ds);
+				return Meth.GetTable(MethodBase.GetCurrentMethod(),fam,patNum,patientPayPlanDue,dynamicPayPlanDue,balanceForward,statementType,ds);
 			}
 			DataTable table=new DataTable("misc");
 			DataRow row;
@@ -2773,8 +2852,16 @@ namespace OpenDentBusiness {
 			rows.Add(row);
 			//payPlanDue---------------------------
 			row=table.NewRow();
+			row["descript"]="patientPayPlanDue";
+			row["value"]=POut.Decimal(patientPayPlanDue);
+			rows.Add(row);
+			row=table.NewRow();
+			row["descript"]="dynamicPayPlanDue";
+			row["value"]=POut.Decimal(dynamicPayPlanDue);
+			rows.Add(row);
+			row=table.NewRow();
 			row["descript"]="payPlanDue";
-			row["value"]=POut.Decimal(payPlanDue);
+			row["value"]=POut.Decimal(dynamicPayPlanDue+patientPayPlanDue);
 			rows.Add(row);
 			//balanceForward-----------------------
 			row=table.NewRow();

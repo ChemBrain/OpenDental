@@ -43,6 +43,9 @@ namespace OpenDental {
 			textContentEmail.SelectionLength=0;
 			textContentEmail.ScrollToCaret();
 			checkIsRaw.Checked=IsRaw;
+			//Per Nathan, discussing I2339 and E19146, this checkbox and label should not show if we would block the user from interacting with it.
+			checkIsRaw.Visible=IsRawAllowed;
+			labelPlainText.Visible=IsRawAllowed;
 			RefreshHTML();
 			_isLoading=true;
 		}

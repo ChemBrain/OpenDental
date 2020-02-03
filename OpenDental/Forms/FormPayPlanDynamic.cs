@@ -484,11 +484,15 @@ namespace OpenDental {
 				return;
 			}
 			int countSkipped=0;
-			List<ClaimProc> listClaimProcs=ClaimProcs.GetForProcs(formProcSelect.ListSelectedProcs.Select(x => x.ProcNum).ToList());
-			List<Adjustment> listAdjustments=Adjustments.GetForProcs(formProcSelect.ListSelectedProcs.Select(x => x.ProcNum).ToList());
+			List<long> listProcNums=formProcSelect.ListSelectedProcs.Select(x => x.ProcNum).ToList();
+			List<ClaimProc> listClaimProcs=ClaimProcs.GetForProcs(listProcNums);
+			List<Adjustment> listAdjustments=Adjustments.GetForProcs(listProcNums);
+			List<PayPlanCharge> listPayPlanCreditsForProcs=PayPlanCharges.GetPatientPayPlanCreditsForProcs(listProcNums);
+			List<PayPlanLink> listPayPlanLinksForProcs=PayPlanLinks.GetForFKeysAndLinkType(listProcNums,PayPlanLinkType.Procedure);
 			foreach(Procedure proc in formProcSelect.ListSelectedProcs) {
-				if(PayPlanLinks.GetForFKeyAndLinkType(proc.ProcNum,PayPlanLinkType.Procedure).Count > 0 
-					|| _listPayPlanLinks.Exists(x => x.LinkType==PayPlanLinkType.Procedure && x.FKey==proc.ProcNum)) 
+				if(listPayPlanCreditsForProcs.Select(x => x.ProcNum).Contains(proc.ProcNum)
+					|| listPayPlanLinksForProcs.Select(x => x.FKey).Contains(proc.ProcNum)
+					|| _listPayPlanLinks.Exists(x => x.LinkType==PayPlanLinkType.Procedure && x.FKey==proc.ProcNum))
 				{
 					countSkipped++;
 					continue;
@@ -504,7 +508,7 @@ namespace OpenDental {
 			textTotalPrincipal.Text=_sumAttachedProduction.ToString("f");
 			FillProduction();
 			if(countSkipped>0) {
-				MsgBox.Show(this,"Procedures can only be attached to one active payment plan at a time.");
+				MsgBox.Show(this,"Procedures can only be attached to one payment plan at a time.");
 			}
 		}
 

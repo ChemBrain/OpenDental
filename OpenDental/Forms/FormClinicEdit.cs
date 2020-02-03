@@ -1130,7 +1130,7 @@ namespace OpenDental {
 		}
 
 		private void butNone_Click(object sender,EventArgs e) {
-			comboDefaultProvider.SelectedIndex=-1;
+			comboDefaultProvider.SetSelectedProvNum(0);
 		}
 
 		private void FillSpecialty() {

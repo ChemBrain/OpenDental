@@ -1674,7 +1674,9 @@ namespace OpenDentBusiness{
 	///<summary></summary>
 	public enum OAuthApplicationNames {
 		///<summary>0</summary>
-		Dropbox
+		Dropbox,
+		///<summary>1</summary>
+		Google
 	}
 
 	///<summary></summary>

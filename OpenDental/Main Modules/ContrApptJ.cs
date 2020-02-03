@@ -1894,6 +1894,9 @@ namespace OpenDental {
 				case MenuItemNames.BreakAppointment: //Menu: Break Appointment
 					butBreak_Click(this,new EventArgs());
 					break;
+				case MenuItemNames.MarkAsAsap:
+					ASAP_Click();
+					break;
 				case MenuItemNames.SetComplete: // Menu: Set Complete
 					butComplete_Click(this,new EventArgs());
 					break;
@@ -2476,8 +2479,8 @@ namespace OpenDental {
 			menuItem.Name=MenuItemNames.SendToUnscheduledList;
 			menuItemBreakAppt=menuApt.MenuItems.Add(Lan.g(this,"Break Appointment"),new EventHandler(menuApt_Click));
 			menuItemBreakAppt.Name=MenuItemNames.BreakAppointment;
-			//menuItem=menuApt.MenuItems.Add("Mark as ASAP",new EventHandler(OnASAP_Click));
-			//menuItem.Name=MenuItemNames.MarkAsAsap;
+			menuItem=menuApt.MenuItems.Add(Lan.g(this,"Mark as ASAP"),new EventHandler(menuApt_Click));
+			menuItem.Name=MenuItemNames.MarkAsAsap;
 			menuItem=menuApt.MenuItems.Add(Lan.g(this,"Set Complete"),new EventHandler(menuApt_Click));
 			menuItem.Name=MenuItemNames.SetComplete;
 			menuItem=menuApt.MenuItems.Add(Lan.g(this,"Delete"),new EventHandler(menuApt_Click));
@@ -3431,6 +3434,23 @@ namespace OpenDental {
 				return true;
 			}
 			return false;
+		}
+
+		private void ASAP_Click() {
+			if(!Security.IsAuthorized(Permissions.AppointmentEdit)) {
+				return;
+			}
+			Appointment apt=Appointments.GetOneApt(contrApptPanel.SelectedAptNum);
+			if(ApptIsNull(apt)) {
+				return;
+			}		
+			if(apt.Priority==ApptPriority.ASAP) {
+				MsgBox.Show(this,"Already ASAP");
+				return;
+			}
+			Appointments.SetPriority(apt,ApptPriority.ASAP);
+			MsgBox.Show(this,"Done");
+			Plugins.HookAddCode(this,"ContrAppt.OnASAP_Click_end",apt,_patCur);
 		}
 
 		///<summary>Helper function for users who have BrokenApptRequiredOnMove enabled. Pref forces the user to pick whether the appt was missed or

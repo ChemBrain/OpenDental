@@ -177,7 +177,7 @@ namespace OpenDental{
 			// 
 			this.listCategory.Location = new System.Drawing.Point(11, 30);
 			this.listCategory.Name = "listCategory";
-			this.listCategory.Size = new System.Drawing.Size(167, 537);
+			this.listCategory.Size = new System.Drawing.Size(167, 550);
 			this.listCategory.TabIndex = 0;
 			this.listCategory.SelectedIndexChanged += new System.EventHandler(this.listCategory_SelectedIndexChanged);
 			// 
@@ -316,7 +316,7 @@ namespace OpenDental{
 		}
 
 		private void butAlphabetize_Click(object sender,EventArgs e) {
-			if(!MsgBox.Show(this,MsgBoxButtons.YesNo,"Alphabetizing this definition category is irreversible. Are you sure you want to continue?")) {
+			if(!MsgBox.Show(this,MsgBoxButtons.OKCancel,"Alphabetizing does not have an 'undo' button.  Continue?")) {
 				return;
 			}
 			List<Def> listDefsSorting=_listDefsCur.OrderBy(x => x.ItemName).ToList(); 

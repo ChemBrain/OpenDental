@@ -91,7 +91,7 @@ namespace OpenDental {
 			gridFeed.BeginUpdate();
 			gridFeed.ListGridRows.Clear();
 			foreach(DbQueryObj query in listDisplayQueries) {
-				GridRow row=new GridRow(query.Command,
+				GridRow row=new GridRow(query.Command.Trim(),
 					query.DateTimeInit.ToString(),
 					(query.Elapsed==TimeSpan.MinValue) ? "" : query.Elapsed.ToString("G"))
 				{

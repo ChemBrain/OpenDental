@@ -1024,7 +1024,12 @@ namespace OpenDental.UI{
 				rectangleSource=new RectangleF(0,yTop,_widthTime,height);
 				rectangleDest=new RectangleF(_widthTime+widthProvs+_widthMain,0,_widthTime,height);	
 				graphicsClipboard.DrawImage(_bitmapTimebarRight,rectangleDest,rectangleSource,GraphicsUnit.Pixel);
-				Clipboard.SetImage(bitmapClipboard);
+				try {
+					Clipboard.SetImage(bitmapClipboard);
+				}
+				catch {
+					//do nothing
+				}
 				graphicsClipboard.Dispose();
 				//bitmapClipboard.Dispose();//this doesn't work.  I'll assume the clipboard will dispose of it
 			}

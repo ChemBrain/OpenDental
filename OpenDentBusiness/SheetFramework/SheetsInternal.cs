@@ -1634,10 +1634,11 @@ Fam Urgent Fin Note: [famFinUrgNote]"
 			sheet.SheetFieldDefs.Add(SheetFieldDef.NewOutput("balanceValue",9f,"Arial",true,705,415,80,14,HorizontalAlignment.Right));
 			sheet.SheetFieldDefs.Add(SheetFieldDef.NewOutput("statement.NoteBold",10f,"Arial",true,50,490,725,14,GrowthBehaviorEnum.DownGlobal,KnownColor.DarkRed));
 			sheet.SheetFieldDefs.Add(SheetFieldDef.NewGrid("StatementPayPlan",170,506,510,49));
-			sheet.SheetFieldDefs.Add(SheetFieldDef.NewGrid("StatementMain",65,576,720,31));
-			sheet.SheetFieldDefs.Add(SheetFieldDef.NewOutput("futureAppointments",9f,"Arial",false,50,613,725,14,GrowthBehaviorEnum.DownGlobal));
-			sheet.SheetFieldDefs.Add(SheetFieldDef.NewOutput("statement.Note",9f,"Arial",false,50,628,725,14,GrowthBehaviorEnum.DownGlobal));
-			sheet.SheetFieldDefs.Add(SheetFieldDef.NewOutput("statement.NoteBold",10f,"Arial",true,50,643,725,14,GrowthBehaviorEnum.DownGlobal,KnownColor.DarkRed));
+			sheet.SheetFieldDefs.Add(SheetFieldDef.NewGrid("StatementDynamicPayPlan",170,571,510,49));
+			sheet.SheetFieldDefs.Add(SheetFieldDef.NewGrid("StatementMain",65,646,720,31));
+			sheet.SheetFieldDefs.Add(SheetFieldDef.NewOutput("futureAppointments",9f,"Arial",false,50,683,725,14,GrowthBehaviorEnum.DownGlobal));
+			sheet.SheetFieldDefs.Add(SheetFieldDef.NewOutput("statement.Note",9f,"Arial",false,50,698,725,14,GrowthBehaviorEnum.DownGlobal));
+			sheet.SheetFieldDefs.Add(SheetFieldDef.NewOutput("statement.NoteBold",10f,"Arial",true,50,713,725,14,GrowthBehaviorEnum.DownGlobal,KnownColor.DarkRed));
 			return sheet;
 		}
 

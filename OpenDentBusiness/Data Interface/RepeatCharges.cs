@@ -299,7 +299,7 @@ namespace OpenDentBusiness {
 			OrthoSchedule orthoSchedule=null;
 			List<OrthoProcLink> listOrthoProcLinksAllForOrthoCase=null;
 			OrthoProcLink orthoProcLink=null;
-			dictOrthoProcLinks.TryGetValue(proc.ProcNum,out orthoProcLink);
+			dictOrthoProcLinks?.TryGetValue(proc.ProcNum,out orthoProcLink);
 			if(orthoProcLink!=null) {
 				dictOrthoCases.TryGetValue(orthoProcLink.OrthoCaseNum,out orthoCase);
 				dictOrthoSchedules.TryGetValue(orthoCase.OrthoCaseNum,out orthoSchedule);

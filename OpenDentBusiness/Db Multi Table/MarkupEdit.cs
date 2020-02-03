@@ -14,6 +14,15 @@ namespace OpenDentBusiness {
 	public class MarkupEdit {
 		///<summary>Used for editing wiki and HTML emails</summary>
 		private static string _lanThis="MarkupEdit";
+		private const string _odWikiImage=@"\[\[(img:).+?\]\]";
+		private const string _odWikiKeyword=@"\[\[(keywords:).*?\]\]";
+		private const string _odWikiFile=@"\[\[(file:).*?\]\]";
+		private const string _odWikiFolder=@"\[\[(folder:).*?\]\]";
+		private const string _odWikiFilecloud=@"\[\[(filecloud:).*?\]\]";
+		private const string _odWikiFoldercloud=@"\[\[(foldercloud:).*?\]\]";
+		private const string _odWikiColor=@"\[\[(color:).*?\]\]";
+		private const string _odWikiFont=@"\[\[(font:).*?\]\]";
+		private const string _odWikiTable=@"\{\|\n.+?\n\|\}";
 
 		///<summary>Recursive.</summary>
 		public static void ValidateNodes(XmlNodeList nodes) {
@@ -84,7 +93,7 @@ namespace OpenDentBusiness {
 		///<summary>Converts an image markup tag like [[img:myimage.jpeg]] to html.</summary>
 		private static string TranslateEmailImages(string s) {	
 				//[[img:myimage.jpg]]------------------------------------------------------------------------------------------------------------
-				MatchCollection matches=Regex.Matches(s,@"\[\[(img:).+?\]\]");
+				MatchCollection matches=Regex.Matches(s,_odWikiImage);
 				foreach(Match match in matches) {
 					string imgName=match.Value.Substring(match.Value.IndexOf(":")+1).TrimEnd("]".ToCharArray());
 					string imagePath="";
@@ -106,6 +115,19 @@ namespace OpenDentBusiness {
 					s=s.Replace(match.Value,"<img src=\""+fullPath+"\"></img>");//"\" />");
 				}
 				return s;
+		}
+		
+		///<summary>Determines if the given text contains any OD Markup tags that would be replaced with HTML tags in an email.</summary>
+		public static bool ContainsOdMarkupForEmail(string text) {
+			List<string> listOdWikiRegex=new List<string> {
+				_odWikiImage,
+				_odWikiColor,
+				_odWikiFont,
+				_odWikiTable,
+			};
+			//[[odmarkup]] or OD ordered/unorderd lists
+			return listOdWikiRegex.Select(x => Regex.Matches(text,x)).Any(x => x.Count>0)
+				|| ProcessList(text,"#")!=text || ProcessList(text,"*")!=text;
 		}
 
 		///<summary>Surround with try/catch.  Also aggregates the content into the master page (unless specified to not).  
@@ -134,7 +156,7 @@ namespace OpenDentBusiness {
 			}
 			else {
 				//[[img:myimage.gif]]------------------------------------------------------------------------------------------------------------
-				matches=Regex.Matches(s,@"\[\[(img:).+?\]\]");
+				matches=Regex.Matches(s,_odWikiImage);
 				foreach(Match match in matches) {
 					string imgName = match.Value.Substring(match.Value.IndexOf(":")+1).TrimEnd("]".ToCharArray());
 					string wikiPath="";
@@ -156,30 +178,30 @@ namespace OpenDentBusiness {
 					s=s.Replace(match.Value,"<img src=\"file:///"+fullPath.Replace("\\","/")+"\"></img>");
 				}
 				//[[keywords: key1, key2, etc.]]------------------------------------------------------------------------------------------------
-				matches=Regex.Matches(s,@"\[\[(keywords:).*?\]\]");
+				matches=Regex.Matches(s,_odWikiKeyword);
 				foreach(Match match in matches) {//should be only one
 					s=s.Replace(match.Value,"<span class=\"keywords\">keywords:"+match.Value.Substring(11).TrimEnd("]".ToCharArray())+"</span>");
 				}
 				//[[file:C:\eaula.txt]]------------------------------------------------------------------------------------------------
-				matches=Regex.Matches(s,@"\[\[(file:).*?\]\]");
+				matches=Regex.Matches(s,_odWikiFile);
 				foreach(Match match in matches) {
 					string fileName=match.Value.Replace("[[file:","").TrimEnd(']');
 					s=s.Replace(match.Value,"<a href=\"wikifile:"+fileName+"\">file:"+fileName+"</a>");
 				}
 				//[[folder:\\serverfiles\storage\]]------------------------------------------------------------------------------------------------
-				matches=Regex.Matches(s,@"\[\[(folder:).*?\]\]");
+				matches=Regex.Matches(s,_odWikiFolder);
 				foreach(Match match in matches) {
 					string folderName=match.Value.Replace("[[folder:","").TrimEnd(']');
 					s=s.Replace(match.Value,"<a href=\"folder:"+folderName+"\">folder:"+folderName+"</a>");
 				}
 				//[[filecloud:AtoZ/SheetImages/happyclown.jpg]]------------------------------------------------------------------------------------------------
-				matches=Regex.Matches(s,@"\[\[(filecloud:).*?\]\]");
+				matches=Regex.Matches(s,_odWikiFilecloud);
 				foreach(Match match in matches) {
 					string fileName=CloudStorage.PathTidy(match.Value.Replace("[[filecloud:","").TrimEnd(']'));
 					s=s.Replace(match.Value,"<a href=\"wikifilecloud:"+fileName+"\">filecloud:"+fileName+"</a>");
 				}
 				//[[foldercloud:AtoZ/PenguinPictures/]]------------------------------------------------------------------------------------------------
-				matches=Regex.Matches(s,@"\[\[(foldercloud:).*?\]\]");
+				matches=Regex.Matches(s,_odWikiFoldercloud);
 				foreach(Match match in matches) {
 					string folderName=CloudStorage.PathTidy(match.Value.Replace("[[foldercloud:","").TrimEnd(']'));
 					s=s.Replace(match.Value,"<a href=\"foldercloud:"+folderName+"\">foldercloud:"+folderName+"</a>");
@@ -187,7 +209,7 @@ namespace OpenDentBusiness {
 			}
 			//Color and text are for both wiki and email. It's important we do this before Internal Link or else the translation may not work. 
 			//[[color:red|text]]----------------------------------------------------------------------------------------------------------------
-			matches = Regex.Matches(s,@"\[\[(color:).*?\]\]");//.*? matches as few as possible.
+			matches = Regex.Matches(s,_odWikiColor);//.*? matches as few as possible.
 			foreach(Match match in matches) {
 				//string[] paragraphs = match.Value.Split(new string[] { "\n" },StringSplitOptions.None);
 				string tempText="<span style=\"color:";
@@ -210,7 +232,7 @@ namespace OpenDentBusiness {
 				s=s.Replace(match.Value,tempText);
 			}
 			//[[font-family:courier|text]]----------------------------------------------------------------------------------------------------------------
-			matches = Regex.Matches(s,@"\[\[(font:).*?\]\]");//.*? matches as few as possible.
+			matches = Regex.Matches(s,_odWikiFont);//.*? matches as few as possible.
 			foreach(Match match in matches) {
 				//string[] paragraphs = match.Value.Split(new string[] { "\n" },StringSplitOptions.None);
 				string tempText="<span style=\"font-family:";
@@ -306,7 +328,7 @@ namespace OpenDentBusiness {
 			//There are many ways to parse this.  Our strategy is to do it in a way that the generated xml is never invalid.
 			//As the user types, the above example will frequently be in a state of partial completeness, and the parsing should gracefully continue anyway.
 			//rigorous enforcement only happens when validating during a save, not here.
-			matches = Regex.Matches(s,@"\{\|\n.+?\n\|\}",RegexOptions.Singleline);
+			matches = Regex.Matches(s,_odWikiTable,RegexOptions.Singleline);
 			foreach(Match match in matches) {
 				//If there isn't a new line before the start of the table markup or after the end, the match group value will be an empty string
 				//Tables must start with "'newline'{|" and end with "|}'newline'"

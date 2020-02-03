@@ -240,6 +240,10 @@ namespace OpenDental {
 					createClaimDataWrapper.DoRefresh=true;
 					return createClaimDataWrapper;
 				}
+				else {
+					Patient patCur=createClaimDataWrapper.Pat;
+					SecurityLogs.MakeLogEntry(Permissions.ClaimEdit,patCur.PatNum,"New claim created for "+patCur.LName+","+patCur.FName);
+				}
 			}
 			createClaimDataWrapper.DoRefresh=true;
 			return createClaimDataWrapper;

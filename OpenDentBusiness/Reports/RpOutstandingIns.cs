@@ -38,10 +38,22 @@ namespace OpenDentBusiness {
 				patient.PatNum, 
 				patient.Birthdate PatDOB,
 				definition.ItemValue DaysSuppressed,"
-				+DbHelper.DtimeToDate("statusHistory.DateTimeEntry")+@" DateLog,
+				+DbHelper.DtimeToDate("statusHistory.DateTimeEntry")+$@" DateLog,
 				definition.DefNum CustomTrackingDefNum, 
-				statusHistory.TrackingErrorDefNum ErrorCodeDefNum, 
-				COALESCE(claimtracking.UserNum,0) UserNum 
+				statusHistory.TrackingErrorDefNum ErrorCodeDefNum,
+				COALESCE(
+					(SELECT claimtracking.UserNum
+					FROM claimtracking
+					WHERE claimtracking.TrackingType='{POut.String(ClaimTrackingType.ClaimUser.ToString())}'
+					AND claimtracking.ClaimNum=claim.ClaimNum
+					AND claimtracking.DateTimeEntry=(
+						SELECT MAX(cuser.DateTimeEntry) DateTimeEntry
+						FROM claimtracking cuser
+						WHERE cuser.ClaimNum=claim.ClaimNum
+						AND cuser.TrackingType='{POut.String(ClaimTrackingType.ClaimUser.ToString())}'
+					)
+					GROUP BY claimtracking.ClaimNum
+				),0) UserNum
 				FROM carrier 
 				INNER JOIN insplan ON insplan.CarrierNum=carrier.CarrierNum 
 				INNER JOIN claim ON claim.PlanNum=insplan.PlanNum 
@@ -82,7 +94,6 @@ namespace OpenDentBusiness {
 			else if(preauthOption == PreauthOptions.OnlyPreauths) {
 				command+="AND claim.ClaimType='Preauth' ";
 			}
-			command+="LEFT JOIN claimtracking ON claimtracking.ClaimNum=claim.ClaimNum AND TrackingType='"+POut.String(ClaimTrackingType.ClaimUser.ToString())+"' ";
 			command+="LEFT JOIN definition ON definition.DefNum=claim.CustomTracking "
 				+"LEFT JOIN claimtracking statusHistory ON statusHistory.ClaimNum=claim.ClaimNum "
 					+"AND statusHistory.TrackingDefNum=definition.DefNum "
@@ -93,10 +104,10 @@ namespace OpenDentBusiness {
 				+"LEFT JOIN patient sub ON inssub.Subscriber = sub.PatNum "
 				+"WHERE carrier.CarrierName LIKE '%"+POut.String(carrierName.Trim())+"%' ";
 			if(listUserNums.Count>0) {
-				command+="AND (claimtracking.UserNum IN ("+String.Join(",",listUserNums)+") ";
+				command+="HAVING (UserNum IN ("+String.Join(",",listUserNums)+") ";
 				if(listUserNums.Contains(0)) {
 					//Selected users includes 'Unassigned' so we want to allow claims without associated claimTracking rows to show.
-					command+=" OR claimtracking.UserNum IS NULL";
+					command+=" OR UserNum IS NULL";
 				}
 				command+=") ";
 			}

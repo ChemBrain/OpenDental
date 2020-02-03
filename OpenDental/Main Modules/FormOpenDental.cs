@@ -8336,6 +8336,12 @@ namespace OpenDental{
 						FormEI.FormClosed+=this.alertFormClosingHelper;
 						FormEI.Show();
 						break;
+					case FormType.FormEmailAddresses:
+						//Will open the email addresses window that is usually opened from email inbox setup.
+						FormEmailAddresses formEA=new FormEmailAddresses();
+						formEA.FormClosed+=this.alertFormClosingHelper;
+						formEA.ShowDialog();
+						break;
 				}
 			}
 			if(menuItem.Name==ActionType.ShowItemValue.ToString()) {

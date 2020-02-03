@@ -47,7 +47,7 @@ namespace OpenDental {
 					//Why do we change the grid title height here?  The heights are also set elsewhere...
 					SheetFieldDefCur.Height=0;
 					//These grids display a title.
-					if(new[] {"StatementPayPlan","StatementInvoicePayment","TreatPlanBenefitsFamily","TreatPlanBenefitsIndividual"}.Contains(SheetFieldDefCur.FieldName)) {
+					if(new[] {"StatementPayPlan","StatementDynamicPayPlan","StatementInvoicePayment","TreatPlanBenefitsFamily","TreatPlanBenefitsIndividual"}.Contains(SheetFieldDefCur.FieldName)) {
 						SheetFieldDefCur.Height+=18;//odGrid.TitleHeight;
 					}
 					SheetFieldDefCur.Height+=15//odGrid.HeaderHeight

@@ -217,6 +217,9 @@ namespace OpenDentBusiness {
 		///<summary>12 - FormWebMailMessageEdit</summary>
 		[Description("WebMail Inbox")]
 		FormEmailInbox,
-  }
+		///<summary>13 - FormEmailAddresses</summary>
+		[Description("Email Addresses Setup")]
+		FormEmailAddresses,
+	}
 
 }

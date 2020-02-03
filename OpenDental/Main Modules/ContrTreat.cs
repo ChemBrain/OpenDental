@@ -2271,7 +2271,7 @@ namespace OpenDental{
 				InsPlanList,dateTimeTP.Value,SubList,PrefC.GetBool(PrefName.InsChecksFrequency),PrefC.IsTreatPlanSortByTooth,_listSubstLinks);
 			List<TreatPlanAttach> listTreatPlanAttaches=loadActiveData.ListTreatPlanAttaches;
 			List<Procedure> listProcForTP=loadActiveData.listProcForTP;
-			if(listProcForTP.Any(x => ProcedureCodes.GetWhere(y => y.CodeNum==x.CodeNum).Count==0)) {
+			if(listProcForTP.Any(x => ProcedureCodes.GetWhereFromList(y => y.CodeNum==x.CodeNum).Count==0)) {
 				MsgBox.Show(this,$"Missing codenum. Please run database maintenance method {nameof(DatabaseMaintenances.ProcedurelogCodeNumInvalid)}.");
 				return new List<ProcTP>();//Show an empty TP
 			}
@@ -3713,6 +3713,10 @@ namespace OpenDental{
 			ClaimCur.InsSubNum=FormIPS.SelectedSub.InsSubNum;
 			ClaimCur.ProvTreat=0;
 			ClaimCur.ClaimForm=FormIPS.SelectedPlan.ClaimFormNum;
+			ClaimCur.MedType=EnumClaimMedType.Dental;
+			if(FormIPS.SelectedPlan.IsMedical) {
+				ClaimCur.MedType=PrefC.GetBool(PrefName.ClaimMedTypeIsInstWhenInsPlanIsMedical) ? EnumClaimMedType.Institutional : EnumClaimMedType.Medical;
+			}
 			List<Procedure> listProcsSelected=new List<Procedure>();
 			for(int i=0;i<gridMain.SelectedIndices.Length;i++){
 				if(gridMain.ListGridRows[gridMain.SelectedIndices[i]].Tag==null){

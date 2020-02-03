@@ -418,6 +418,8 @@ namespace OpenDentBusiness {
 			List<long> listPatNums=new List<long> { patCurNum };
 			creditData.ListAdjustments=Adjustments.GetAdjustForPats(listPatNums);
 			creditData.ListProcs=Procedures.GetCompAndTpForPats(listPatNums);
+			creditData.ListPayPlanLinksForProcs=PayPlanLinks.GetForFKeysAndLinkType(creditData.ListProcs.Select(x => x.ProcNum).ToList()
+				,PayPlanLinkType.Procedure);
 			//Used to figure out how much we need to pay off procs with, also contains insurance payplans.
 			List<PayPlan> listPayPlans=PayPlans.GetForPats(listPatNums,patCurNum);
 			if(listPayPlans.Count>0) {
@@ -795,7 +797,7 @@ namespace OpenDentBusiness {
 			//Get production attached to credits attached to the payment plan (what we will be making charges for)
 			List<PayPlanProductionEntry> listCreditsAndProduction=PayPlanProductionEntry.GetWithAmountRemaining(listPayPlanLinks,listChargesInDB);
 			double periodRate=CalcPeriodRate(terms.APR,terms.Frequency);
-			decimal principalRemaining=CalculatePrincipalAmtRemaining(terms.PrincipalAmount,terms.DownPayment,listPaySplits,listChargesInDB);
+			decimal principalRemaining=(decimal)CalculatePrincipalAmtRemaining(terms.PrincipalAmount,terms.DownPayment,listPaySplits,listChargesInDB);
 			//If plan has no charges in DB yet, and method isn't being called to create down payment charges,
 			//we must subtract the down payment from the principal so it is not considered in interest calculations.
 			if(listChargesInDB.Count==0 && !isForDownPaymentCharge) {
@@ -851,10 +853,10 @@ namespace OpenDentBusiness {
 		///<summary>Returns the difference between the principal and sum of pay splits that apply to the principal.
 		///If the sum of pay splits that apply to the principal is less than the downpayment amount, 
 		///then the difference between the principal and the down payment amount is returned instead.</summary>
-		private static decimal CalculatePrincipalAmtRemaining(double principalAmount,double downPayment,List<PaySplit> listPaySplitsForPayPlan
+		public static double CalculatePrincipalAmtRemaining(double principalAmount,double downPayment,List<PaySplit> listPaySplitsForPayPlan
 			,List<PayPlanCharge> listChargesInDB)
 		{
-			decimal totalPaymentAmtForPrincipal=0;
+			double totalPaymentAmtForPrincipal=0;
 			//Get list of dates for periods that have been charged so far.
 			List<DateTime> listPeriodDates=listChargesInDB
 				.OrderBy(x => x.ChargeDate)
@@ -862,10 +864,10 @@ namespace OpenDentBusiness {
 				.Distinct()
 				.ToList();
 			foreach(DateTime periodDate in listPeriodDates) {
-				decimal sumPrincipalForPeriod=(decimal)listChargesInDB.Where(x => x.ChargeDate==periodDate).Sum(x => x.Principal);
-				decimal sumInterestForPeriod=(decimal)listChargesInDB.Where(x => x.ChargeDate==periodDate).Sum(x => x.Interest);
+				double sumPrincipalForPeriod=listChargesInDB.Where(x => x.ChargeDate==periodDate).Sum(x => x.Principal);
+				double sumInterestForPeriod=listChargesInDB.Where(x => x.ChargeDate==periodDate).Sum(x => x.Interest);
 				//Sum of paysplits for charges in period.
-				decimal sumPaySplitsForPeriod=(decimal)listPaySplitsForPayPlan
+				double sumPaySplitsForPeriod=listPaySplitsForPayPlan
 					.Where(x => listChargesInDB.Where(y => y.ChargeDate==periodDate).Select(y => y.PayPlanChargeNum).Contains(x.PayPlanChargeNum))
 					.Sum(x => x.SplitAmt);
 				//Subtract amount paid to interest for the period from sum.
@@ -873,9 +875,9 @@ namespace OpenDentBusiness {
 				totalPaymentAmtForPrincipal+=sumPaySplitsForPeriod;
 			}
 			//Add any payments applied to payment plan that are not linked to a PayPlanCharge.
-			totalPaymentAmtForPrincipal+=(decimal)listPaySplitsForPayPlan.Where(x => x.PayPlanChargeNum==0).Sum(x => x.SplitAmt);
+			totalPaymentAmtForPrincipal+=listPaySplitsForPayPlan.Where(x => x.PayPlanChargeNum==0).Sum(x => x.SplitAmt);
 			//If this is negative due to entire plan being overpaid, return 0 to prevent negative interest. Must subtract down payment amount at minimum.
-			return Math.Max(0,(decimal)principalAmount-(Math.Max((decimal)downPayment,totalPaymentAmtForPrincipal)));
+			return Math.Max(0,principalAmount-(Math.Max(downPayment,totalPaymentAmtForPrincipal)));
 		}
 
 		public static decimal CalculatePeriodPayment(double apr,PayPlanFrequency frequency,decimal periodPayment,int payCount,int roundDec
@@ -988,6 +990,7 @@ namespace OpenDentBusiness {
 			public List<Payment> ListPayments=new List<Payment>();
 			public List<ClaimProc> ListInsPayAsTotal=new List<ClaimProc>();
 			public List<ClaimProc> ListClaimProcs=new List<ClaimProc>();
+			public List<PayPlanLink> ListPayPlanLinksForProcs=new List<PayPlanLink>();
 		}
 
 		public class PayPlanEntriesAndCharges {

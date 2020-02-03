@@ -18,6 +18,8 @@ namespace OpenDental {
 		public bool IsDeleted;
 		private List<Adjustment> _listAdjustments;
 		private List<Procedure> _listProcs;
+		/// <summary>Stores a list of payplan links for procedures that are already associated to dynamic payment plans.</summary>
+		private List<PayPlanLink> _listPayPlanLinksForProcs;
 		private List<PayPlanCharge> _listPayPlanCharges;
 		private List<ClaimProc> _listInsPayAsTotal;
 		private List<Payment> _listPayments;
@@ -48,6 +50,7 @@ namespace OpenDental {
 			PayPlanEdit.PayPlanCreditLoadData loadData=PayPlanEdit.GetLoadDataForPayPlanCredits(_patCur.PatNum,_payPlanCur.PayPlanNum);
 			_listAdjustments=loadData.ListAdjustments;
 			_listProcs=loadData.ListProcs;
+			_listPayPlanLinksForProcs=loadData.ListPayPlanLinksForProcs;
 			_listPayPlanCharges=loadData.ListPayPlanCharges;
 			_listPaySplits=loadData.ListTempPaySplit;
 			_listPayments=loadData.ListPayments;
@@ -317,6 +320,10 @@ namespace OpenDental {
 			}
 			else if(listSelectedEntries.Count==1) { //if they have one selected
 				PayPlanEdit.PayPlanEntry selectedEntry=listSelectedEntries[0];
+				if(selectedEntry.Proc!=null && _listPayPlanLinksForProcs.Select(x => x.FKey).Contains(selectedEntry.Proc.ProcNum)) {
+					MsgBox.Show(this,"This procedure is already linked to a dynamic payment plan.");
+					return;
+				}
 				if(PrefC.GetInt(PrefName.RigorousAccounting)==(int)RigorousAccounting.EnforceFully) {
 					if((selectedEntry.Proc==null || selectedEntry.Proc.ProcNum==0)
 						&& !(selectedEntry.Charge!=null && selectedEntry.Charge.IsCreditAdjustment)) 
@@ -345,8 +352,14 @@ namespace OpenDental {
 					"Add a payment plan credit for each of the selected procedure's remaining amount?  Selected credits will be ignored.")) {
 					return;
 				}
-				ListPayPlanCreditsCur=PayPlanEdit.CreateCreditsForAllSelectedEntries(listSelectedProcs,_listPayPlanEntries,DateTimeOD.Today
+				List<PayPlanEdit.PayPlanEntry> listValidSelectedProcs=
+					listSelectedProcs.FindAll(x => !_listPayPlanLinksForProcs.Select(y => y.FKey).Contains(x.Proc.ProcNum));
+				int countProcsSkipped=listSelectedProcs.Count-listValidSelectedProcs.Count;
+				ListPayPlanCreditsCur=PayPlanEdit.CreateCreditsForAllSelectedEntries(listValidSelectedProcs,_listPayPlanEntries,DateTimeOD.Today
 					,_patCur.PatNum,_payPlanCur.PayPlanNum,ListPayPlanCreditsCur);
+				if(countProcsSkipped>0) {
+					MsgBox.Show(this,"Credits were not made for "+countProcsSkipped+" procedure(s) because they are linked to one or more dynamic payment plans.");
+				}
 			}
 			textAmt.Text="";
 			textDate.Text="";
