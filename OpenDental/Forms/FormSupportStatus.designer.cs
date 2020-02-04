@@ -73,7 +73,7 @@ namespace OpenDental{
 			this.labelStatusValue.ForeColor = System.Drawing.Color.Black;
 			this.labelStatusValue.Location = new System.Drawing.Point(159, 108);
 			this.labelStatusValue.Name = "labelStatusValue";
-			this.labelStatusValue.Size = new System.Drawing.Size(100, 20);
+			this.labelStatusValue.Size = new System.Drawing.Size(199, 20);
 			this.labelStatusValue.TabIndex = 7;
 			this.labelStatusValue.Text = "Loading...";
 			this.labelStatusValue.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;

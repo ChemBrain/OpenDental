@@ -52,7 +52,7 @@ namespace OpenDental {
 				if(Prefs.UpdateBool(PrefName.RegistrationKeyIsDisabled,true)) {
 					DataValid.SetInvalid(InvalidType.Prefs);
 				}
-				labelStatusValue.Text="DISABLED";
+				labelStatusValue.Text="DISABLED "+node.InnerText;
 				labelStatusValue.ForeColor=Color.Red;
 			}
 			//Checking all three statuses in case RequestRegKeyStatus changes in the future
@@ -63,6 +63,14 @@ namespace OpenDental {
 				}
 				labelStatusValue.Text="ENABLED";
 				labelStatusValue.ForeColor=Color.Green;
+			}
+			node=doc.SelectSingleNode("//KeyEnded");
+			if(node!=null) {
+				if(Prefs.UpdateBool(PrefName.RegistrationKeyIsDisabled,true)) {
+					DataValid.SetInvalid(InvalidType.Prefs);
+				}
+				labelStatusValue.Text="EXPIRED "+node.InnerText;
+				labelStatusValue.ForeColor=Color.Red;
 			}
 		}
 

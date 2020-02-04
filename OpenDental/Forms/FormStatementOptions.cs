@@ -138,6 +138,7 @@ namespace OpenDental{
 			this.checkSinglePatient = new System.Windows.Forms.CheckBox();
 			this.groupDateRange = new System.Windows.Forms.GroupBox();
 			this.textDateEnd = new System.Windows.Forms.TextBox();
+			this.checkBoxBillShowTransSinceZero = new System.Windows.Forms.CheckBox();
 			this.textDateStart = new System.Windows.Forms.TextBox();
 			this.label4 = new System.Windows.Forms.Label();
 			this.checkIsSent = new System.Windows.Forms.CheckBox();
@@ -155,7 +156,6 @@ namespace OpenDental{
 			this.checkSuperStatement = new System.Windows.Forms.CheckBox();
 			this.checkLimited = new System.Windows.Forms.CheckBox();
 			this.butPatPortal = new OpenDental.UI.Button();
-			this.checkBoxBillShowTransSinceZero = new System.Windows.Forms.CheckBox();
 			this.checkShowLName = new System.Windows.Forms.CheckBox();
 			this.checkSendSms = new System.Windows.Forms.CheckBox();
 			this.groupFuchs.SuspendLayout();
@@ -395,7 +395,7 @@ namespace OpenDental{
 			this.groupDateRange.Controls.Add(this.butToday);
 			this.groupDateRange.Location = new System.Drawing.Point(326, 12);
 			this.groupDateRange.Name = "groupDateRange";
-			this.groupDateRange.Size = new System.Drawing.Size(324, 90);
+			this.groupDateRange.Size = new System.Drawing.Size(339, 90);
 			this.groupDateRange.TabIndex = 11;
 			this.groupDateRange.TabStop = false;
 			this.groupDateRange.Text = "Date Range";
@@ -409,6 +409,17 @@ namespace OpenDental{
 			this.textDateEnd.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textDateEnd_KeyDown);
 			this.textDateEnd.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textDateEnd_KeyPress);
 			this.textDateEnd.Validating += new System.ComponentModel.CancelEventHandler(this.textDateEnd_Validating);
+			// 
+			// checkBoxBillShowTransSinceZero
+			// 
+			this.checkBoxBillShowTransSinceZero.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.checkBoxBillShowTransSinceZero.FlatStyle = System.Windows.Forms.FlatStyle.System;
+			this.checkBoxBillShowTransSinceZero.Location = new System.Drawing.Point(25, 67);
+			this.checkBoxBillShowTransSinceZero.Name = "checkBoxBillShowTransSinceZero";
+			this.checkBoxBillShowTransSinceZero.Size = new System.Drawing.Size(314, 18);
+			this.checkBoxBillShowTransSinceZero.TabIndex = 253;
+			this.checkBoxBillShowTransSinceZero.Text = "Show all transactions since family zero balance";
+			this.checkBoxBillShowTransSinceZero.CheckedChanged += new System.EventHandler(this.checkBoxBillShowTransSinceZero_CheckedChanged);
 			// 
 			// textDateStart
 			// 
@@ -595,17 +606,6 @@ namespace OpenDental{
 			this.butPatPortal.TabIndex = 20;
 			this.butPatPortal.Text = "Pat Portal";
 			this.butPatPortal.Click += new System.EventHandler(this.butPatPortal_Click);
-			// 
-			// checkBoxBillShowTransSinceZero
-			// 
-			this.checkBoxBillShowTransSinceZero.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.checkBoxBillShowTransSinceZero.FlatStyle = System.Windows.Forms.FlatStyle.System;
-			this.checkBoxBillShowTransSinceZero.Location = new System.Drawing.Point(78,67);
-			this.checkBoxBillShowTransSinceZero.Name = "checkBoxBillShowTransSinceZero";
-			this.checkBoxBillShowTransSinceZero.Size = new System.Drawing.Size(240,18);
-			this.checkBoxBillShowTransSinceZero.TabIndex = 253;
-			this.checkBoxBillShowTransSinceZero.Text = "Show all transactions since zero balance";
-			this.checkBoxBillShowTransSinceZero.CheckedChanged += new System.EventHandler(this.checkBoxBillShowTransSinceZero_CheckedChanged);
 			// 
 			// checkShowLName
 			// 

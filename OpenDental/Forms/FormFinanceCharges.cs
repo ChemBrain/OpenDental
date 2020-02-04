@@ -503,7 +503,6 @@ namespace OpenDental{
 			this.textExcludeLessThan.MaxVal = 100000000D;
 			this.textExcludeLessThan.MinVal = -100000000D;
 			this.textExcludeLessThan.Name = "textExcludeLessThan";
-			this.textExcludeLessThan.ReadOnly = true;
 			this.textExcludeLessThan.Size = new System.Drawing.Size(42, 20);
 			this.textExcludeLessThan.TabIndex = 54;
 			// 
