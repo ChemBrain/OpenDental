@@ -646,9 +646,9 @@ namespace OpenDental{
 					throw new ODException(Lan.g(this,"There was no authorization code entered."));
 				}
 				string authCode=inputbox.textResult.Text;
-				GoogleTokens tokens=Google.MakeAccessTokenRequest(authCode);
-				if(tokens.errorMessage!="") {
-					throw new Exception(tokens.errorMessage);
+				GoogleToken tokens=Google.MakeAccessTokenRequest(authCode);
+				if(tokens.ErrorMessage!="") {
+					throw new Exception(tokens.ErrorMessage);
 				}
 				textAccessToken.Text=tokens.AccessToken;
 				textRefreshToken.Text=tokens.RefreshToken;
@@ -687,7 +687,7 @@ namespace OpenDental{
 			}
 			_emailAddressCur.AccessToken=textAccessToken.Text;
 			_emailAddressCur.RefreshToken=textRefreshToken.Text;
-			if((!string.IsNullOrWhiteSpace(_emailAddressCur.AccessToken) || !string.IsNullOrWhiteSpace(_emailAddressCur.RefreshToken))//If has a token
+			if(!_isNew && (!string.IsNullOrWhiteSpace(_emailAddressCur.AccessToken) || !string.IsNullOrWhiteSpace(_emailAddressCur.RefreshToken))//If has a token
 				&&( _emailAddressCur.SMTPserver!=PIn.String(textSMTPserver.Text) || _emailAddressCur.Pop3ServerIncoming!=PIn.String(textSMTPserverIncoming.Text)))//And changed a server
 			{
 				if(!MsgBox.Show(MsgBoxButtons.OKCancel,"There is an access token associated to this email address.  "

@@ -105,38 +105,51 @@ namespace OpenDentBusiness {
 
 		///<summary>Gets OAuth Access and Refresh tokens for an auth code.
 		///The auth code is a temporary code that gives Open Dental access to use the email address that was signed into to grant us access.</summary>
-		public static GoogleTokens MakeAccessTokenRequest(string code) {
+		public static GoogleToken MakeAccessTokenRequest(string code) {
 			try {
-				GoogleTokens resObj=JsonConvert.DeserializeObject<GoogleTokens>(
-						WebServiceMainHQProxy.GetWebServiceMainHQInstance().GetGoogleAccessToken(WebSerializer.SerializePrimitive<string>(code),false));
-				return new GoogleTokens(resObj.AccessToken,resObj.RefreshToken);
+				return GetAccessTokenHqOrThrow(code,false);
 			}
 			catch(Exception ex) {
-				return new GoogleTokens("","",ex.Message);
+				return new GoogleToken("","",ex.Message);
+			}
+		}
+
+		private static GoogleToken GetAccessTokenHqOrThrow(string code,bool isRefresh) {
+			List<PayloadItem> listPayloadItems=new List<PayloadItem> {
+				new PayloadItem(code,"Code"),
+				new PayloadItem(isRefresh,"IsRefreshToken"),
+			};
+			string officeData=PayloadHelper.CreatePayload(PayloadHelper.CreatePayloadContent(listPayloadItems),eServiceCode.OAuth);
+			string result;
+			try {
+				result=WebServiceMainHQProxy.GetWebServiceMainHQInstance()
+					.GetGoogleAccessToken(officeData);
+				return JsonConvert.DeserializeObject<GoogleToken>(result);
+			}
+			catch(Exception ex) {
+				throw ex;//Purposefully rethrow here so we can handle it out a level.
 			}
 		}
 
 		///<summary>Gets OAuth Access and Refresh tokens for an auth code.  Called from WebServiceMainHQ.</summary>
-		public static GoogleTokens GetAccessToken(string body) {
+		public static GoogleToken GetAccessToken(string body) {
 			try {
 				var resObj=Request(UrlEndpoint.AccessToken,HttpMethod.Post,body,new { access_token="",expires_in=0,refresh_token="",scope="",token_type=""});
-				return new GoogleTokens(resObj.access_token,resObj.refresh_token);
+				return new GoogleToken(resObj.access_token,resObj.refresh_token);
 			}
 			catch(Exception e) {
-				return new GoogleTokens("","",e.Message);
+				return new GoogleToken("","",e.Message);
 			}
 		}
 
 		///<summary>Gets OAuth Access and Refresh tokens for an email adress.</summary>
 		public static string MakeRefreshAccessTokenRequest(string refreshToken) {
 			try {
-				GoogleTokens resObj=JsonConvert.DeserializeObject<GoogleTokens>(
-					WebServiceMainHQProxy.GetWebServiceMainHQInstance().GetGoogleAccessToken(WebSerializer.SerializePrimitive<string>(refreshToken),true)
-				);
+				GoogleToken resObj=GetAccessTokenHqOrThrow(refreshToken,true);
 				return resObj.AccessToken;
 			}
 			catch(Exception e) {
-				throw e;
+				throw e;//Purposefully rethrow here so we can handle it out a level.
 			}
 		}
 
@@ -148,22 +161,22 @@ namespace OpenDentBusiness {
 
 	}//End Google class.
 
-	public class GoogleTokens {
+	public class GoogleToken {
 		public string AccessToken;
 		public string RefreshToken;
-		public string errorMessage;
+		public string ErrorMessage;
 
-		public GoogleTokens(string access,string refresh,string error="") {
+		public GoogleToken(string access,string refresh,string error="") {
 			AccessToken=access;
 			RefreshToken=refresh;
-			errorMessage=error;
+			ErrorMessage=error;
 		}
 
 		//For serialization.
-		public GoogleTokens() {
+		public GoogleToken() {
 			AccessToken="";
 			RefreshToken="";
-			errorMessage="";
+			ErrorMessage="";
 		}
 	}
 }

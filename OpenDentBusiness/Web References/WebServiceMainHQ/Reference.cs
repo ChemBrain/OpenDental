@@ -23,21 +23,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Web.Services.WebServiceBindingAttribute(Name="WebServiceMainHQSoap", Namespace="https://www.opendental.com/OpenDentalWebServiceHQ/")]
     public partial class WebServiceMainHQ : System.Web.Services.Protocols.SoapHttpClientProtocol {
-        
-        private System.Threading.SendOrPostCallback EServiceSetupOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback RecordValidateDbBackupResultsOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback SupplementalBackupHandshakeOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback SetSupplementalBackupStatusOperationCompleted;
-        
-        private System.Threading.SendOrPostCallback SetSmsPatientPhoneOptInOperationCompleted;
         
         private System.Threading.SendOrPostCallback PerformRefreshCacheOperationCompleted;
         
@@ -155,6 +145,16 @@ namespace OpenDentBusiness.WebServiceMainHQ {
         
         private System.Threading.SendOrPostCallback CustomerUpdateCommittedOperationCompleted;
         
+        private System.Threading.SendOrPostCallback EServiceSetupOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback RecordValidateDbBackupResultsOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback SupplementalBackupHandshakeOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback SetSupplementalBackupStatusOperationCompleted;
+        
+        private System.Threading.SendOrPostCallback SetSmsPatientPhoneOptInOperationCompleted;
+        
         private bool useDefaultCredentialsSetExplicitly;
         
         /// <remarks/>
@@ -192,21 +192,6 @@ namespace OpenDentBusiness.WebServiceMainHQ {
                 this.useDefaultCredentialsSetExplicitly = true;
             }
         }
-        
-        /// <remarks/>
-        public event EServiceSetupCompletedEventHandler EServiceSetupCompleted;
-        
-        /// <remarks/>
-        public event RecordValidateDbBackupResultsCompletedEventHandler RecordValidateDbBackupResultsCompleted;
-        
-        /// <remarks/>
-        public event SupplementalBackupHandshakeCompletedEventHandler SupplementalBackupHandshakeCompleted;
-        
-        /// <remarks/>
-        public event SetSupplementalBackupStatusCompletedEventHandler SetSupplementalBackupStatusCompleted;
-        
-        /// <remarks/>
-        public event SetSmsPatientPhoneOptInCompletedEventHandler SetSmsPatientPhoneOptInCompleted;
         
         /// <remarks/>
         public event PerformRefreshCacheCompletedEventHandler PerformRefreshCacheCompleted;
@@ -383,149 +368,19 @@ namespace OpenDentBusiness.WebServiceMainHQ {
         public event CustomerUpdateCommittedCompletedEventHandler CustomerUpdateCommittedCompleted;
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("https://www.opendental.com/OpenDentalWebServiceHQ/EServiceSetup", RequestNamespace="https://www.opendental.com/OpenDentalWebServiceHQ/", ResponseNamespace="https://www.opendental.com/OpenDentalWebServiceHQ/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public string EServiceSetup(string officeData) {
-            object[] results = this.Invoke("EServiceSetup", new object[] {
-                        officeData});
-            return ((string)(results[0]));
-        }
+        public event EServiceSetupCompletedEventHandler EServiceSetupCompleted;
         
         /// <remarks/>
-        public void EServiceSetupAsync(string officeData) {
-            this.EServiceSetupAsync(officeData, null);
-        }
+        public event RecordValidateDbBackupResultsCompletedEventHandler RecordValidateDbBackupResultsCompleted;
         
         /// <remarks/>
-        public void EServiceSetupAsync(string officeData, object userState) {
-            if ((this.EServiceSetupOperationCompleted == null)) {
-                this.EServiceSetupOperationCompleted = new System.Threading.SendOrPostCallback(this.OnEServiceSetupOperationCompleted);
-            }
-            this.InvokeAsync("EServiceSetup", new object[] {
-                        officeData}, this.EServiceSetupOperationCompleted, userState);
-        }
-        
-        private void OnEServiceSetupOperationCompleted(object arg) {
-            if ((this.EServiceSetupCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.EServiceSetupCompleted(this, new EServiceSetupCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
+        public event SupplementalBackupHandshakeCompletedEventHandler SupplementalBackupHandshakeCompleted;
         
         /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("https://www.opendental.com/OpenDentalWebServiceHQ/RecordValidateDbBackupResults", RequestNamespace="https://www.opendental.com/OpenDentalWebServiceHQ/", ResponseNamespace="https://www.opendental.com/OpenDentalWebServiceHQ/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public string RecordValidateDbBackupResults(string officeData) {
-            object[] results = this.Invoke("RecordValidateDbBackupResults", new object[] {
-                        officeData});
-            return ((string)(results[0]));
-        }
+        public event SetSupplementalBackupStatusCompletedEventHandler SetSupplementalBackupStatusCompleted;
         
         /// <remarks/>
-        public void RecordValidateDbBackupResultsAsync(string officeData) {
-            this.RecordValidateDbBackupResultsAsync(officeData, null);
-        }
-        
-        /// <remarks/>
-        public void RecordValidateDbBackupResultsAsync(string officeData, object userState) {
-            if ((this.RecordValidateDbBackupResultsOperationCompleted == null)) {
-                this.RecordValidateDbBackupResultsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnRecordValidateDbBackupResultsOperationCompleted);
-            }
-            this.InvokeAsync("RecordValidateDbBackupResults", new object[] {
-                        officeData}, this.RecordValidateDbBackupResultsOperationCompleted, userState);
-        }
-        
-        private void OnRecordValidateDbBackupResultsOperationCompleted(object arg) {
-            if ((this.RecordValidateDbBackupResultsCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.RecordValidateDbBackupResultsCompleted(this, new RecordValidateDbBackupResultsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("https://www.opendental.com/OpenDentalWebServiceHQ/SupplementalBackupHandshake", RequestNamespace="https://www.opendental.com/OpenDentalWebServiceHQ/", ResponseNamespace="https://www.opendental.com/OpenDentalWebServiceHQ/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public string SupplementalBackupHandshake(string officeData) {
-            object[] results = this.Invoke("SupplementalBackupHandshake", new object[] {
-                        officeData});
-            return ((string)(results[0]));
-        }
-        
-        /// <remarks/>
-        public void SupplementalBackupHandshakeAsync(string officeData) {
-            this.SupplementalBackupHandshakeAsync(officeData, null);
-        }
-        
-        /// <remarks/>
-        public void SupplementalBackupHandshakeAsync(string officeData, object userState) {
-            if ((this.SupplementalBackupHandshakeOperationCompleted == null)) {
-                this.SupplementalBackupHandshakeOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSupplementalBackupHandshakeOperationCompleted);
-            }
-            this.InvokeAsync("SupplementalBackupHandshake", new object[] {
-                        officeData}, this.SupplementalBackupHandshakeOperationCompleted, userState);
-        }
-        
-        private void OnSupplementalBackupHandshakeOperationCompleted(object arg) {
-            if ((this.SupplementalBackupHandshakeCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.SupplementalBackupHandshakeCompleted(this, new SupplementalBackupHandshakeCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("https://www.opendental.com/OpenDentalWebServiceHQ/SetSupplementalBackupStatus", RequestNamespace="https://www.opendental.com/OpenDentalWebServiceHQ/", ResponseNamespace="https://www.opendental.com/OpenDentalWebServiceHQ/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public string SetSupplementalBackupStatus(string officeData) {
-            object[] results = this.Invoke("SetSupplementalBackupStatus", new object[] {
-                        officeData});
-            return ((string)(results[0]));
-        }
-        
-        /// <remarks/>
-        public void SetSupplementalBackupStatusAsync(string officeData) {
-            this.SetSupplementalBackupStatusAsync(officeData, null);
-        }
-        
-        /// <remarks/>
-        public void SetSupplementalBackupStatusAsync(string officeData, object userState) {
-            if ((this.SetSupplementalBackupStatusOperationCompleted == null)) {
-                this.SetSupplementalBackupStatusOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetSupplementalBackupStatusOperationCompleted);
-            }
-            this.InvokeAsync("SetSupplementalBackupStatus", new object[] {
-                        officeData}, this.SetSupplementalBackupStatusOperationCompleted, userState);
-        }
-        
-        private void OnSetSupplementalBackupStatusOperationCompleted(object arg) {
-            if ((this.SetSupplementalBackupStatusCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.SetSupplementalBackupStatusCompleted(this, new SetSupplementalBackupStatusCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
-        
-        /// <remarks/>
-        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("https://www.opendental.com/OpenDentalWebServiceHQ/SetSmsPatientPhoneOptIn", RequestNamespace="https://www.opendental.com/OpenDentalWebServiceHQ/", ResponseNamespace="https://www.opendental.com/OpenDentalWebServiceHQ/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public string SetSmsPatientPhoneOptIn(string officeData) {
-            object[] results = this.Invoke("SetSmsPatientPhoneOptIn", new object[] {
-                        officeData});
-            return ((string)(results[0]));
-        }
-        
-        /// <remarks/>
-        public void SetSmsPatientPhoneOptInAsync(string officeData) {
-            this.SetSmsPatientPhoneOptInAsync(officeData, null);
-        }
-        
-        /// <remarks/>
-        public void SetSmsPatientPhoneOptInAsync(string officeData, object userState) {
-            if ((this.SetSmsPatientPhoneOptInOperationCompleted == null)) {
-                this.SetSmsPatientPhoneOptInOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetSmsPatientPhoneOptInOperationCompleted);
-            }
-            this.InvokeAsync("SetSmsPatientPhoneOptIn", new object[] {
-                        officeData}, this.SetSmsPatientPhoneOptInOperationCompleted, userState);
-        }
-        
-        private void OnSetSmsPatientPhoneOptInOperationCompleted(object arg) {
-            if ((this.SetSmsPatientPhoneOptInCompleted != null)) {
-                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
-                this.SetSmsPatientPhoneOptInCompleted(this, new SetSmsPatientPhoneOptInCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
-            }
-        }
+        public event SetSmsPatientPhoneOptInCompletedEventHandler SetSmsPatientPhoneOptInCompleted;
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("https://www.opendental.com/OpenDentalWebServiceHQ/PerformRefreshCache", RequestNamespace="https://www.opendental.com/OpenDentalWebServiceHQ/", ResponseNamespace="https://www.opendental.com/OpenDentalWebServiceHQ/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
@@ -1092,26 +947,24 @@ namespace OpenDentBusiness.WebServiceMainHQ {
         
         /// <remarks/>
         [System.Web.Services.Protocols.SoapDocumentMethodAttribute("https://www.opendental.com/OpenDentalWebServiceHQ/GetGoogleAccessToken", RequestNamespace="https://www.opendental.com/OpenDentalWebServiceHQ/", ResponseNamespace="https://www.opendental.com/OpenDentalWebServiceHQ/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
-        public string GetGoogleAccessToken(string code, bool isRefreshToken) {
+        public string GetGoogleAccessToken(string officeData) {
             object[] results = this.Invoke("GetGoogleAccessToken", new object[] {
-                        code,
-                        isRefreshToken});
+                        officeData});
             return ((string)(results[0]));
         }
         
         /// <remarks/>
-        public void GetGoogleAccessTokenAsync(string code, bool isRefreshToken) {
-            this.GetGoogleAccessTokenAsync(code, isRefreshToken, null);
+        public void GetGoogleAccessTokenAsync(string officeData) {
+            this.GetGoogleAccessTokenAsync(officeData, null);
         }
         
         /// <remarks/>
-        public void GetGoogleAccessTokenAsync(string code, bool isRefreshToken, object userState) {
+        public void GetGoogleAccessTokenAsync(string officeData, object userState) {
             if ((this.GetGoogleAccessTokenOperationCompleted == null)) {
                 this.GetGoogleAccessTokenOperationCompleted = new System.Threading.SendOrPostCallback(this.OnGetGoogleAccessTokenOperationCompleted);
             }
             this.InvokeAsync("GetGoogleAccessToken", new object[] {
-                        code,
-                        isRefreshToken}, this.GetGoogleAccessTokenOperationCompleted, userState);
+                        officeData}, this.GetGoogleAccessTokenOperationCompleted, userState);
         }
         
         private void OnGetGoogleAccessTokenOperationCompleted(object arg) {
@@ -2235,6 +2088,151 @@ namespace OpenDentBusiness.WebServiceMainHQ {
         }
         
         /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("https://www.opendental.com/OpenDentalWebServiceHQ/EServiceSetup", RequestNamespace="https://www.opendental.com/OpenDentalWebServiceHQ/", ResponseNamespace="https://www.opendental.com/OpenDentalWebServiceHQ/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public string EServiceSetup(string officeData) {
+            object[] results = this.Invoke("EServiceSetup", new object[] {
+                        officeData});
+            return ((string)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void EServiceSetupAsync(string officeData) {
+            this.EServiceSetupAsync(officeData, null);
+        }
+        
+        /// <remarks/>
+        public void EServiceSetupAsync(string officeData, object userState) {
+            if ((this.EServiceSetupOperationCompleted == null)) {
+                this.EServiceSetupOperationCompleted = new System.Threading.SendOrPostCallback(this.OnEServiceSetupOperationCompleted);
+            }
+            this.InvokeAsync("EServiceSetup", new object[] {
+                        officeData}, this.EServiceSetupOperationCompleted, userState);
+        }
+        
+        private void OnEServiceSetupOperationCompleted(object arg) {
+            if ((this.EServiceSetupCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.EServiceSetupCompleted(this, new EServiceSetupCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("https://www.opendental.com/OpenDentalWebServiceHQ/RecordValidateDbBackupResults", RequestNamespace="https://www.opendental.com/OpenDentalWebServiceHQ/", ResponseNamespace="https://www.opendental.com/OpenDentalWebServiceHQ/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public string RecordValidateDbBackupResults(string officeData) {
+            object[] results = this.Invoke("RecordValidateDbBackupResults", new object[] {
+                        officeData});
+            return ((string)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void RecordValidateDbBackupResultsAsync(string officeData) {
+            this.RecordValidateDbBackupResultsAsync(officeData, null);
+        }
+        
+        /// <remarks/>
+        public void RecordValidateDbBackupResultsAsync(string officeData, object userState) {
+            if ((this.RecordValidateDbBackupResultsOperationCompleted == null)) {
+                this.RecordValidateDbBackupResultsOperationCompleted = new System.Threading.SendOrPostCallback(this.OnRecordValidateDbBackupResultsOperationCompleted);
+            }
+            this.InvokeAsync("RecordValidateDbBackupResults", new object[] {
+                        officeData}, this.RecordValidateDbBackupResultsOperationCompleted, userState);
+        }
+        
+        private void OnRecordValidateDbBackupResultsOperationCompleted(object arg) {
+            if ((this.RecordValidateDbBackupResultsCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.RecordValidateDbBackupResultsCompleted(this, new RecordValidateDbBackupResultsCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("https://www.opendental.com/OpenDentalWebServiceHQ/SupplementalBackupHandshake", RequestNamespace="https://www.opendental.com/OpenDentalWebServiceHQ/", ResponseNamespace="https://www.opendental.com/OpenDentalWebServiceHQ/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public string SupplementalBackupHandshake(string officeData) {
+            object[] results = this.Invoke("SupplementalBackupHandshake", new object[] {
+                        officeData});
+            return ((string)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void SupplementalBackupHandshakeAsync(string officeData) {
+            this.SupplementalBackupHandshakeAsync(officeData, null);
+        }
+        
+        /// <remarks/>
+        public void SupplementalBackupHandshakeAsync(string officeData, object userState) {
+            if ((this.SupplementalBackupHandshakeOperationCompleted == null)) {
+                this.SupplementalBackupHandshakeOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSupplementalBackupHandshakeOperationCompleted);
+            }
+            this.InvokeAsync("SupplementalBackupHandshake", new object[] {
+                        officeData}, this.SupplementalBackupHandshakeOperationCompleted, userState);
+        }
+        
+        private void OnSupplementalBackupHandshakeOperationCompleted(object arg) {
+            if ((this.SupplementalBackupHandshakeCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.SupplementalBackupHandshakeCompleted(this, new SupplementalBackupHandshakeCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("https://www.opendental.com/OpenDentalWebServiceHQ/SetSupplementalBackupStatus", RequestNamespace="https://www.opendental.com/OpenDentalWebServiceHQ/", ResponseNamespace="https://www.opendental.com/OpenDentalWebServiceHQ/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public string SetSupplementalBackupStatus(string officeData) {
+            object[] results = this.Invoke("SetSupplementalBackupStatus", new object[] {
+                        officeData});
+            return ((string)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void SetSupplementalBackupStatusAsync(string officeData) {
+            this.SetSupplementalBackupStatusAsync(officeData, null);
+        }
+        
+        /// <remarks/>
+        public void SetSupplementalBackupStatusAsync(string officeData, object userState) {
+            if ((this.SetSupplementalBackupStatusOperationCompleted == null)) {
+                this.SetSupplementalBackupStatusOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetSupplementalBackupStatusOperationCompleted);
+            }
+            this.InvokeAsync("SetSupplementalBackupStatus", new object[] {
+                        officeData}, this.SetSupplementalBackupStatusOperationCompleted, userState);
+        }
+        
+        private void OnSetSupplementalBackupStatusOperationCompleted(object arg) {
+            if ((this.SetSupplementalBackupStatusCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.SetSupplementalBackupStatusCompleted(this, new SetSupplementalBackupStatusCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
+        [System.Web.Services.Protocols.SoapDocumentMethodAttribute("https://www.opendental.com/OpenDentalWebServiceHQ/SetSmsPatientPhoneOptIn", RequestNamespace="https://www.opendental.com/OpenDentalWebServiceHQ/", ResponseNamespace="https://www.opendental.com/OpenDentalWebServiceHQ/", Use=System.Web.Services.Description.SoapBindingUse.Literal, ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]
+        public string SetSmsPatientPhoneOptIn(string officeData) {
+            object[] results = this.Invoke("SetSmsPatientPhoneOptIn", new object[] {
+                        officeData});
+            return ((string)(results[0]));
+        }
+        
+        /// <remarks/>
+        public void SetSmsPatientPhoneOptInAsync(string officeData) {
+            this.SetSmsPatientPhoneOptInAsync(officeData, null);
+        }
+        
+        /// <remarks/>
+        public void SetSmsPatientPhoneOptInAsync(string officeData, object userState) {
+            if ((this.SetSmsPatientPhoneOptInOperationCompleted == null)) {
+                this.SetSmsPatientPhoneOptInOperationCompleted = new System.Threading.SendOrPostCallback(this.OnSetSmsPatientPhoneOptInOperationCompleted);
+            }
+            this.InvokeAsync("SetSmsPatientPhoneOptIn", new object[] {
+                        officeData}, this.SetSmsPatientPhoneOptInOperationCompleted, userState);
+        }
+        
+        private void OnSetSmsPatientPhoneOptInOperationCompleted(object arg) {
+            if ((this.SetSmsPatientPhoneOptInCompleted != null)) {
+                System.Web.Services.Protocols.InvokeCompletedEventArgs invokeArgs = ((System.Web.Services.Protocols.InvokeCompletedEventArgs)(arg));
+                this.SetSmsPatientPhoneOptInCompleted(this, new SetSmsPatientPhoneOptInCompletedEventArgs(invokeArgs.Results, invokeArgs.Error, invokeArgs.Cancelled, invokeArgs.UserState));
+            }
+        }
+        
+        /// <remarks/>
         public new void CancelAsync(object userState) {
             base.CancelAsync(userState);
         }
@@ -2254,141 +2252,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
-    public delegate void EServiceSetupCompletedEventHandler(object sender, EServiceSetupCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class EServiceSetupCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal EServiceSetupCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public string Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((string)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
-    public delegate void RecordValidateDbBackupResultsCompletedEventHandler(object sender, RecordValidateDbBackupResultsCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class RecordValidateDbBackupResultsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal RecordValidateDbBackupResultsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public string Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((string)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
-    public delegate void SupplementalBackupHandshakeCompletedEventHandler(object sender, SupplementalBackupHandshakeCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class SupplementalBackupHandshakeCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal SupplementalBackupHandshakeCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public string Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((string)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
-    public delegate void SetSupplementalBackupStatusCompletedEventHandler(object sender, SetSupplementalBackupStatusCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class SetSupplementalBackupStatusCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal SetSupplementalBackupStatusCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public string Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((string)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
-    public delegate void SetSmsPatientPhoneOptInCompletedEventHandler(object sender, SetSmsPatientPhoneOptInCompletedEventArgs e);
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public partial class SetSmsPatientPhoneOptInCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
-        
-        private object[] results;
-        
-        internal SetSmsPatientPhoneOptInCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
-                base(exception, cancelled, userState) {
-            this.results = results;
-        }
-        
-        /// <remarks/>
-        public string Result {
-            get {
-                this.RaiseExceptionIfNecessary();
-                return ((string)(this.results[0]));
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void PerformRefreshCacheCompletedEventHandler(object sender, PerformRefreshCacheCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class PerformRefreshCacheCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2410,11 +2278,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void GenerateShortGUIDsCompletedEventHandler(object sender, GenerateShortGUIDsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GenerateShortGUIDsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2436,11 +2304,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void GenerateWebAppUrlCompletedEventHandler(object sender, GenerateWebAppUrlCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GenerateWebAppUrlCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2462,11 +2330,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void ValidateWebAppUrlCompletedEventHandler(object sender, ValidateWebAppUrlCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class ValidateWebAppUrlCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2488,11 +2356,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void BuildWebLanderUrlCompletedEventHandler(object sender, BuildWebLanderUrlCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class BuildWebLanderUrlCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2514,11 +2382,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void BuildWebSchedRecallURLsCompletedEventHandler(object sender, BuildWebSchedRecallURLsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class BuildWebSchedRecallURLsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2540,11 +2408,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void BuildWebSchedNewPatApptURLsCompletedEventHandler(object sender, BuildWebSchedNewPatApptURLsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class BuildWebSchedNewPatApptURLsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2566,11 +2434,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void WebSchedRecallNotificationsSendCompletedEventHandler(object sender, WebSchedRecallNotificationsSendCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class WebSchedRecallNotificationsSendCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2592,11 +2460,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void WebSchedAsapSendCompletedEventHandler(object sender, WebSchedAsapSendCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class WebSchedAsapSendCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2618,11 +2486,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void BuildWebSchedUrlCompletedEventHandler(object sender, BuildWebSchedUrlCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class BuildWebSchedUrlCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2644,11 +2512,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void BuildWebSchedASAPUrlCompletedEventHandler(object sender, BuildWebSchedASAPUrlCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class BuildWebSchedASAPUrlCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2670,11 +2538,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void BuildPatientPortalStatementUrlCompletedEventHandler(object sender, BuildPatientPortalStatementUrlCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class BuildPatientPortalStatementUrlCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2696,11 +2564,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void BuildFeaturePortalUrlCompletedEventHandler(object sender, BuildFeaturePortalUrlCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class BuildFeaturePortalUrlCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2722,11 +2590,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void BuildConfirmationRequestUrlCompletedEventHandler(object sender, BuildConfirmationRequestUrlCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class BuildConfirmationRequestUrlCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2748,11 +2616,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void BuildConfirmationRequestUrlQuickCompletedEventHandler(object sender, BuildConfirmationRequestUrlQuickCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class BuildConfirmationRequestUrlQuickCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2774,11 +2642,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void BuildOAuthUrlCompletedEventHandler(object sender, BuildOAuthUrlCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class BuildOAuthUrlCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2800,11 +2668,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void GetDropboxAuthorizationUrlCompletedEventHandler(object sender, GetDropboxAuthorizationUrlCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetDropboxAuthorizationUrlCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2826,11 +2694,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void GetDropboxAccessTokenCompletedEventHandler(object sender, GetDropboxAccessTokenCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetDropboxAccessTokenCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2852,11 +2720,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void GetGoogleAuthorizationUrlCompletedEventHandler(object sender, GetGoogleAuthorizationUrlCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetGoogleAuthorizationUrlCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2878,11 +2746,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void GetGoogleAccessTokenCompletedEventHandler(object sender, GetGoogleAccessTokenCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetGoogleAccessTokenCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2904,11 +2772,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void ValidateVersionCompletedEventHandler(object sender, ValidateVersionCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class ValidateVersionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2930,11 +2798,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void ConfirmationRequestSendCompletedEventHandler(object sender, ConfirmationRequestSendCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class ConfirmationRequestSendCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2956,11 +2824,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void ConfirmationRequestSignAgreementCompletedEventHandler(object sender, ConfirmationRequestSignAgreementCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class ConfirmationRequestSignAgreementCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -2982,11 +2850,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void ConfirmationRequestCancelServiceCompletedEventHandler(object sender, ConfirmationRequestCancelServiceCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class ConfirmationRequestCancelServiceCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3008,11 +2876,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void HandleConfirmationsApptChangedCompletedEventHandler(object sender, HandleConfirmationsApptChangedCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class HandleConfirmationsApptChangedCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3034,11 +2902,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void ThankYouSendCompletedEventHandler(object sender, ThankYouSendCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class ThankYouSendCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3060,11 +2928,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void SmsSendCompletedEventHandler(object sender, SmsSendCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SmsSendCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3086,11 +2954,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void SmsSignAgreementCompletedEventHandler(object sender, SmsSignAgreementCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SmsSignAgreementCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3112,11 +2980,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void SmsCancelServiceCompletedEventHandler(object sender, SmsCancelServiceCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SmsCancelServiceCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3138,11 +3006,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void RequestListenerProxyPrefsCompletedEventHandler(object sender, RequestListenerProxyPrefsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class RequestListenerProxyPrefsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3164,11 +3032,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void GetEConnectorTypeCompletedEventHandler(object sender, GetEConnectorTypeCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetEConnectorTypeCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3190,11 +3058,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void SetEConnectorTypeCompletedEventHandler(object sender, SetEConnectorTypeCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SetEConnectorTypeCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3216,11 +3084,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void SetEConnectorStatsCompletedEventHandler(object sender, SetEConnectorStatsCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SetEConnectorStatsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3242,11 +3110,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void InsertPaySimpleACHIdCompletedEventHandler(object sender, InsertPaySimpleACHIdCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class InsertPaySimpleACHIdCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3268,11 +3136,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void GetPaySimpleWebHookUrlCompletedEventHandler(object sender, GetPaySimpleWebHookUrlCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetPaySimpleWebHookUrlCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3294,11 +3162,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void ValidateEServiceCompletedEventHandler(object sender, ValidateEServiceCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class ValidateEServiceCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3320,11 +3188,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void ODXamValidateLoginCompletedEventHandler(object sender, ODXamValidateLoginCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class ODXamValidateLoginCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3346,11 +3214,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void ODXamTwoFactorAuthCompletedEventHandler(object sender, ODXamTwoFactorAuthCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class ODXamTwoFactorAuthCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3372,11 +3240,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void ODXamSubmitUnhandledExceptionCompletedEventHandler(object sender, ODXamSubmitUnhandledExceptionCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class ODXamSubmitUnhandledExceptionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3398,11 +3266,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void SendPushNotificationCompletedEventHandler(object sender, SendPushNotificationCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SendPushNotificationCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3424,11 +3292,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void GetFeaturesForCustomerCompletedEventHandler(object sender, GetFeaturesForCustomerCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetFeaturesForCustomerCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3450,11 +3318,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void GetFeaturesForEServiceCompletedEventHandler(object sender, GetFeaturesForEServiceCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetFeaturesForEServiceCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3476,11 +3344,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void EnableAdditionalFeaturesCompletedEventHandler(object sender, EnableAdditionalFeaturesCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class EnableAdditionalFeaturesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3502,11 +3370,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void CheckFHIRAPIKeyCompletedEventHandler(object sender, CheckFHIRAPIKeyCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class CheckFHIRAPIKeyCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3528,11 +3396,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void GenerateFHIRAPIKeyCompletedEventHandler(object sender, GenerateFHIRAPIKeyCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GenerateFHIRAPIKeyCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3554,11 +3422,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void AssignFHIRAPIKeyCompletedEventHandler(object sender, AssignFHIRAPIKeyCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class AssignFHIRAPIKeyCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3580,11 +3448,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void GetFHIRAPIKeysForOfficeCompletedEventHandler(object sender, GetFHIRAPIKeysForOfficeCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetFHIRAPIKeysForOfficeCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3606,11 +3474,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void UpdateFHIRKeyStatusCompletedEventHandler(object sender, UpdateFHIRKeyStatusCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class UpdateFHIRKeyStatusCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3632,11 +3500,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void UpdateFHIRAPIKeysCompletedEventHandler(object sender, UpdateFHIRAPIKeysCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class UpdateFHIRAPIKeysCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3658,11 +3526,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void UploadRedactedDataPatientPortalInvitesCompletedEventHandler(object sender, UploadRedactedDataPatientPortalInvitesCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class UploadRedactedDataPatientPortalInvitesCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3684,11 +3552,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void ProcessEConnectorFailoverCompletedEventHandler(object sender, ProcessEConnectorFailoverCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class ProcessEConnectorFailoverCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3710,11 +3578,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void TestConnectionCompletedEventHandler(object sender, TestConnectionCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class TestConnectionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3736,11 +3604,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void TestConnectionDbCompletedEventHandler(object sender, TestConnectionDbCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class TestConnectionDbCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3762,11 +3630,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void SubmitUnhandledExceptionCompletedEventHandler(object sender, SubmitUnhandledExceptionCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class SubmitUnhandledExceptionCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3788,11 +3656,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void CreateNewHelpKeyCompletedEventHandler(object sender, CreateNewHelpKeyCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class CreateNewHelpKeyCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3814,11 +3682,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void GetManualPageCompletedEventHandler(object sender, GetManualPageCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class GetManualPageCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3840,11 +3708,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void CanadaCarrierUpdateCompletedEventHandler(object sender, CanadaCarrierUpdateCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class CanadaCarrierUpdateCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3866,11 +3734,11 @@ namespace OpenDentBusiness.WebServiceMainHQ {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     public delegate void CustomerUpdateCommittedCompletedEventHandler(object sender, CustomerUpdateCommittedCompletedEventArgs e);
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3761.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     public partial class CustomerUpdateCommittedCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
@@ -3878,6 +3746,136 @@ namespace OpenDentBusiness.WebServiceMainHQ {
         private object[] results;
         
         internal CustomerUpdateCommittedCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public string Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((string)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    public delegate void EServiceSetupCompletedEventHandler(object sender, EServiceSetupCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class EServiceSetupCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal EServiceSetupCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public string Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((string)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    public delegate void RecordValidateDbBackupResultsCompletedEventHandler(object sender, RecordValidateDbBackupResultsCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class RecordValidateDbBackupResultsCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal RecordValidateDbBackupResultsCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public string Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((string)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    public delegate void SupplementalBackupHandshakeCompletedEventHandler(object sender, SupplementalBackupHandshakeCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class SupplementalBackupHandshakeCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal SupplementalBackupHandshakeCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public string Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((string)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    public delegate void SetSupplementalBackupStatusCompletedEventHandler(object sender, SetSupplementalBackupStatusCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class SetSupplementalBackupStatusCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal SetSupplementalBackupStatusCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
+                base(exception, cancelled, userState) {
+            this.results = results;
+        }
+        
+        /// <remarks/>
+        public string Result {
+            get {
+                this.RaiseExceptionIfNecessary();
+                return ((string)(this.results[0]));
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    public delegate void SetSmsPatientPhoneOptInCompletedEventHandler(object sender, SetSmsPatientPhoneOptInCompletedEventArgs e);
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Web.Services", "4.8.3752.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class SetSmsPatientPhoneOptInCompletedEventArgs : System.ComponentModel.AsyncCompletedEventArgs {
+        
+        private object[] results;
+        
+        internal SetSmsPatientPhoneOptInCompletedEventArgs(object[] results, System.Exception exception, bool cancelled, object userState) : 
                 base(exception, cancelled, userState) {
             this.results = results;
         }

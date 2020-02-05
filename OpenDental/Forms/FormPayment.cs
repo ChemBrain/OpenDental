@@ -1854,6 +1854,9 @@ namespace OpenDental {
 			panelXcharge.Visible=false;
 			butPayConnect.Visible=false;
 			butPaySimple.Visible=false;
+			if(checkPayTypeNone.Checked) {
+				return;
+			}
 			if(!progPayConnect.Enabled && !_xProg.Enabled && !progPaySimple.Enabled) {//if none enabled
 				//show all so user can pick
 				panelXcharge.Visible=true;
@@ -4028,7 +4031,6 @@ namespace OpenDental {
 				checkShowAll.Checked=false;
 				checkShowAll.Enabled=false;
 				listPayType.Visible=false;
-				panelXcharge.Visible=false;
 				butPay.Text=Lan.g(this,"Transfer");
 				if(PrefC.HasClinicsEnabled) {
 					comboGroupBy.SelectedIndex=2;
@@ -4049,7 +4051,6 @@ namespace OpenDental {
 			else {
 				checkShowAll.Enabled=true;
 				listPayType.Visible=true;
-				panelXcharge.Visible=true;
 				butPay.Text=Lan.g(this,"Pay");
 				comboGroupBy.Enabled=true;
 				butCreatePartial.Visible=true;
@@ -4057,6 +4058,7 @@ namespace OpenDental {
 				butPay.Visible=true;
 				checkIncludeExplicitCreditsOnly.Visible=true;
 			}
+			CheckUIState();
 			SetComboDepositAccounts();
 		}
 

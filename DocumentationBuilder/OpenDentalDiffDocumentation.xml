@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="OpenDentalDiffDocumentation.xsl"?>
-<database version="19.4.12.0">
+<database version="19.4.15.0">
     <table name="appointment">
         <summary></summary>
         <column order="29" name="SecDateTEntry" type="datetime">
@@ -129,6 +129,15 @@
         <summary></summary>
         <column order="30" name="ApptReminderRuleNum" type="bigint(20)" fk="apptreminderrule">
             <summary>FK to ApptReminderRule.ApptReminderRuleNum.</summary>
+        </column>
+    </table>
+    <table name="emailaddress">
+        <summary></summary>
+        <column order="10" name="AccessToken" type="varchar(255)">
+            <summary>Needed for OAuth.</summary>
+        </column>
+        <column order="11" name="RefreshToken" type="varchar(255)">
+            <summary>Needed for OAuth.</summary>
         </column>
     </table>
     <table name="feeschedgroup">

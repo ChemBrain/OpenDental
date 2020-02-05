@@ -2,76 +2,6 @@
 <wsdl:definitions xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="https://www.opendental.com/OpenDentalWebServiceHQ/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="https://www.opendental.com/OpenDentalWebServiceHQ/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsdl:types>
     <s:schema elementFormDefault="qualified" targetNamespace="https://www.opendental.com/OpenDentalWebServiceHQ/">
-      <s:element name="EServiceSetup">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="officeData" type="s:string" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="EServiceSetupResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="EServiceSetupResult" type="s:string" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="RecordValidateDbBackupResults">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="officeData" type="s:string" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="RecordValidateDbBackupResultsResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="RecordValidateDbBackupResultsResult" type="s:string" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="SupplementalBackupHandshake">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="officeData" type="s:string" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="SupplementalBackupHandshakeResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="SupplementalBackupHandshakeResult" type="s:string" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="SetSupplementalBackupStatus">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="officeData" type="s:string" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="SetSupplementalBackupStatusResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="SetSupplementalBackupStatusResult" type="s:string" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="SetSmsPatientPhoneOptIn">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="officeData" type="s:string" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
-      <s:element name="SetSmsPatientPhoneOptInResponse">
-        <s:complexType>
-          <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="SetSmsPatientPhoneOptInResult" type="s:string" />
-          </s:sequence>
-        </s:complexType>
-      </s:element>
       <s:element name="PerformRefreshCache">
         <s:complexType>
           <s:sequence>
@@ -346,8 +276,7 @@
       <s:element name="GetGoogleAccessToken">
         <s:complexType>
           <s:sequence>
-            <s:element minOccurs="0" maxOccurs="1" name="code" type="s:string" />
-            <s:element minOccurs="1" maxOccurs="1" name="isRefreshToken" type="s:boolean" />
+            <s:element minOccurs="0" maxOccurs="1" name="officeData" type="s:string" />
           </s:sequence>
         </s:complexType>
       </s:element>
@@ -891,39 +820,79 @@
           </s:sequence>
         </s:complexType>
       </s:element>
+      <s:element name="EServiceSetup">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="officeData" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="EServiceSetupResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="EServiceSetupResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="RecordValidateDbBackupResults">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="officeData" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="RecordValidateDbBackupResultsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="RecordValidateDbBackupResultsResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SupplementalBackupHandshake">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="officeData" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SupplementalBackupHandshakeResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SupplementalBackupHandshakeResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetSupplementalBackupStatus">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="officeData" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetSupplementalBackupStatusResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SetSupplementalBackupStatusResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetSmsPatientPhoneOptIn">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="officeData" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SetSmsPatientPhoneOptInResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SetSmsPatientPhoneOptInResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
       <s:element name="string" nillable="true" type="s:string" />
     </s:schema>
   </wsdl:types>
-  <wsdl:message name="EServiceSetupSoapIn">
-    <wsdl:part name="parameters" element="tns:EServiceSetup" />
-  </wsdl:message>
-  <wsdl:message name="EServiceSetupSoapOut">
-    <wsdl:part name="parameters" element="tns:EServiceSetupResponse" />
-  </wsdl:message>
-  <wsdl:message name="RecordValidateDbBackupResultsSoapIn">
-    <wsdl:part name="parameters" element="tns:RecordValidateDbBackupResults" />
-  </wsdl:message>
-  <wsdl:message name="RecordValidateDbBackupResultsSoapOut">
-    <wsdl:part name="parameters" element="tns:RecordValidateDbBackupResultsResponse" />
-  </wsdl:message>
-  <wsdl:message name="SupplementalBackupHandshakeSoapIn">
-    <wsdl:part name="parameters" element="tns:SupplementalBackupHandshake" />
-  </wsdl:message>
-  <wsdl:message name="SupplementalBackupHandshakeSoapOut">
-    <wsdl:part name="parameters" element="tns:SupplementalBackupHandshakeResponse" />
-  </wsdl:message>
-  <wsdl:message name="SetSupplementalBackupStatusSoapIn">
-    <wsdl:part name="parameters" element="tns:SetSupplementalBackupStatus" />
-  </wsdl:message>
-  <wsdl:message name="SetSupplementalBackupStatusSoapOut">
-    <wsdl:part name="parameters" element="tns:SetSupplementalBackupStatusResponse" />
-  </wsdl:message>
-  <wsdl:message name="SetSmsPatientPhoneOptInSoapIn">
-    <wsdl:part name="parameters" element="tns:SetSmsPatientPhoneOptIn" />
-  </wsdl:message>
-  <wsdl:message name="SetSmsPatientPhoneOptInSoapOut">
-    <wsdl:part name="parameters" element="tns:SetSmsPatientPhoneOptInResponse" />
-  </wsdl:message>
   <wsdl:message name="PerformRefreshCacheSoapIn">
     <wsdl:part name="parameters" element="tns:PerformRefreshCache" />
   </wsdl:message>
@@ -1272,35 +1241,35 @@
   <wsdl:message name="CustomerUpdateCommittedSoapOut">
     <wsdl:part name="parameters" element="tns:CustomerUpdateCommittedResponse" />
   </wsdl:message>
-  <wsdl:message name="EServiceSetupHttpPostIn">
-    <wsdl:part name="officeData" type="s:string" />
+  <wsdl:message name="EServiceSetupSoapIn">
+    <wsdl:part name="parameters" element="tns:EServiceSetup" />
   </wsdl:message>
-  <wsdl:message name="EServiceSetupHttpPostOut">
-    <wsdl:part name="Body" element="tns:string" />
+  <wsdl:message name="EServiceSetupSoapOut">
+    <wsdl:part name="parameters" element="tns:EServiceSetupResponse" />
   </wsdl:message>
-  <wsdl:message name="RecordValidateDbBackupResultsHttpPostIn">
-    <wsdl:part name="officeData" type="s:string" />
+  <wsdl:message name="RecordValidateDbBackupResultsSoapIn">
+    <wsdl:part name="parameters" element="tns:RecordValidateDbBackupResults" />
   </wsdl:message>
-  <wsdl:message name="RecordValidateDbBackupResultsHttpPostOut">
-    <wsdl:part name="Body" element="tns:string" />
+  <wsdl:message name="RecordValidateDbBackupResultsSoapOut">
+    <wsdl:part name="parameters" element="tns:RecordValidateDbBackupResultsResponse" />
   </wsdl:message>
-  <wsdl:message name="SupplementalBackupHandshakeHttpPostIn">
-    <wsdl:part name="officeData" type="s:string" />
+  <wsdl:message name="SupplementalBackupHandshakeSoapIn">
+    <wsdl:part name="parameters" element="tns:SupplementalBackupHandshake" />
   </wsdl:message>
-  <wsdl:message name="SupplementalBackupHandshakeHttpPostOut">
-    <wsdl:part name="Body" element="tns:string" />
+  <wsdl:message name="SupplementalBackupHandshakeSoapOut">
+    <wsdl:part name="parameters" element="tns:SupplementalBackupHandshakeResponse" />
   </wsdl:message>
-  <wsdl:message name="SetSupplementalBackupStatusHttpPostIn">
-    <wsdl:part name="officeData" type="s:string" />
+  <wsdl:message name="SetSupplementalBackupStatusSoapIn">
+    <wsdl:part name="parameters" element="tns:SetSupplementalBackupStatus" />
   </wsdl:message>
-  <wsdl:message name="SetSupplementalBackupStatusHttpPostOut">
-    <wsdl:part name="Body" element="tns:string" />
+  <wsdl:message name="SetSupplementalBackupStatusSoapOut">
+    <wsdl:part name="parameters" element="tns:SetSupplementalBackupStatusResponse" />
   </wsdl:message>
-  <wsdl:message name="SetSmsPatientPhoneOptInHttpPostIn">
-    <wsdl:part name="officeData" type="s:string" />
+  <wsdl:message name="SetSmsPatientPhoneOptInSoapIn">
+    <wsdl:part name="parameters" element="tns:SetSmsPatientPhoneOptIn" />
   </wsdl:message>
-  <wsdl:message name="SetSmsPatientPhoneOptInHttpPostOut">
-    <wsdl:part name="Body" element="tns:string" />
+  <wsdl:message name="SetSmsPatientPhoneOptInSoapOut">
+    <wsdl:part name="parameters" element="tns:SetSmsPatientPhoneOptInResponse" />
   </wsdl:message>
   <wsdl:message name="PerformRefreshCacheHttpPostIn">
     <wsdl:part name="officeData" type="s:string" />
@@ -1422,8 +1391,7 @@
     <wsdl:part name="Body" element="tns:string" />
   </wsdl:message>
   <wsdl:message name="GetGoogleAccessTokenHttpPostIn">
-    <wsdl:part name="code" type="s:string" />
-    <wsdl:part name="isRefreshToken" type="s:string" />
+    <wsdl:part name="officeData" type="s:string" />
   </wsdl:message>
   <wsdl:message name="GetGoogleAccessTokenHttpPostOut">
     <wsdl:part name="Body" element="tns:string" />
@@ -1659,27 +1627,37 @@
   <wsdl:message name="CustomerUpdateCommittedHttpPostOut">
     <wsdl:part name="Body" element="tns:string" />
   </wsdl:message>
+  <wsdl:message name="EServiceSetupHttpPostIn">
+    <wsdl:part name="officeData" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="EServiceSetupHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="RecordValidateDbBackupResultsHttpPostIn">
+    <wsdl:part name="officeData" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="RecordValidateDbBackupResultsHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="SupplementalBackupHandshakeHttpPostIn">
+    <wsdl:part name="officeData" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SupplementalBackupHandshakeHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="SetSupplementalBackupStatusHttpPostIn">
+    <wsdl:part name="officeData" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SetSupplementalBackupStatusHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
+  <wsdl:message name="SetSmsPatientPhoneOptInHttpPostIn">
+    <wsdl:part name="officeData" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="SetSmsPatientPhoneOptInHttpPostOut">
+    <wsdl:part name="Body" element="tns:string" />
+  </wsdl:message>
   <wsdl:portType name="WebServiceMainHQSoap">
-    <wsdl:operation name="EServiceSetup">
-      <wsdl:input message="tns:EServiceSetupSoapIn" />
-      <wsdl:output message="tns:EServiceSetupSoapOut" />
-    </wsdl:operation>
-    <wsdl:operation name="RecordValidateDbBackupResults">
-      <wsdl:input message="tns:RecordValidateDbBackupResultsSoapIn" />
-      <wsdl:output message="tns:RecordValidateDbBackupResultsSoapOut" />
-    </wsdl:operation>
-    <wsdl:operation name="SupplementalBackupHandshake">
-      <wsdl:input message="tns:SupplementalBackupHandshakeSoapIn" />
-      <wsdl:output message="tns:SupplementalBackupHandshakeSoapOut" />
-    </wsdl:operation>
-    <wsdl:operation name="SetSupplementalBackupStatus">
-      <wsdl:input message="tns:SetSupplementalBackupStatusSoapIn" />
-      <wsdl:output message="tns:SetSupplementalBackupStatusSoapOut" />
-    </wsdl:operation>
-    <wsdl:operation name="SetSmsPatientPhoneOptIn">
-      <wsdl:input message="tns:SetSmsPatientPhoneOptInSoapIn" />
-      <wsdl:output message="tns:SetSmsPatientPhoneOptInSoapOut" />
-    </wsdl:operation>
     <wsdl:operation name="PerformRefreshCache">
       <wsdl:input message="tns:PerformRefreshCacheSoapIn" />
       <wsdl:output message="tns:PerformRefreshCacheSoapOut" />
@@ -1912,28 +1890,28 @@
       <wsdl:input message="tns:CustomerUpdateCommittedSoapIn" />
       <wsdl:output message="tns:CustomerUpdateCommittedSoapOut" />
     </wsdl:operation>
-  </wsdl:portType>
-  <wsdl:portType name="WebServiceMainHQHttpPost">
     <wsdl:operation name="EServiceSetup">
-      <wsdl:input message="tns:EServiceSetupHttpPostIn" />
-      <wsdl:output message="tns:EServiceSetupHttpPostOut" />
+      <wsdl:input message="tns:EServiceSetupSoapIn" />
+      <wsdl:output message="tns:EServiceSetupSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="RecordValidateDbBackupResults">
-      <wsdl:input message="tns:RecordValidateDbBackupResultsHttpPostIn" />
-      <wsdl:output message="tns:RecordValidateDbBackupResultsHttpPostOut" />
+      <wsdl:input message="tns:RecordValidateDbBackupResultsSoapIn" />
+      <wsdl:output message="tns:RecordValidateDbBackupResultsSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="SupplementalBackupHandshake">
-      <wsdl:input message="tns:SupplementalBackupHandshakeHttpPostIn" />
-      <wsdl:output message="tns:SupplementalBackupHandshakeHttpPostOut" />
+      <wsdl:input message="tns:SupplementalBackupHandshakeSoapIn" />
+      <wsdl:output message="tns:SupplementalBackupHandshakeSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="SetSupplementalBackupStatus">
-      <wsdl:input message="tns:SetSupplementalBackupStatusHttpPostIn" />
-      <wsdl:output message="tns:SetSupplementalBackupStatusHttpPostOut" />
+      <wsdl:input message="tns:SetSupplementalBackupStatusSoapIn" />
+      <wsdl:output message="tns:SetSupplementalBackupStatusSoapOut" />
     </wsdl:operation>
     <wsdl:operation name="SetSmsPatientPhoneOptIn">
-      <wsdl:input message="tns:SetSmsPatientPhoneOptInHttpPostIn" />
-      <wsdl:output message="tns:SetSmsPatientPhoneOptInHttpPostOut" />
+      <wsdl:input message="tns:SetSmsPatientPhoneOptInSoapIn" />
+      <wsdl:output message="tns:SetSmsPatientPhoneOptInSoapOut" />
     </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="WebServiceMainHQHttpPost">
     <wsdl:operation name="PerformRefreshCache">
       <wsdl:input message="tns:PerformRefreshCacheHttpPostIn" />
       <wsdl:output message="tns:PerformRefreshCacheHttpPostOut" />
@@ -2166,54 +2144,29 @@
       <wsdl:input message="tns:CustomerUpdateCommittedHttpPostIn" />
       <wsdl:output message="tns:CustomerUpdateCommittedHttpPostOut" />
     </wsdl:operation>
+    <wsdl:operation name="EServiceSetup">
+      <wsdl:input message="tns:EServiceSetupHttpPostIn" />
+      <wsdl:output message="tns:EServiceSetupHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RecordValidateDbBackupResults">
+      <wsdl:input message="tns:RecordValidateDbBackupResultsHttpPostIn" />
+      <wsdl:output message="tns:RecordValidateDbBackupResultsHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SupplementalBackupHandshake">
+      <wsdl:input message="tns:SupplementalBackupHandshakeHttpPostIn" />
+      <wsdl:output message="tns:SupplementalBackupHandshakeHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetSupplementalBackupStatus">
+      <wsdl:input message="tns:SetSupplementalBackupStatusHttpPostIn" />
+      <wsdl:output message="tns:SetSupplementalBackupStatusHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="SetSmsPatientPhoneOptIn">
+      <wsdl:input message="tns:SetSmsPatientPhoneOptInHttpPostIn" />
+      <wsdl:output message="tns:SetSmsPatientPhoneOptInHttpPostOut" />
+    </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="WebServiceMainHQSoap" type="tns:WebServiceMainHQSoap">
     <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
-    <wsdl:operation name="EServiceSetup">
-      <soap:operation soapAction="https://www.opendental.com/OpenDentalWebServiceHQ/EServiceSetup" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="RecordValidateDbBackupResults">
-      <soap:operation soapAction="https://www.opendental.com/OpenDentalWebServiceHQ/RecordValidateDbBackupResults" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="SupplementalBackupHandshake">
-      <soap:operation soapAction="https://www.opendental.com/OpenDentalWebServiceHQ/SupplementalBackupHandshake" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="SetSupplementalBackupStatus">
-      <soap:operation soapAction="https://www.opendental.com/OpenDentalWebServiceHQ/SetSupplementalBackupStatus" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
-    <wsdl:operation name="SetSmsPatientPhoneOptIn">
-      <soap:operation soapAction="https://www.opendental.com/OpenDentalWebServiceHQ/SetSmsPatientPhoneOptIn" style="document" />
-      <wsdl:input>
-        <soap:body use="literal" />
-      </wsdl:input>
-      <wsdl:output>
-        <soap:body use="literal" />
-      </wsdl:output>
-    </wsdl:operation>
     <wsdl:operation name="PerformRefreshCache">
       <soap:operation soapAction="https://www.opendental.com/OpenDentalWebServiceHQ/PerformRefreshCache" style="document" />
       <wsdl:input>
@@ -2736,54 +2689,54 @@
         <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-  </wsdl:binding>
-  <wsdl:binding name="WebServiceMainHQSoap12" type="tns:WebServiceMainHQSoap">
-    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
     <wsdl:operation name="EServiceSetup">
-      <soap12:operation soapAction="https://www.opendental.com/OpenDentalWebServiceHQ/EServiceSetup" style="document" />
+      <soap:operation soapAction="https://www.opendental.com/OpenDentalWebServiceHQ/EServiceSetup" style="document" />
       <wsdl:input>
-        <soap12:body use="literal" />
+        <soap:body use="literal" />
       </wsdl:input>
       <wsdl:output>
-        <soap12:body use="literal" />
+        <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="RecordValidateDbBackupResults">
-      <soap12:operation soapAction="https://www.opendental.com/OpenDentalWebServiceHQ/RecordValidateDbBackupResults" style="document" />
+      <soap:operation soapAction="https://www.opendental.com/OpenDentalWebServiceHQ/RecordValidateDbBackupResults" style="document" />
       <wsdl:input>
-        <soap12:body use="literal" />
+        <soap:body use="literal" />
       </wsdl:input>
       <wsdl:output>
-        <soap12:body use="literal" />
+        <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="SupplementalBackupHandshake">
-      <soap12:operation soapAction="https://www.opendental.com/OpenDentalWebServiceHQ/SupplementalBackupHandshake" style="document" />
+      <soap:operation soapAction="https://www.opendental.com/OpenDentalWebServiceHQ/SupplementalBackupHandshake" style="document" />
       <wsdl:input>
-        <soap12:body use="literal" />
+        <soap:body use="literal" />
       </wsdl:input>
       <wsdl:output>
-        <soap12:body use="literal" />
+        <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="SetSupplementalBackupStatus">
-      <soap12:operation soapAction="https://www.opendental.com/OpenDentalWebServiceHQ/SetSupplementalBackupStatus" style="document" />
+      <soap:operation soapAction="https://www.opendental.com/OpenDentalWebServiceHQ/SetSupplementalBackupStatus" style="document" />
       <wsdl:input>
-        <soap12:body use="literal" />
+        <soap:body use="literal" />
       </wsdl:input>
       <wsdl:output>
-        <soap12:body use="literal" />
+        <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="SetSmsPatientPhoneOptIn">
-      <soap12:operation soapAction="https://www.opendental.com/OpenDentalWebServiceHQ/SetSmsPatientPhoneOptIn" style="document" />
+      <soap:operation soapAction="https://www.opendental.com/OpenDentalWebServiceHQ/SetSmsPatientPhoneOptIn" style="document" />
       <wsdl:input>
-        <soap12:body use="literal" />
+        <soap:body use="literal" />
       </wsdl:input>
       <wsdl:output>
-        <soap12:body use="literal" />
+        <soap:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="WebServiceMainHQSoap12" type="tns:WebServiceMainHQSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
     <wsdl:operation name="PerformRefreshCache">
       <soap12:operation soapAction="https://www.opendental.com/OpenDentalWebServiceHQ/PerformRefreshCache" style="document" />
       <wsdl:input>
@@ -3306,54 +3259,54 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-  </wsdl:binding>
-  <wsdl:binding name="WebServiceMainHQHttpPost" type="tns:WebServiceMainHQHttpPost">
-    <http:binding verb="POST" />
     <wsdl:operation name="EServiceSetup">
-      <http:operation location="/EServiceSetup" />
+      <soap12:operation soapAction="https://www.opendental.com/OpenDentalWebServiceHQ/EServiceSetup" style="document" />
       <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
+        <soap12:body use="literal" />
       </wsdl:input>
       <wsdl:output>
-        <mime:mimeXml part="Body" />
+        <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="RecordValidateDbBackupResults">
-      <http:operation location="/RecordValidateDbBackupResults" />
+      <soap12:operation soapAction="https://www.opendental.com/OpenDentalWebServiceHQ/RecordValidateDbBackupResults" style="document" />
       <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
+        <soap12:body use="literal" />
       </wsdl:input>
       <wsdl:output>
-        <mime:mimeXml part="Body" />
+        <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="SupplementalBackupHandshake">
-      <http:operation location="/SupplementalBackupHandshake" />
+      <soap12:operation soapAction="https://www.opendental.com/OpenDentalWebServiceHQ/SupplementalBackupHandshake" style="document" />
       <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
+        <soap12:body use="literal" />
       </wsdl:input>
       <wsdl:output>
-        <mime:mimeXml part="Body" />
+        <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="SetSupplementalBackupStatus">
-      <http:operation location="/SetSupplementalBackupStatus" />
+      <soap12:operation soapAction="https://www.opendental.com/OpenDentalWebServiceHQ/SetSupplementalBackupStatus" style="document" />
       <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
+        <soap12:body use="literal" />
       </wsdl:input>
       <wsdl:output>
-        <mime:mimeXml part="Body" />
+        <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
     <wsdl:operation name="SetSmsPatientPhoneOptIn">
-      <http:operation location="/SetSmsPatientPhoneOptIn" />
+      <soap12:operation soapAction="https://www.opendental.com/OpenDentalWebServiceHQ/SetSmsPatientPhoneOptIn" style="document" />
       <wsdl:input>
-        <mime:content type="application/x-www-form-urlencoded" />
+        <soap12:body use="literal" />
       </wsdl:input>
       <wsdl:output>
-        <mime:mimeXml part="Body" />
+        <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="WebServiceMainHQHttpPost" type="tns:WebServiceMainHQHttpPost">
+    <http:binding verb="POST" />
     <wsdl:operation name="PerformRefreshCache">
       <http:operation location="/PerformRefreshCache" />
       <wsdl:input>
@@ -3869,6 +3822,51 @@
     </wsdl:operation>
     <wsdl:operation name="CustomerUpdateCommitted">
       <http:operation location="/CustomerUpdateCommitted" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="EServiceSetup">
+      <http:operation location="/EServiceSetup" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RecordValidateDbBackupResults">
+      <http:operation location="/RecordValidateDbBackupResults" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SupplementalBackupHandshake">
+      <http:operation location="/SupplementalBackupHandshake" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetSupplementalBackupStatus">
+      <http:operation location="/SetSupplementalBackupStatus" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:mimeXml part="Body" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="SetSmsPatientPhoneOptIn">
+      <http:operation location="/SetSmsPatientPhoneOptIn" />
       <wsdl:input>
         <mime:content type="application/x-www-form-urlencoded" />
       </wsdl:input>

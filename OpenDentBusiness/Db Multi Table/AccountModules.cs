@@ -2572,7 +2572,7 @@ namespace OpenDentBusiness {
 			string tableName="payplan";
 			string descriptionPayPlanType="Payment Plan.";
 			string descriptionPrincipal="Original Loan Principal:";
-			string descriptionInterest="Accumulated Interest:";
+			string descriptionInterest="Total Interest:";
 			if(isForDynamic) {
 				tableName="dynamicPayPlan";
 				descriptionPayPlanType="Dynamic Payment Plan.";
