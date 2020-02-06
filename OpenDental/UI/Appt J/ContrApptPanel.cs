@@ -510,6 +510,7 @@ namespace OpenDental.UI{
 				}
 				panelHeaderTip.Width=TextRenderer.MeasureText(txt,_font).Width+2;
 				panelHeaderTip.Height=TextRenderer.MeasureText(txt,_font).Height+3;
+				labelHeaderTip.Width=panelHeaderTip.Width;
 				labelHeaderTip.Height=panelHeaderTip.Height;//auto?
 				labelHeaderTip.Text=txt;
 				int xval=e.X;

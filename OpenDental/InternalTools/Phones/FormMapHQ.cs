@@ -72,7 +72,7 @@ namespace OpenDental {
 		}
 
 		private void FormMapHQ_Load(object sender,EventArgs e) {
-			_siteCur=SiteLinks.GetSiteByIP();
+			_siteCur=SiteLinks.GetSiteByGateway();
 			if(_siteCur==null) {
 				MessageBox.Show("Error.  No sites found in the cache.");
 				DialogResult=DialogResult.Abort;

@@ -1,3 +1,4 @@
+using CodeBase;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -98,6 +99,14 @@ namespace OpenDentBusiness
 				}
 			}
 			return GetLim(myPatNum).GetNameFirstOrPreferredOrLast();
+		}
+
+		///<summary>Returns a list of all PatNums for the family.</summary>
+		public List<long> GetPatNums() {
+			if(ListPats.IsNullOrEmpty()) {
+				return new List<long>();
+			}
+			return ListPats.Select(x => x.PatNum).ToList();
 		}
 
 		///<summary>The index of the patient within the family.  Returns -1 if not found.</summary>

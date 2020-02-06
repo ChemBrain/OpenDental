@@ -1073,7 +1073,7 @@ namespace OpenDentBusiness {
 				//Don't validate state values that are longer than 2 characters.
 				sbErrors.AppendLine(Lans.g("DoseSpot","State abbreviation is invalid"));
 			}
-			if(clinic.Zip=="" && !Regex.IsMatch(clinic.Zip,@"^[0-9]{5}\-?([0-9]{4})?$")) {//Blank, or #####, or #####-####, or #########
+			if(clinic.Zip=="" && !Regex.IsMatch(clinic.Zip,@"^([0-9]{9})$|^([0-9]{5}-[0-9]{4})$|^([0-9]{5})$")) {//Blank, or #####, or #####-####, or #########
 				sbErrors.AppendLine(Lans.g("DoseSpot","Zip invalid."));
 			}
 			if(sbErrors.ToString().Length>0) {
@@ -1115,7 +1115,7 @@ namespace OpenDentBusiness {
 			if(string.IsNullOrWhiteSpace(pat.Zip)) {
 				sbErrors.AppendLine(Lans.g("DoseSpot","Blank zip."));
 			}
-			else if(!Regex.IsMatch(pat.Zip,@"([0-9]{9})|([0-9]{5}-[0-9]{4})|([0-9]{5})")) {//Regular expression taken from DoseSpot test app
+			else if(!Regex.IsMatch(pat.Zip,@"^([0-9]{9})$|^([0-9]{5}-[0-9]{4})$|^([0-9]{5})$")) {//#####, #####-####, or #########
 				sbErrors.AppendLine(Lans.g("DoseSpot","Invalid zip."));
 			}
 			if(!IsPhoneNumberValid(primaryPhone)) {//If the primary phone number isn't valid, DoseSpot will break.

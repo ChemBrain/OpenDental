@@ -193,8 +193,7 @@ namespace CentralManager {
 						listGroupPerms=GroupPermissions.GetPermsNoCache(listRemoteCEMTUserGroups[j].UserGroupNum);
 					}
 				}
-				CentralUserods.Sync(listCentralUserData[i].ListUsers,listRemoteUsers);
-				listRemoteUsers=Userods.GetUsersNoCache();//Refresh users as we may have just added new ones making this list stale.
+				CentralUserods.Sync(listCentralUserData[i].ListUsers,ref listRemoteUsers);
 				CentralGroupPermissions.Sync(listCentralUserData[i].ListGroupPermissions,listGroupPerms);
 			}
 			//Sync usergroup attaches
@@ -289,7 +288,7 @@ namespace CentralManager {
 						listGroupPerms=GroupPermissions.GetPermsNoCache(listRemoteCEMTUserGroups[j].UserGroupNum);
 					}
 				}
-				CentralUserods.Sync(listCentralUserData[i].ListUsers,listRemoteUsers);
+				CentralUserods.Sync(listCentralUserData[i].ListUsers,ref listRemoteUsers);
 				CentralGroupPermissions.Sync(listCentralUserData[i].ListGroupPermissions,listGroupPerms);
 			}
 			//Sync usergroup attaches

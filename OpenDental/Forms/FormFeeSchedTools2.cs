@@ -1291,15 +1291,16 @@ namespace OpenDental {
 			string feeData="";
 			Action actionCloseFeeSchedImportCanadaProgress=ODProgress.Show(ODEventType.FeeSched,typeof(FeeSchedEvent));
 			if(formPick.IsFileChosenProtected) {
+				actionCloseFeeSchedImportCanadaProgress?.Invoke();//Hide the progress window so it does not cover up the authorization form.
 				string memberNumberODA="";
 				string memberPasswordODA="";
 				if(formPick.FileChosenName.StartsWith("ON_")) {//Any and all Ontario fee schedules
 					FormFeeSchedPickAuthOntario formAuth=new FormFeeSchedPickAuthOntario();
 					if(formAuth.ShowDialog()!=DialogResult.OK) {
-						actionCloseFeeSchedImportCanadaProgress?.Invoke();
 						Cursor=Cursors.Default;
 						return;
 					}
+					actionCloseFeeSchedImportCanadaProgress=ODProgress.Show(ODEventType.FeeSched,typeof(FeeSchedEvent));
 					memberNumberODA=formAuth.ODAMemberNumber;
 					memberPasswordODA=formAuth.ODAMemberPassword;
 				}

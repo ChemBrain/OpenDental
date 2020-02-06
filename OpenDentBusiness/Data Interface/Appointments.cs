@@ -3490,7 +3490,7 @@ namespace OpenDentBusiness{
 			bool provChangedNotUsed=false;//Since we are not skipping validation, let function identify prov change itself.
 			bool hygChangedNotUsed=false;//Since we are not skipping validation, let function identify hyg change itself.
 			TryMoveAppointment(appt,apptOld,pat,op,listSchedules,listOps,apptDateTimeNew,
-				doValidation:true,doSetArriveEarly:true,doProvChange:false,doUpdatePattern:false,doAllowFreqConflicts:true,doResetConfirmationStatus:true,doUpdatePatStatus:true,
+				doValidation:true,doSetArriveEarly:true,doProvChange:true,doUpdatePattern:false,doAllowFreqConflicts:true,doResetConfirmationStatus:true,doUpdatePatStatus:true,
 				provChanged:provChangedNotUsed,hygChanged:hygChangedNotUsed,timeWasMoved:(appt.AptDateTime!=apptDateTimeNew),isOpChanged:(appt.Op!=opNumNew),secLogSource:secLogSource);
 		}
 		
@@ -3593,7 +3593,7 @@ namespace OpenDentBusiness{
 				//JS Overlap is no longer prevented when moving from ContrAppt, and this code won't be hit because doValidation is false.
 				//It is still prevented with TryMoveApptWebHelper, but only because I'm not overhauling that part of the code right now.
 				if(!isOpUpdate && !TryAdjustAppointmentOp(apt,listOps)) {
-					throw new Exception(Lans.g("MoveAppointment","Appointment overlaps existing appointment."));
+					throw new ODException(Lans.g("MoveAppointment","Appointment overlaps existing appointment or blockout."));
 				}
 				#endregion Prevent overlap
 				#region Detect Frequency Conflicts
@@ -4101,6 +4101,7 @@ namespace OpenDentBusiness{
 			if(apptTypeCur!=null && apptTypeCur.AppointmentTypeNum!=apptTypeNumOld) {//Appointment type set and changed.
 				//Dynamically added procs will exist in listProcsForApptEdit.
 				listProcsOnAppt=ApptTypeMissingProcHelper(appt,apptTypeCur,listProcsForApptEdit,pat,canUpdateApptPattern,listPatPlans,listInsSubs,listInsPlans);
+				appt.ColorOverride=apptTypeCur.AppointmentTypeColor;
 			}
 			else {
 				listProcsOnAppt=listProcsForApptEdit.FindAll(x => x.AptNum!=0 && x.AptNum==appt.AptNum).Select(x => x.Copy()).ToList();

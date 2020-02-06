@@ -68,33 +68,33 @@ namespace OpenDentBusiness {
 			return Crud.SiteLinkCrud.SelectOne(siteLinkNum);
 		}
 
-		///<summary>Gets the first Site based on the first three octets in the IP address of the local customer.
+		///<summary>Gets the first Site based on the first three octets in the default gateway of the local computer.
 		///Returns the first site in the list if there is no match.  Can return null if there are no sites in the current cache or invalid site link.
 		///The first three octets are used to dictate which location the calling computer is located.  Method designed for HQ only.</summary>
-		public static Site GetSiteByIP() {
+		public static Site GetSiteByGateway() {
 			//No need to check RemotingRole; no call to db.
 			//Defatult to first site in the list just in case we add a new location without first updating this method / paradigm.
 			Site site=Sites.GetFirst();
-			SiteLink siteLink=GetSiteLinkByIP();
+			SiteLink siteLink=GetSiteLinkByGateway();
 			if(siteLink!=null) {
 				site=Sites.GetFirst(x => x.SiteNum==siteLink.SiteNum);
 			}
 			return site;
 		}
 
-		///<summary></summary>
-		public static SiteLink GetSiteLinkByIP() {
+		///<summary>Returns the first SiteLink that has a default gateway that matches the OctectStart value.  Returns null if no match found.</summary>
+		public static SiteLink GetSiteLinkByGateway() {
 			//No need to check RemotingRole; no call to db.
-			return GetFirstOrDefault(x => ODEnvironment.GetLocalIPAddress().StartsWith(x.OctetStart));
+			return GetFirstOrDefault(x => ODEnvironment.GetDefaultGateway().StartsWith(x.OctetStart));
 		}
 
-		///<summary>Gets the color of the first Site match based on the first three octets in the IP address of the local customer.
+		///<summary>Gets the color of the first Site match based on the first three octets in the default gateway of the local computer.
 		///Defaults to black if no valid site link can be found.
 		///The first three octets are used to dictate which location the calling computer is located.  Method designed for HQ only.</summary>
-		public static Color GetSiteColorByIP() {
+		public static Color GetSiteColorByGateway() {
 			//No need to check RemotingRole; no call to db.
 			Color color=Color.Black;
-			SiteLink siteLink=GetSiteLinkByIP();
+			SiteLink siteLink=GetSiteLinkByGateway();
 			if(siteLink!=null) {
 				color=siteLink.SiteColor;
 			}

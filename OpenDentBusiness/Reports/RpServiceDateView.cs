@@ -27,7 +27,8 @@ namespace OpenDentBusiness {
 					display.Credit,
 					display.Pvdr,
 					display.InsBal,
-					display.AcctBal
+					display.AcctBal,
+					display.Type
 				FROM(
 				/*cases out data from rows that we need, performing aggregate functions for day and overall totals.*/
 				SELECT
@@ -202,7 +203,7 @@ namespace OpenDentBusiness {
 					COALESCE((SELECT SUM(SplitAmt) FROM paysplit WHERE paysplit.ProcNum=procedurelog.ProcNum),0)+ 
 					COALESCE((SELECT SUM(WriteOff) + SUM(InsPayAmt) FROM claimproc 
 						WHERE claimproc.ProcNum=procedurelog.ProcNum 
-						AND claimproc.Status IN({POut.Int((int)ClaimProcStatus.NotReceived)},{POut.Int((int)ClaimProcStatus.Supplemental)},{POut.Int((int)ClaimProcStatus.CapClaim)})),0) 
+						AND claimproc.Status IN({POut.Int((int)ClaimProcStatus.Received)},{POut.Int((int)ClaimProcStatus.Supplemental)},{POut.Int((int)ClaimProcStatus.CapClaim)})),0) 
 				) AS 'ProcCredits', 
 				COALESCE((SELECT SUM(WriteOff) + SUM(InsPayEst) FROM claimproc WHERE claimproc.Status={POut.Int((int)ClaimProcStatus.NotReceived)} 
 					AND claimproc.ProcNum=procedurelog.ProcNum 
@@ -294,7 +295,7 @@ namespace OpenDentBusiness {
 			command+=$@"
 				UNION ALL
 				SELECT IF(claimproc.ProcNum > 0,'WriteOff-Att.','WriteOff') AS 'Type', 
-				claimproc.ClaimProcNum AS 'TranNum', 
+				CONCAT('W',claimproc.ClaimProcNum) AS 'TranNum', 
 				IF(claimproc.ProcNum > 0,claimproc.ProcDate,claimproc.DateCP) AS 'ProcDate', 
 				claimproc.DateCP AS 'TranDate', 
 				claimproc.PatNum, 

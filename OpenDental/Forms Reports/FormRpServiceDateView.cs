@@ -72,8 +72,10 @@ namespace OpenDental {
 				decimal insBal=PIn.Decimal(row["InsBal"].ToString());
 				decimal acctBal=PIn.Decimal(row["AcctBal"].ToString());
 				bool isTotalsRow=row==lastRow || strReference.ToLower().Contains("Total for Date".ToLower());
+				bool isProc=row["Type"].ToString().ToLower()=="proc" && checkDetailedView.Checked;
 				//Show insBal and acctBal when not on totals row and detailed is checked and either of the amounts are not zero.
-				bool showDetailedRow=isTotalsRow || (checkDetailedView.Checked && (Math.Abs(insBal).IsGreaterThanZero() || Math.Abs(acctBal).IsGreaterThanZero()));
+				bool showDetailedRow=isTotalsRow || isProc
+					|| (checkDetailedView.Checked && (Math.Abs(insBal).IsGreaterThanZero() || Math.Abs(acctBal).IsGreaterThanZero()));
 				newRow.Cells.Add(showDetailedRow ? insBal.ToString("f") : "");
 				newRow.Cells.Add(showDetailedRow ? acctBal.ToString("f") : "");
 				newRow.Tag=row;

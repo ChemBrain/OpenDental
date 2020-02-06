@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
@@ -162,6 +164,19 @@ namespace CodeBase{
 				}
 			}
 			return "";
+		}
+
+		///<summary>Returns the default gateway for the local machine. Returns an empty string if one cannot be found.</summary>
+		public static string GetDefaultGateway() {
+			IPAddress defaultGateway=NetworkInterface.GetAllNetworkInterfaces()
+				.Where(x => x.OperationalStatus==OperationalStatus.Up)
+				.Where(x => x.NetworkInterfaceType!=NetworkInterfaceType.Loopback)
+				.SelectMany(x => x.GetIPProperties()?.GatewayAddresses)
+				.Select(x => x?.Address)
+				.Where(x => x!=null)
+				.Where(x => x.AddressFamily==AddressFamily.InterNetwork)
+				.FirstOrDefault();
+			return defaultGateway?.ToString()??"";
 		}
 
 		///<summary>This method checks the product version of the kernel32.dll to determine if the current OS is running Windows 7 or not.

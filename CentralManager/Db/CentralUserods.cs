@@ -8,7 +8,7 @@ namespace CentralManager {
 	public class CentralUserods {
 
 		///<summary>Syncs the database to reflect what is contained within listNew.  Compares entries based on UserNumCEMT rather than primary keys.</summary>
-		public static void Sync(List<Userod> listNew,List<Userod> listDB) {
+		public static void Sync(List<Userod> listNew,ref List<Userod> listDB) {
 			//Adding items to lists changes the order of operation. All inserts are completed first, then updates, then deletes.
 			List<Userod> listIns    =new List<Userod>();
 			List<Userod> listUpdNew =new List<Userod>();
@@ -61,6 +61,7 @@ namespace CentralManager {
 			//Commit changes to DB
 			for(int i=0;i<listIns.Count;i++) {
 				Userods.InsertNoCache(listIns[i]);
+				listDB.Add(listIns[i]);
 			}
 			for(int i=0;i<listUpdNew.Count;i++) {
 				Userods.UpdateCEMT(listUpdNew[i]);//listUpdNew gets populated by the list coming from the CEMT. Userods.Update uses primary key to update. Won't work.  Need to make new update.

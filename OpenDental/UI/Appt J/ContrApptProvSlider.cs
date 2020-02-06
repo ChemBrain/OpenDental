@@ -710,6 +710,17 @@ namespace OpenDental.UI{
 		}
 		#endregion Properties
 
+		#region Methods - Protected
+		///<summary>This is to prevent the form from closing when the user is typing something into the prov slider. It will require that alt must be pressed in order to use Access Keys (&OK).</summary>
+		protected override bool ProcessDialogChar(char charCode) {
+			//Example: o with no modifier will return false at the bottom.  It also doesn't call base, so it doesn't bubble up to parent form.
+			if((Control.ModifierKeys & Keys.Alt) == Keys.Alt) {//But if Alt-char, then it will bubble up
+				return base.ProcessDialogChar(charCode);
+			}
+			return false;
+    }
+		#endregion Methods - Proctected
+
 		#region Methods - Private
 		private int GetLengthMax(){
 			//This math is a little tricky, so we don't want multiple copies of it floating around

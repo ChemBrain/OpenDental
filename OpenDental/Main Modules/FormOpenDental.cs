@@ -3125,7 +3125,7 @@ namespace OpenDental{
 				return;
 			}
 			ODException.SwallowAnyException(() => {
-				if(SiteLinks.UpdateTriageCoordinator(SiteLinks.GetSiteLinkByIP().SiteLinkNum
+				if(SiteLinks.UpdateTriageCoordinator(SiteLinks.GetSiteLinkByGateway().SiteLinkNum
 					,((ODBoxItem<Employee>)comboTriageCoordinator.SelectedItem).Tag.EmployeeNum))
 				{
 					DataValid.SetInvalid(InvalidType.Sites);
@@ -3499,7 +3499,7 @@ namespace OpenDental{
 				comboTriageCoordinator.Items.Clear();
 				//The following line will purposefully throw an exception if there is not a valid site link for the current IP octet.
 				//We need the triage combo box to look incorrect so that we have a visual indicator to go fix our sites.
-				Employee currentTriageCoordinator=Employees.GetEmp(SiteLinks.GetSiteLinkByIP().EmployeeNum);
+				Employee currentTriageCoordinator=Employees.GetEmp(SiteLinks.GetSiteLinkByGateway().EmployeeNum);
 				int iSelItem=-1;
 				foreach(Employee emp in Employees.GetDeepCopy(true)) {
 					int iNewItem=comboTriageCoordinator.Items.Add(new ODBoxItem<Employee>(Employees.GetNameFL(emp),emp));

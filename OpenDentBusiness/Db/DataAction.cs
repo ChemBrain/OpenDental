@@ -73,7 +73,7 @@ namespace OpenDentBusiness {
 				//Get the default connection settings for all databases from the preference table.
 				dictHqCentralConnections=GetHqConnections();
 				#region Site Overrides
-				SiteLink siteLink=SiteLinks.GetSiteLinkByIP();
+				SiteLink siteLink=SiteLinks.GetSiteLinkByGateway();
 				//There should always be a default connection setting for every possible connection at HQ.
 				if(dictHqCentralConnections!=null && siteLink!=null) {
 					//Look for site specific overrides.

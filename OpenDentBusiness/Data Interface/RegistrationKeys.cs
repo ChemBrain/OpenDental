@@ -30,21 +30,16 @@ namespace OpenDentBusiness {
 		#region Misc Methods
 		#endregion
 
-	///<summary>Used to keep track of which product keys have been assigned to which customers. This class is only used if the program is being run from a distributor installation.</summary>
+	///<summary>Used to keep track of which product keys have been assigned to which customers.  This class is designed for distributor installations.</summary>
 	public class RegistrationKeys {
-		///<summary>Retrieves all registration keys for a particular customer's family. There can be multiple keys assigned to a single customer, or keys assigned to individual family members, since the customer may have multiple physical locations of business.</summary>
+		///<summary>Retrieves all registration keys for a particular customer's family. There can be multiple keys assigned to a single customer, or keys
+		///assigned to individual family members, since the customer may have multiple physical locations of business.</summary>
 		public static RegistrationKey[] GetForPatient(long patNum) {
 			if(RemotingClient.RemotingRole==RemotingRole.ClientWeb) {
 				return Meth.GetObject<RegistrationKey[]>(MethodBase.GetCurrentMethod(),patNum);
 			}
-			string command="SELECT * FROM registrationkey WHERE ";
 			Family fam=Patients.GetFamily(patNum);
-			for(int i=0;i<fam.ListPats.Length;i++){
-				command+="PatNum="+POut.Long(fam.ListPats[i].PatNum)+" ";
-				if(i<fam.ListPats.Length-1){
-					command+="OR ";
-				}
-			}
+			string command=$"SELECT * FROM registrationkey WHERE PatNum IN ({string.Join(",",fam.GetPatNums())})";
 			return Crud.RegistrationKeyCrud.SelectMany(command).ToArray();
 		}
 

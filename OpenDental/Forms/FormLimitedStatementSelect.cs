@@ -63,13 +63,13 @@ namespace OpenDental {
 				LimitedRow row=new LimitedRow();
 				row.PatNum=PIn.Long(tableRow["PatNum"].ToString());
 				row.PatientName=tableRow["patient"].ToString();
-				row.DateTimeSort=PIn.DateT(tableRow["dateTimeSort"].ToString());
 				row.Description=tableRow["description"].ToString();
 				row.ProcCode=tableRow["ProcCode"].ToString();//isn't just a proc code. Can be "Claim" etc...
 				row.Charges=tableRow["charges"].ToString();
 				row.Credits=tableRow["credits"].ToString();
 				row.ProvName=tableRow["prov"].ToString();
 				row.Tooth=Tooth.ToInternat(tableRow["ToothNum"].ToString());
+				row.DateTime=PIn.DateT(tableRow["DateTime"].ToString());
 				if(tableRow["AdjNum"].ToString()!="0") {
 					row.PrimaryKey=PIn.Long(tableRow["AdjNum"].ToString());
 					row.Type=AccountEntryType.Adjustment;
@@ -115,7 +115,7 @@ namespace OpenDental {
 			GridRow row;
 			foreach(LimitedRow limitedRow in _listLimitedRows.FindAll(x => x.Type.In(comboBoxMultiTransTypes.SelectedTags<AccountEntryType>()))) {
 				row=new GridRow();
-				DateTime date=limitedRow.DateTimeSort.Date;
+				DateTime date=limitedRow.DateTime.Date;
 				if(date < odDateRangePicker.GetDateTimeFrom().Date || date > odDateRangePicker.GetDateTimeTo().Date) {
 					continue;//do not add to grid if it is outside the filtered date range. 
 				}
@@ -184,7 +184,6 @@ namespace OpenDental {
 			public AccountEntryType Type;
 			//List of procedures attached to the object (if any)
 			public List<long> ListProcsForObject=new List<long>();
-			public DateTime DateTimeSort;
 			public string Description;
 			public string Charges;
 			public string Credits;
@@ -193,6 +192,7 @@ namespace OpenDental {
 			public string ProcCode;
 			public string Tooth;
 			public string ProvName;
+			public DateTime DateTime;
 		}
 
 	}

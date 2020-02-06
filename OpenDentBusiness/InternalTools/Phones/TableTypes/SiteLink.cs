@@ -17,7 +17,7 @@ namespace OpenDentBusiness {
 		public long SiteLinkNum;
 		///<summary>FK to site.SiteNum</summary>
 		public long SiteNum;
-		///<summary>Computers that share these first three octets in their IP address will be considered as computers associated to this site.</summary>
+		///<summary>Computers that share these first three octets in their default gateway will be associated to this site.</summary>
 		public string OctetStart;
 		///<summary>FK to employee.EmployeeNum.  This is the employee that is currently the triage coordinator for this site.</summary>
 		public long EmployeeNum;

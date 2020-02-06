@@ -67,6 +67,9 @@ namespace OpenDentBusiness{
 			}
 			List<PayPlan> listDynamicPayPlansForPatient=new List<PayPlan>();
 			foreach(long payPlanNum in listPayPlanNums){
+				if(payPlanNum==0) {
+					continue;//do not include installment plans
+				}
 				PayPlan payPlanCur=PayPlans.GetOne(payPlanNum);
 				if(payPlanCur.IsDynamic) {//Only add Dynamic PayPlans to the list since they are all we care about
 					listDynamicPayPlansForPatient.Add(payPlanCur);
