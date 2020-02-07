@@ -2195,6 +2195,14 @@ namespace OpenDentBusiness {
 			DetachTransferClaimProcsFromClaimPayments();
 		}
 
+		private static void To19_3_51() {
+			string command;
+			if(!LargeTableHelper.IndexExists("smstomobile","GuidMessage")) {
+				command="ALTER TABLE smstomobile ADD INDEX (GuidMessage)";
+				Db.NonQ(command);
+			}
+		}
+
 		private static void To19_4_1() {
 			string command;
 			DataTable table;
@@ -2488,6 +2496,14 @@ namespace OpenDentBusiness {
 			Db.NonQ(command);
 			command="ALTER TABLE emailaddress ADD RefreshToken varchar(255) NOT NULL";
 			Db.NonQ(command);
+		}
+
+		private static void To19_4_17() {
+			string command;
+			if(!LargeTableHelper.IndexExists("smstomobile","GuidMessage")) {
+				command="ALTER TABLE smstomobile ADD INDEX (GuidMessage)";
+				Db.NonQ(command);
+			}
 		}
 	}
 }

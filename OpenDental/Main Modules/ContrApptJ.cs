@@ -2096,6 +2096,10 @@ namespace OpenDental {
 				//This is a special case, so we only keep blockouts that are marked as NoSchedule or DontCopy
 				listDefsBlockoutTypes.RemoveAll(x => !x.ItemValue.Contains(BlockoutType.DontCopy.GetDescription()) 
 					&& !x.ItemValue.Contains(BlockoutType.NoSchedule.GetDescription()));
+				if(listDefsBlockoutTypes.Count==0 && !Security.IsAuthorized(Permissions.Blockouts)) {//Intentional for error message
+					//Security.IsAuthorized(...) will display the "Not authorized message."
+					return;
+				}
 			}
 			Schedule schedule=new Schedule();
 			schedule.SchedDate=_dateTimeClickedBlockout.Date;

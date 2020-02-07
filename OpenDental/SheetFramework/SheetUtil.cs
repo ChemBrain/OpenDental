@@ -559,6 +559,7 @@ namespace OpenDental{
 				sheetfieldCopy.FieldValue=field.FieldValue;
 				sheetfieldCopy.TextAlign=field.TextAlign;
 				sheetfieldCopy.ItemColor=field.ItemColor;
+				sheetfieldCopy.TabOrderMobile=field.TabOrderMobile;
 				sheetfieldCopy.UiLabelMobile=field.UiLabelMobile;
 				sheetfieldCopy.UiLabelMobileRadioButton=field.UiLabelMobileRadioButton;
 				if(sheetfieldCopy.FieldType==SheetFieldType.SigBox && !string.IsNullOrWhiteSpace(sheetfieldCopy.FieldValue)) {

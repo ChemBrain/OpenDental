@@ -4502,7 +4502,7 @@ namespace OpenDental {
 					if(oIdExternal==null) {
 						DoseSpot.ValidatePatientData(PatCur);
 						string token=DoseSpotREST.GetToken(doseSpotUserID,doseSpotClinicID,doseSpotClinicKey);
-						DoseSpotREST.AddPatient(token,PatCur);
+						DoseSpot.CreateOIDForPatient(PIn.Int(DoseSpotREST.AddPatient(token,PatCur)),PatCur.PatNum);
 					}
 					if(isShowRefillsAndErrors) {
 						postData=ErxXml.BuildDoseSpotPostDataBytesRefillsErrors(doseSpotClinicID,doseSpotClinicKey,doseSpotUserID,out queryString);
