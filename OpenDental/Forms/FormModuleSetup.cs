@@ -370,6 +370,23 @@ namespace OpenDental{
 				MsgBox.Show(this,"Turning off this option will not affect any procedures that are already locked or invalidated.");
 			}
 		}
+
+		private void checkClaimProcsAllowEstimatesOnCompl_CheckedChanged(object sender,EventArgs e) {
+			if(checkClaimProcsAllowEstimatesOnCompl.Checked) {//user is attempting to Allow Estimates to be created for backdated complete procedures
+				InputBox inputBox=new InputBox("Please enter password");
+				inputBox.ShowDialog();
+				if(inputBox.DialogResult!=DialogResult.OK) {
+					checkClaimProcsAllowEstimatesOnCompl.Checked=false;
+					return;
+				}
+				if(inputBox.textResult.Text!="abracadabra") {//To prevent unaware users from clicking this box
+					checkClaimProcsAllowEstimatesOnCompl.Checked=false;
+					MsgBox.Show(this,"Wrong password");
+					return;
+				}
+			}
+		}
+
 		#endregion Events - Chart
 
 		#region Events - Images

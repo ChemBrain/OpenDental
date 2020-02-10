@@ -2063,19 +2063,12 @@ namespace OpenDental{
 						ppCharge.Interest=Math.Round(((double)principalDecrementingAmt*periodRate),_roundDec);//2 decimals
 					}
 				}
-				if(paymentCount>0 && (chargesCount-skippedChargesCount)==(paymentCount-1)) {//Using # payments method and this is the last payment.
-																																										//The purpose of this code block is to fix any rounding issues.  Corrects principal when off by a few pennies.  Principal will decrease slightly and interest will increase slightly to keep payment amounts consistent.
+				if((paymentCount>0 && (chargesCount-skippedChargesCount)==(paymentCount-1))
+					|| principalDecrementingAmt+(decimal)ppCharge.Interest<=periodPaymentAmt) {//On last charge.
 					ppCharge.Principal=(double)principalDecrementingAmt;//All remaining principal.  Causes loop to exit.  This is where the rounding error is eliminated.
-					if(periodRate!=0 && !isRecalculate) {//Interest amount on last entry must stay zero for payment plans with zero APR. When APR is zero, the interest amount is set to zero above, and the last payment amount might be less than the other payment amounts.
-						ppCharge.Interest=((double)periodPaymentAmt)-ppCharge.Principal;//Force the payment amount to match the rest of the period payments.
-					}
 					if(isRecalculate && !_formPayPlanRecalculate.IsRecalculateInterest) {
 						ppCharge.Interest=(double)interestUnpaidDecrementingAmt;
 					}
-				}
-				else if(paymentCount==0 && principalDecrementingAmt+(decimal)ppCharge.Interest<=periodPaymentAmt) {//Payment amount method, last payment.
-					ppCharge.Principal=(double)principalDecrementingAmt;//All remaining principal.  Causes loop to exit.
-																															//Interest was calculated above.
 				}
 				principalDecrementingAmt-=(decimal)ppCharge.Principal;
 				interestUnpaidDecrementingAmt-=(decimal)ppCharge.Interest;//Only matters if not recalculating interest

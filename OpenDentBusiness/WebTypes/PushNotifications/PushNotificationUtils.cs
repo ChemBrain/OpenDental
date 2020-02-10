@@ -98,7 +98,7 @@ namespace OpenDentBusiness.WebTypes {
 					new List<string>() { treatPlan.Heading,hasPracticeSig.ToString(),treatPlan.DateTP.Ticks.ToString() })){
 					SendPushBackground(PushType.CI_TreatmentPlan,mobileAppDeviceNum
 						,listPrimaryKeys: new List<long>() { mobileDataByteNum,treatPlan.PatNum,treatPlan.TreatPlanNum }
-						,listTags: new List<string>() { treatPlan.Heading,hasPracticeSig.ToString(), treatPlan.DateTP.ToString() }
+						,listTags: new List<string>() { treatPlan.Heading,hasPracticeSig.ToString(), treatPlan.DateTP.Ticks.ToString() }
 						,runAsync: true
 					);
 				}

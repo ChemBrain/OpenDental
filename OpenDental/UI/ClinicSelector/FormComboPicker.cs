@@ -70,6 +70,18 @@ namespace OpenDental.UI{
 			if (e.KeyCode==Keys.ShiftKey && !_isCtrlDown) {
 				_isShiftDown=true;
 			}
+			if(e.KeyCode==Keys.Up && !_isMultiSelect) {
+				_listSelectedIndices[0]-=1;
+				if(_listSelectedIndices[0]<0) {
+					_listSelectedIndices[0]=0;
+				}
+			}
+			if(e.KeyCode==Keys.Down && !_isMultiSelect) {
+				_listSelectedIndices[0]+=1;
+				if(_listSelectedIndices[0]>ListStrings.Count-1) {
+					_listSelectedIndices[0]=ListStrings.Count-1;
+				}
+			}
 			Invalidate();
 		}
 

@@ -993,7 +993,16 @@ namespace OpenDental {
 						}
 						else {//Mandibular
 							int toothIndex=32-Tooth.ToInt(toothNum);//Works for primary or permanent tooth numbers.
-							listBoxTeeth2.SetSelected(toothIndex,true);
+							if(toothIndex<0) {
+								//Tooth Range could be 3 to 4 digits (outside of range).  Split the numbers in order to select the correct teeth.
+								toothIndex=Tooth.ToInt(toothNum.Remove(toothNum.Length-2))-1;
+								int toothIndex2=32-Tooth.ToInt(toothNum.Substring(toothNum.Length-2,2));
+								listBoxTeeth.SetSelected(toothIndex,true);
+								listBoxTeeth2.SetSelected(toothIndex2,true);
+							}
+							else {
+								listBoxTeeth2.SetSelected(toothIndex,true);
+							}
 						}
 					} 
 					break;

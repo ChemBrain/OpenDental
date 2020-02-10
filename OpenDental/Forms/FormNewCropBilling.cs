@@ -295,7 +295,7 @@ namespace OpenDental {
 				if(charge.repeatCharge==null) {//No such repeating charge exists yet for the given npi.
 					//We consider the provider a new provider and create a new repeating charge.
 					int dayOtherCharges=GetChargeDayOfMonth(charge.PatNumForRegKey);//The day of the month that the customer already has other repeating charges. Keeps their billing simple (one bill per month for all charges).
-					int daysInMonth=DateTime.DaysInMonth(_dateBillingMonthYear.Year,_dateBillingMonthYear.Month);
+					int daysInMonth=DateTime.DaysInMonth(DateTime.Today.Year,DateTime.Today.Month);
 					if(dayOtherCharges>daysInMonth) {
 						//The day that the user used eRx (signed up) was in a month that does not have the day of the other monthly charges in it.
 						//E.g.  dayOtherCharges = 31 and the user started a new eRx account in a month without 31 days.

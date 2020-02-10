@@ -30,12 +30,18 @@ namespace OpenDental.Bridges {
 					}
 					string lname=pat.LName.Replace("\"","").Replace(",","");
 					string fname=pat.FName.Replace("\"","").Replace(",","");
+					if (pat.Birthdate.Year<1880) {
+						throw new ODException(Lans.g("Progeny","Invalid birthdate for")+" "+pat.GetNameFL());
+					}
+					//Progeny software uses local computer's date format settings, per PIBridge.exe documentation (launch exe to view).
+					string birthdate=pat.Birthdate.ToShortDateString();
 					pibridge=new Process();
 					pibridge.StartInfo.CreateNoWindow=false;
 					pibridge.StartInfo.UseShellExecute=true;
 					pibridge.StartInfo.FileName=path;
 					//Double-quotes are removed from id and name to prevent malformed command. ID could have double-quote if chart number.
-					pibridge.StartInfo.Arguments="cmd=open id=\""+id.Replace("\"","")+"\" first=\""+fname.Replace("\"","")+"\" last=\""+lname.Replace("\"","")+"\"";
+					pibridge.StartInfo.Arguments="cmd=open id=\""+id.Replace("\"","")+"\" first=\""+fname.Replace("\"","")+"\" last=\""
+						+lname.Replace("\"","")+"\" dob=\""+birthdate.Replace("\"","")+"\"";
 					ODFileUtils.ProcessStart(pibridge);
 				}//if patient is loaded
 				else{
@@ -47,6 +53,9 @@ namespace OpenDental.Bridges {
 					pibridge.StartInfo.Arguments="cmd=start";
 					ODFileUtils.ProcessStart(pibridge);
 				}
+			}
+			catch(ODException ex) {
+				MessageBox.Show(ex.Message);
 			}
 			catch{
 				MessageBox.Show(path+" is not available.");

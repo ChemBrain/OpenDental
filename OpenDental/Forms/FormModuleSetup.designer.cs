@@ -3635,6 +3635,7 @@ namespace OpenDental{
     "d, see manual)";
 			this.checkClaimProcsAllowEstimatesOnCompl.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			this.checkClaimProcsAllowEstimatesOnCompl.UseVisualStyleBackColor = true;
+			this.checkClaimProcsAllowEstimatesOnCompl.CheckedChanged += new System.EventHandler(this.checkClaimProcsAllowEstimatesOnCompl_CheckedChanged);
 			// 
 			// label11
 			// 

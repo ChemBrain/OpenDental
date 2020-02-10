@@ -2576,7 +2576,7 @@ namespace OpenDentBusiness{
 				//ProcCur.NoBillIns=ProcedureCodes.GetProcCode(ProcCur.CodeNum).NoBillIns;
 				//priority
 				procCur.ProcStatus=ProcStat.TP;
-				procCur.Note="";
+				procCur.Note=ProcCodeNotes.GetNote(procCur.ProvNum,procCur.CodeNum,procCur.ProcStatus); //get the TP note.
 				//Procedures.Cur.PriEstim=
 				//Procedures.Cur.SecEstim=
 				//claimnum

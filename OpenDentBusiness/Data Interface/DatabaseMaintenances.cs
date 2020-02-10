@@ -7348,6 +7348,104 @@ namespace OpenDentBusiness {
 			return log;
 		}
 
+		///<summary>There was a bug introduced that created an invalid tooth range when the user selected teeth from both mandibular and maxillary teeth.
+		///The bug was fixed in v19.2.23 with job #16655 but databases were left in an invalid state.  This method will correct almost all situations.
+		///In addition, we identified an issue where old procedures would store toothrange information as abbrieviations such as LA (Lower Arch),
+		///UA (Upper Arch), and FM (Full Mouth) these will also be addressed by this fix.  We can correct this issue because we always store tooth ranges 
+		///in US nomenclature (predictable numbers).</summary>
+		[DbmMethodAttr(HasPatNum = true)]
+		public static string ProcedurelogFixInvalidToothranges(bool verbose, DbmMode modeCur, long patNum=0) {
+			if(RemotingClient.RemotingRole==RemotingRole.ClientWeb) {
+				return Meth.GetString(MethodBase.GetCurrentMethod(),verbose,modeCur, patNum);
+			}
+			string patWhere=(patNum>0 ? " AND PatNum="+POut.Long(patNum) : "");
+			string log="";
+			string command;
+			switch(modeCur) {
+				case DbmMode.Check:
+					command="SELECT COUNT(*) FROM procedurelog WHERE ToothRange REGEXP '[A-Z]{2}|[0-9]{3}'"+patWhere;//2 letters or 3 numbers
+					int numFound=PIn.Int(Db.GetCount(command));
+					if(numFound>0 || verbose) {
+						log+=Lans.g("FormDatabaseMaintenance","Procedures found with invalid ToothRange")+": "+numFound.ToString()+"\r\n";
+					}
+					break;
+				case DbmMode.Fix:
+					List<DbmLog> listDbmLogs=new List<DbmLog>();
+					string methodName=MethodBase.GetCurrentMethod().Name;
+					command="SELECT PatNum,ProcNum,ToothRange FROM procedurelog WHERE ToothRange REGEXP '[A-Z]{2}|[0-9]{3}'"+patWhere;
+					DataTable table=Db.GetTable(command);
+					int numFixed=0;
+					if(table.Rows.Count>0) {
+						foreach(DataRow row in table.Rows) {
+							long procNum=PIn.Long(row["ProcNum"].ToString());
+							string toothRange=PIn.String(row["ToothRange"].ToString());
+							string[] arrayTeeth=toothRange.Split(',');
+							string toothRangeUpdate="";
+							#region Separate mandibular and maxillary
+							for(int i=0;i<arrayTeeth.Length;i++) {
+								if(arrayTeeth[i].Length==4) { 
+									toothRangeUpdate+=arrayTeeth[i].Substring(0,2)+","+arrayTeeth[i].Substring(2,2)+",";
+								}
+								else if(arrayTeeth[i].Length==3) {
+									toothRangeUpdate+=arrayTeeth[i].Substring(0,1)+","+arrayTeeth[i].Substring(1,2)+",";//because numbers are going lower to higher
+								}
+								else if(arrayTeeth[i].Length==2 && Char.IsLetter(arrayTeeth[i],0) && Char.IsLetter(arrayTeeth[i],1)) {
+									toothRangeUpdate+=arrayTeeth[i].Substring(0,1)+","+arrayTeeth[i].Substring(1,1)+",";
+								}
+								else {
+									toothRangeUpdate+=arrayTeeth[i]+",";
+								}
+							}
+							toothRangeUpdate=toothRangeUpdate.TrimEnd(',');
+							#endregion
+							#region Known Invalid ToothRange Values
+							//The following values were found in some live databases.  These are the correct way to translate the values into valid ToothRanges.
+							switch(toothRange.ToUpper()) {
+								case "FM": //Full Mouth stored as FM and should be updated to the correct toothrange
+									toothRangeUpdate="1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32";
+									break;
+								case "LA"://Lower Arch
+									toothRangeUpdate="17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32";
+									break;
+								case "UA"://Upper Arch
+									toothRangeUpdate="1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16";
+									break;
+								case "UR"://Upper Right
+									toothRangeUpdate="1,2,3,4,5,6,7,8";
+									break;
+								case "UL"://Upper Left
+									toothRangeUpdate="9,10,11,12,13,14,15,16";
+									break;
+								case "LL"://Lower Left
+									toothRangeUpdate="17,18,19,20,21,22,23,24";
+									break;
+								case "LR"://Lower Left
+									toothRangeUpdate="25,26,27,28,29,30,31,32";
+									break;
+								default:
+									//Do nothing.
+									break;
+							}
+							#endregion
+							if(toothRangeUpdate!=toothRange) {
+								command=$"UPDATE procedurelog SET ToothRange='{POut.String(toothRangeUpdate)}' "
+									+"WHERE ProcNum="+POut.Long(procNum)+patWhere;
+								Db.NonQ(command);
+								numFixed++;
+								listDbmLogs.Add(new DbmLog(Security.CurUser.UserNum,procNum,DbmLogFKeyType.Procedure,
+									DbmLogActionType.Update,methodName,$"Invalid ToothRange of '{POut.String(toothRange)}' changed to '{POut.String(toothRangeUpdate)}'"));
+							}
+						}
+					}
+					if(numFixed>0 || verbose) {
+						Crud.DbmLogCrud.InsertMany(listDbmLogs);
+						log+=Lans.g("FormDatabaseMaintenance","Procedures fixed with invalid ToothRange")+": "+numFixed.ToString()+"\r\n";
+					}
+					break;
+				}
+			return log;
+		}
+
 		[DbmMethodAttr(HasBreakDown=true, IsCanada=true)]
 		public static string ProcedurelogLabAttachedToDeletedProc(bool verbose,DbmMode modeCur) {
 			if(RemotingClient.RemotingRole==RemotingRole.ClientWeb) {
