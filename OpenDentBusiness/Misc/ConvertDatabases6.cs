@@ -2477,7 +2477,7 @@ namespace OpenDentBusiness {
 				 'https://identity.benco.com/auth/login',
 				 '',
 				 '');";
-			long programNum=Db.NonQ(command);
+			long programNum=Db.NonQ(command,true);
 			command=$"INSERT INTO toolbutitem (ProgramNum,ToolBar,ButtonText) VALUES ({POut.Long(programNum)},7,'Benco');"; //7 = Main Toolbar
 			Db.NonQ(command);
 			//We are running this section of code for HQ only

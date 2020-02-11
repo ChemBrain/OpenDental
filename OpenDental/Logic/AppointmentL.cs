@@ -239,6 +239,28 @@ namespace OpenDental{
 						}							
 						double amt=Math.Min(brokenProcAmount,split.SplitAmt);
 						Payments.CreateTransferForTpProcs(proc,new List<PaySplit>{split},brokenProcedure,amt);
+						double amtPaidOnApt=listSplitsForApptProcs.Sum(x => x.SplitAmt);
+						if(amtPaidOnApt>amt) {
+							//If the original prepayment amount is greater than the amt being specified for the appointment break, transfer
+							//the difference to an Unallocated Unearned Paysplit on the account.
+							double remainingAmt=amtPaidOnApt-amt;
+							//We have to create a new transfer payment here to correlate to the split.
+							Payment txfrPayment=new Payment();
+							txfrPayment.PayAmt=0;
+							txfrPayment.PayDate=DateTime.Today;
+							txfrPayment.ClinicNum=split.ClinicNum;
+							txfrPayment.PayNote="Automatic transfer from treatment planned procedure prepayment.";
+							txfrPayment.PatNum=split.PatNum;//ultimately where the payment ends up.
+							txfrPayment.PayType=0;
+							Payments.Insert(txfrPayment);
+							PaymentEdit.IncomeTransferData transferData=PaymentEdit.IncomeTransferData.CreateTransfer(split,txfrPayment.PayNum,true,remainingAmt);
+							PaySplit offset=transferData.ListSplitsCur.FirstOrDefault(x => x.FSplitNum!=0);
+							long offsetSplitNum=PaySplits.Insert(offset);//Get the FSplitNum from the offset
+							PaySplit allocation=transferData.ListSplitsCur.FirstOrDefault(x => x.FSplitNum==0);
+							allocation.FSplitNum=offsetSplitNum;
+							PaySplits.Insert(allocation);//Insert so the split is now up to date
+							SecurityLogs.MakeLogEntry(Permissions.PaymentCreate,txfrPayment.PatNum,"Automatic transfer of funds for treatment plan procedure pre-payments.");
+						}
 						brokenProcAmount-=amt;
 					}
 				}

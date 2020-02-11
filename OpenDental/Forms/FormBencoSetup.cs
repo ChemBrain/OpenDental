@@ -19,7 +19,7 @@ namespace OpenDental {
 			checkEnable.Checked=_prog.Enabled;
 			textProgDesc.Text=_prog.ProgDesc;
 			textPath.Text=_prog.Path;
-			textButText.Text=_listToolButs.FirstOrDefault()?.ButtonText??"";
+			textButText.Text=_listToolButs.FirstOrDefault()?.ButtonText??"Benco";
 			FillToolBars();
 		}
 

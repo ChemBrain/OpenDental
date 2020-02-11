@@ -346,10 +346,6 @@ namespace OpenDental{
 				fillGridSentAttachments();
 				textAttachmentID.Text=ClaimCur.AttachmentID;
 				tabAttach.SelectedTab=tabDXC;
-				//The 'By Mail' and 'Electronically' radio buttons are not used when DXC is enabled. An office complained about 'By Mail'
-				//defaulting to being selected even though DXC is enabled. 
-				//We will always select Electronically to avoid a warning about sending attachments by mail.
-				radioAttachElect.Checked=true;
 			}
 		}
 		

@@ -724,7 +724,10 @@ namespace OpenDental {
 		}
 
 		private void butBackWeek_Click(object sender,EventArgs e) {
+			butBackWeek.Enabled=false;
+			Application.DoEvents();//process any events before the user should be able to click the button again
 			ModuleSelected(contrApptPanel.DateSelected.AddDays(-7));
+			butBackWeek.Enabled=true;
 		}
 
 		private void butFwdWeek_Click(object sender,EventArgs e) {
@@ -1060,7 +1063,7 @@ namespace OpenDental {
 			Appointments.SetConfirmed(aptOld,newStatus);//Appointments S-Class handles Signalods
 			if(newStatus!=oldStatus) {
 				//Log confirmation status changes.
-				SecurityLogs.MakeLogEntry(Permissions.ApptConfirmStatusEdit,_patCur.PatNum,Lan.g(this,"Appointment confirmation status changed from")+" "
+				SecurityLogs.MakeLogEntry(Permissions.ApptConfirmStatusEdit,aptOld.PatNum,Lan.g(this,"Appointment confirmation status changed from")+" "
 					+Defs.GetName(DefCat.ApptConfirmed,oldStatus)+" "+Lan.g(this,"to")+" "+Defs.GetName(DefCat.ApptConfirmed,newStatus)
 					+" "+Lans.g(this,"from the appointment module")+".",contrApptPanel.SelectedAptNum,datePrevious);
 			}
@@ -2893,7 +2896,7 @@ namespace OpenDental {
 			DataTable table=Appointments.GetPeriodApptsTable(dateStart,dateEnd,0,false,listPinApptNums,listOpNums,listProvNums,false);
 			if(table.Rows.Count > 0) {
 				//This is an arbitrary but fixed order so that appointments always get drawn in the same order and don't appear to jump
-				table=table.Select().OrderBy(x => x["AptNum"]).CopyToDataTable();
+				table=table.Select().OrderBy(x => PIn.Long(x["AptNum"].ToString())).CopyToDataTable();
 			}
 			contrApptPanel.TableAppointments=table;
 			contrApptPanel.TableApptFields=Appointments.GetApptFields(contrApptPanel.TableAppointments);

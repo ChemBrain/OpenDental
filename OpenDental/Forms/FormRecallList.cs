@@ -1436,7 +1436,7 @@ namespace OpenDental {
 		private void butSetStatusRecalls_Click(object sender, System.EventArgs e) {
 			if(IsAnyRowSelected()) {
 				long newStatus=0;
-				if(comboSetStatusRecalls.SelectedIndex!=0){//not None
+				if(comboSetStatusRecalls.SelectedIndex>0){//not None or no selection
 					newStatus=comboSetStatusRecalls.GetSelected<Def>().DefNum;
 				}
 				gridRecalls.SelectedTags<PatRowTag>().ForEach(tag => Recalls.UpdateStatus(tag.PriKeyNum,newStatus));
@@ -1709,7 +1709,7 @@ namespace OpenDental {
 
 		private void butSetStatusReact_Click(object sender,EventArgs e) {
 			long status=0;
-			if(comboSetStatusReact.SelectedIndex!=0){//not None
+			if(comboSetStatusReact.SelectedIndex>0){//not None or no selection
 				status=comboSetStatusReact.GetSelected<Def>().DefNum;
 			}
 			if(IsAnyRowSelected()) {

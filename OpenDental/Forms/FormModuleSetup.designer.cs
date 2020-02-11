@@ -3625,6 +3625,8 @@ namespace OpenDental{
 			// checkClaimProcsAllowEstimatesOnCompl
 			// 
 			this.checkClaimProcsAllowEstimatesOnCompl.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+			this.checkClaimProcsAllowEstimatesOnCompl.Checked = true;
+			this.checkClaimProcsAllowEstimatesOnCompl.CheckState = System.Windows.Forms.CheckState.Checked;
 			this.checkClaimProcsAllowEstimatesOnCompl.FlatStyle = System.Windows.Forms.FlatStyle.System;
 			this.checkClaimProcsAllowEstimatesOnCompl.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
 			this.checkClaimProcsAllowEstimatesOnCompl.Location = new System.Drawing.Point(169, 320);

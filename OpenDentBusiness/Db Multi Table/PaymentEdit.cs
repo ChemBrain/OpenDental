@@ -2103,6 +2103,43 @@ namespace OpenDentBusiness {
 				this.HasIvalidProcWithPayPlan|=data.HasIvalidProcWithPayPlan;
 				this.SummaryText+=data.SummaryText;
 			}
+
+			///<summary>Creates the negative and positive splits from a given parentSplit and a payment's payNum. When isTransferToUnearned is true, these
+			///splits will transfer to the user's unearned type based on preference values. If transferAmtOverride is given a value, it will be used for the
+			///split amounts in place of the parentSplit.SplitAmt.</summary>
+			public static IncomeTransferData CreateTransfer(PaySplit parentSplit,long payNum,bool isTransferToUnearned=false
+				,double transferAmtOverride=0) 
+			{
+				IncomeTransferData transferReturning=new IncomeTransferData();
+				PaySplit offsetSplit=new PaySplit();
+				offsetSplit.DatePay=DateTime.Today;
+				offsetSplit.PatNum=parentSplit.PatNum;
+				offsetSplit.PayNum=payNum;
+				offsetSplit.ProvNum=parentSplit.ProvNum;
+				offsetSplit.ClinicNum=parentSplit.ClinicNum;
+				offsetSplit.UnearnedType=parentSplit.UnearnedType;
+				offsetSplit.ProcNum=parentSplit.ProcNum;
+				offsetSplit.AdjNum=parentSplit.AdjNum;
+				offsetSplit.SplitAmt=(transferAmtOverride==0?parentSplit.SplitAmt:transferAmtOverride)*-1;
+				offsetSplit.FSplitNum=parentSplit.SplitNum;
+				PaySplit allocationSplit=new PaySplit();
+				allocationSplit.DatePay=DateTime.Today;
+				allocationSplit.PatNum=parentSplit.PatNum;
+				allocationSplit.PayNum=payNum;
+				allocationSplit.ProvNum=parentSplit.ProvNum;
+				allocationSplit.ClinicNum=parentSplit.ClinicNum;
+				allocationSplit.ProcNum=parentSplit.ProcNum;
+				allocationSplit.AdjNum=parentSplit.AdjNum;
+				allocationSplit.SplitAmt=transferAmtOverride==0?parentSplit.SplitAmt:transferAmtOverride;
+				allocationSplit.UnearnedType=parentSplit.UnearnedType;
+				allocationSplit.FSplitNum=0;//should be offsetSplit's splitNum but has not been inserted into DB yet
+				if(isTransferToUnearned) {
+					allocationSplit.UnearnedType=PrefC.GetLong(PrefName.PrepaymentUnearnedType);
+				}
+				transferReturning.ListSplitsCur.AddRange(new List<PaySplit>{offsetSplit,allocationSplit });
+				transferReturning.ListSplitsAssociated.Add(new PaySplits.PaySplitAssociated(offsetSplit,allocationSplit));
+				return transferReturning;
+			} 
 		}
 
 		#endregion

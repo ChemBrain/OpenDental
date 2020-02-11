@@ -6380,12 +6380,16 @@ namespace OpenDental{
 				return;
 			}
 			CurPatNum=0;
-			RefreshCurrentModule();//clumsy but necessary. Sets child PatNums to 0.
-			FillPatientButton(null);
 			if(!PrefsStartup()){
 				return;
 			}
 			RefreshLocalData(InvalidType.AllLocal);
+			UnselectActive();//Deselect the currently Visible module.
+			allNeutral();//Set all modules invisible.
+			//The following 2 methods mimic RefreshCurrentModule()
+			SetModuleSelected(true);//Reselect the previously selected module, UI is reset to same state as when program starts.
+			userControlTasks1.RefreshPatTicketsIfNeeded();
+			FillPatientButton(null);
 		}
 
 		private void menuItemExit_Click(object sender, System.EventArgs e) {

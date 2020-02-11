@@ -38,11 +38,11 @@ namespace OpenDental {
 			if(listClaimAttachmentDefs.Count<1) {//At least one Claim Attachment image definition exists.
 				labelClaimAttachWarning.Visible=true;
 			}
-			FillGrid();
-			ODProgress.ShowAction(()=> {ValidateClaimHelper();},"Communicating with DentalXChange...");
 		}
 
 		private void FormClaimAttachment_Shown(object sender,EventArgs e) {
+			FillGrid();
+			ODProgress.ShowAction(()=> {ValidateClaimHelper();},"Communicating with DentalXChange...");
 			//Check for if the attachmentID is already in use. If so inform the user they need to redo their attachments.
 			if(textClaimStatus.Text.ToUpper().Contains("ATTACHMENT ID HAS BEEN ASSOCIATED TO A DIFFERENT CLAIM")
 				|| textClaimStatus.Text.ToUpper().Contains("HAS ALREADY BEEN DELIVERED TO THE PAYER"))
