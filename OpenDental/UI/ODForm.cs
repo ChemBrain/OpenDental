@@ -452,6 +452,10 @@ namespace OpenDental {
 					ODDateRangePicker dateRangePicker = (ODDateRangePicker)control;
 					dateRangePicker.CalendarSelectionChanged+=Control_FilterCommitImmediate;
 				}
+				else if(control.GetType().IsSubclassOf(typeof(ODDatePicker)) || control.GetType()==typeof(ODDatePicker)) {
+					ODDatePicker datePicker = (ODDatePicker)control;
+					datePicker.DateTextChanged+=Control_FilterChange;
+				}
 				else if(control.GetType().IsSubclassOf(typeof(TextBoxBase)) || control.GetType()==typeof(TextBoxBase)) {
 					//This includes TextBox and RichTextBox, therefore also includes ODtextBox, ValidNum, ValidNumber, ValidDouble.
 					control.TextChanged+=Control_FilterChange;

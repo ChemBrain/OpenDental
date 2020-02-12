@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="OpenDentalDocumentation.xsl"?>
-<database version="19.4.15.0">
+<database version="19.4.17.0">
     <table name="account">
         <summary>Used in the accounting section in chart of accounts.  Not related to patient accounts in any way.</summary>
         <column order="0" name="AccountNum" type="bigint(20)">
@@ -10164,7 +10164,7 @@
         </column>
     </table>
     <table name="procedurelog">
-        <summary>Database table is procedurelog.  A procedure for a patient.  Can be treatment planned or completed.  Once it's completed, it gets tracked more closely be the security portion of the program.  A procedure can NEVER be deleted.  Status can just be changed to "deleted".</summary>
+        <summary>Database table is procedurelog.  A procedure for a patient.  Can be treatment planned or completed.  Once it's completed, it gets tracked more closely by the security portion of the program.  A procedure can NEVER be deleted.  Status can just be changed to "deleted".</summary>
         <column order="0" name="ProcNum" type="bigint(20)">
             <summary>Primary key.</summary>
         </column>

@@ -23,6 +23,10 @@ namespace OpenDental.UI {
 		///<summary>Hiding Control.Leave because the Leave event is fired whenever the user clicks on the calendar. This control will fire this Leave
 		///event when the user truly leaves this control.</summary>
 		public new event EventHandler Leave;
+		///<summary>Event is fired with the text in textDate changes.</summary>
+		public event DateTextChangedHandler DateTextChanged=null;
+		///<summary>Adjustments to the calendar location.  Starting location is based on the CalendarLocation property.</summary>
+		private Point _adjustCalendarLocation;
 
 		#region Properties
 
@@ -34,6 +38,17 @@ namespace OpenDental.UI {
 			}
 			set {
 				_calendarLocation=value;
+			}
+		}
+		
+		///<summary>Adjust the position of the calendar.  Starting location is based on the CalendarLocation property.</summary>
+		[Browsable(true),DefaultValue(typeof(Point),"0,0"),Description("Allows adustment of the calendar location.  Starting location is based on the CalendarLocation property.")]
+		public Point AdjustCalendarLocation {
+			get {
+				return _adjustCalendarLocation;
+			}
+			set {
+				_adjustCalendarLocation=value;
 			}
 		}
 
@@ -71,13 +86,13 @@ namespace OpenDental.UI {
 		public void ChangeCalendarLocation() {
 			switch(CalendarLocation) {
 				case CalendarLocationOptions.Above:
-					_locationOrigCalendar=new Point(1,textDate.Location.Y-1-calendar.Height);
+					_locationOrigCalendar=new Point(1+_adjustCalendarLocation.X,textDate.Location.Y-1-calendar.Height+_adjustCalendarLocation.Y);
 					break;
 				case CalendarLocationOptions.ToTheRight:
-					_locationOrigCalendar=new Point(textDate.Location.X+textDate.Width+1,textDate.Location.Y-1);
+					_locationOrigCalendar=new Point(textDate.Location.X+textDate.Width+1+_adjustCalendarLocation.X,textDate.Location.Y-1+_adjustCalendarLocation.Y);
 					break;
 				default://default to below
-					_locationOrigCalendar=calendar.Location;
+					_locationOrigCalendar=new Point(calendar.Location.X+_adjustCalendarLocation.X,calendar.Location.Y+_adjustCalendarLocation.Y);
 					break;
 			}
 			calendar.Location=_locationOrigCalendar;
@@ -130,6 +145,7 @@ namespace OpenDental.UI {
 			ChangeCalendarLocation();
 			textDate.Text=_defaultDateTime.ToShortDateString();
 			HideCalendar();
+			this.textDate.TextChanged+=new System.EventHandler(this.textDate_TextChanged);
 		}
 		
 		private void butToggleCalendar_Click(object sender,EventArgs e) {
@@ -204,9 +220,14 @@ namespace OpenDental.UI {
 
 		private void calendar_DateSelected(object sender,DateRangeEventArgs e) {
 			SetDateTime(calendar.SelectionStart);
+			Validate();//if there was an error icon showing and they selected a valid date from the calendar, this will make the error icon go away
 			if(calendar.Visible) {
 				CalendarSelectionChanged?.Invoke(this,new EventArgs());
 			}
+		}
+
+		private void textDate_TextChanged(object sender,EventArgs e) {
+			DateTextChanged?.Invoke(sender,e);
 		}
 
 		private void ODDatePicker_Leave(object sender,EventArgs e) {
@@ -217,7 +238,7 @@ namespace OpenDental.UI {
 			if(HideCalendarOnLeave) {
 				if(calendar.Visible) {
 					HideCalendar();
-					if(_isParentChange) {//Parent was not an ODForm, set back to original locaiton and parent.
+					if(_isParentChange) {//Parent was not an ODForm, set back to original location and parent.
 						calendar.Location=_locationOrigCalendar;
 						calendar.Parent=this;
 					}
@@ -239,4 +260,6 @@ namespace OpenDental.UI {
 	public delegate void CalendarSelectionHandler(object sender,EventArgs e);
 
 	public delegate void CalendarOpenedHandler(object sender,EventArgs e);
+
+	public delegate void DateTextChangedHandler(object sender,EventArgs e);
 }

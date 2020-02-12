@@ -552,8 +552,8 @@ namespace OpenDentBusiness{
 			}
 		}
 
-		public static Statement CreateLimitedStatement(List<long> listPatNumsSelected,long patNum,List<long> listProcClaimNums,List<long> listPayClaimNums
-			,List<long> listAdjustments,List<long> listPayNums,List<long> listProcedures)
+		public static Statement CreateLimitedStatement(List<long> listPatNumsSelected,long patNum,List<long> listPayClaimNums,List<long> listAdjustments,
+			List<long> listPayNums,List<long> listProcedures)
 		{
 			Statement stmt =new Statement();
 			if(listPatNumsSelected.Count==1) {

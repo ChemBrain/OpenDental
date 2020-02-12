@@ -854,7 +854,7 @@
 			this.butCancel.Name = "butCancel";
 			this.butCancel.Size = new System.Drawing.Size(92, 24);
 			this.butCancel.TabIndex = 0;
-			this.butCancel.Text = "Cancel";
+			this.butCancel.Text = "&Cancel";
 			this.butCancel.Click += new System.EventHandler(this.butCancel_Click);
 			// 
 			// butAttachAll

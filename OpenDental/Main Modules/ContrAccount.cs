@@ -219,6 +219,7 @@ namespace OpenDental {
 		private CheckBox checkHideInactiveOrthoCases;
 		private UI.Button butMakeOrthoCaseActive;
 		private List<PaySplit> _listSplitsHidden=new List<PaySplit>();
+		private MenuItem menuItemLimitedCustom;
 		private FormRpServiceDateView _formRpServiceDateView=null;
 		///<summary>True if 'Entire Family' is selected in the Select Patient grid.</summary>
 		public bool _isSelectingFamily {
@@ -424,6 +425,7 @@ namespace OpenDental {
 			this.gridProg = new OpenDental.UI.ODGrid();
 			this.gridComm = new OpenDental.UI.ODGrid();
 			this.ToolBarMain = new OpenDental.UI.ODToolBar();
+			this.menuItemLimitedCustom = new System.Windows.Forms.MenuItem();
 			this.panelAging.SuspendLayout();
 			this.panelTotalOwes.SuspendLayout();
 			this.tabControlShow.SuspendLayout();
@@ -533,6 +535,7 @@ namespace OpenDental {
             this.menuItemReceipt,
             this.menuItemInvoice,
             this.menuItemLimited,
+            this.menuItemLimitedCustom,
             this.menuItemStatementMore});
 			// 
 			// menuItemStatementWalkout
@@ -565,9 +568,15 @@ namespace OpenDental {
 			this.menuItemLimited.Text = "Limited";
 			this.menuItemLimited.Click += new System.EventHandler(this.menuItemLimited_Click);
 			// 
+			// menuItemLimitedCustom
+			// 
+			this.menuItemLimitedCustom.Index = 5;
+			this.menuItemLimitedCustom.Text = "Limited (Custom)";
+			this.menuItemLimitedCustom.Click += new System.EventHandler(this.menuItemLimitedCustom_Click);
+			// 
 			// menuItemStatementMore
 			// 
-			this.menuItemStatementMore.Index = 5;
+			this.menuItemStatementMore.Index = 6;
 			this.menuItemStatementMore.Text = "More Options";
 			this.menuItemStatementMore.Click += new System.EventHandler(this.menuItemStatementMore_Click);
 			// 
@@ -5225,7 +5234,69 @@ namespace OpenDental {
 
 		private void menuItemLimited_Click(object sender,EventArgs e) {
 			DataTable table=DataSetMain.Tables["account"];
-			Patient guarantor=Patients.GetPat(PatCur.Guarantor);
+			DataRow row;
+			#region Autoselect Today's Procedures
+			if(gridAccount.SelectedIndices.Length==0) {//autoselect procedures
+				for(int i = 0;i<table.Rows.Count;i++) {//loop through every line showing on screen
+					row=table.Rows[i];
+					if(row["ProcNum"].ToString()=="0" //ignore items that aren't procs
+						|| PIn.Date(row["date"].ToString())!=DateTime.Today //autoselecting todays procs only
+						|| PIn.Long(row["PatNum"].ToString())!=PatCur.PatNum) //only procs for the current patient
+					{
+						continue;
+					}
+					gridAccount.SetSelected(i,true);
+				}
+				if(gridAccount.SelectedIndices.Length==0) {//if still none selected
+					MsgBox.Show(this,"Please select procedures, adjustments, payments, or claims first.");
+					return;
+				}
+			}
+			#endregion Autoselect Today's Procedures
+			//guaranteed to have rows selected from here down, verify they are allowed transactions
+			if(gridAccount.SelectedIndices.Any(x => table.Rows[x]["StatementNum"].ToString()!="0" || table.Rows[x]["PayPlanNum"].ToString()!="0")) {
+				MsgBox.Show(this,"You can only select procedures, adjustments, payments, and claims.");
+				gridAccount.SetSelected(false);
+				return;
+			}
+			//At this point, all selected items are procedures, adjustments, payments, or claims.
+			//get all ClaimNums from claimprocs for the selected procs
+			List<long> listProcClaimNums=ClaimProcs.GetForProcs(gridAccount.SelectedIndices.Where(x => table.Rows[x]["ProcNum"].ToString()!="0")
+				.Select(x => PIn.Long(table.Rows[x]["ProcNum"].ToString())).ToList()).FindAll(x => x.ClaimNum!=0).Select(x => x.ClaimNum).ToList();
+			//get all ClaimNums for any selected claimpayments
+			List<long> listPayClaimNums=gridAccount.SelectedIndices
+				.Where(x => table.Rows[x]["ClaimNum"].ToString()!="0" && table.Rows[x]["ClaimPaymentNum"].ToString()=="1")
+				.Select(x => PIn.Long(table.Rows[x]["ClaimNum"].ToString())).ToList();
+			//prevent user from selecting a claimpayment that is not associated with any of the selected procs
+			if(listPayClaimNums.Any(x => !listProcClaimNums.Contains(x))) {
+				MsgBox.Show(this,"You can only select claim payments for the selected procedures.");
+				gridAccount.SetSelected(false);
+				return;
+			}
+			List<long> listPatNums=gridAccount.SelectedIndices
+				.Select(x => table.Rows[x]["PatNum"].ToString()).Distinct().Select(x => PIn.Long(x)).ToList();
+			List<long> listAdjNums=gridAccount.SelectedIndices
+				.Where(x => table.Rows[x]["AdjNum"].ToString()!="0")
+				.Select(x => PIn.Long(table.Rows[x]["AdjNum"].ToString())).ToList();
+			List<long> listPayNums=gridAccount.SelectedIndices
+				.Where(x => table.Rows[x]["PayNum"].ToString()!="0")
+				.Select(x => PIn.Long(table.Rows[x]["PayNum"].ToString())).ToList();
+			List<long> listProcNums=gridAccount.SelectedIndices
+				.Where(x => table.Rows[x]["ProcNum"].ToString()!="0")
+				.Select(x => PIn.Long(table.Rows[x]["ProcNum"].ToString())).ToList();
+			Statement stmt=Statements.CreateLimitedStatement(listPatNums,PatCur.PatNum,listPayClaimNums,listAdjNums,listPayNums,listProcNums);
+			//All printing and emailing will be done from within the form:
+			FormStatementOptions FormSO=new FormStatementOptions();
+			FormSO.StmtCur=stmt;
+			FormSO.ShowDialog();
+			if(FormSO.DialogResult!=DialogResult.OK) {
+				Statements.DeleteStatements(new List<Statement> { stmt });//detached from adjustments, procedurelogs, and paysplits as well
+			}
+			ModuleSelected(PatCur.PatNum);
+		}
+
+		private void menuItemLimitedCustom_Click(object sender,EventArgs e) {
+			DataTable table=DataSetMain.Tables["account"];
 			DataRow row;
 			#region Autoselect Today's Procedures
 			if(gridAccount.SelectedIndices.Length==0) {//autoselect procedures
@@ -5241,26 +5312,13 @@ namespace OpenDental {
 				}
 			}
 			#endregion Autoselect Today's Procedures
-			List<long> listPatNumsSelected=new List<long>();
-			List<long> listProcClaimNums=new List<long>();
-			List<long> listPaymentClaimNums=new List<long>();
-			List<long> listProcNums=new List<long>();
-			List<long> listAdjNums=new List<long>();
-			List<long> listPayNums=new List<long>();
-			if(gridAccount.SelectedIndices.Length==0) {
-				//if the nothing is selected still show the limited picker window.
-				FormLimitedStatementSelect formLimitedStatementSelect=new FormLimitedStatementSelect(table.Copy());
-				if(formLimitedStatementSelect.ShowDialog()!=DialogResult.OK) {
-					return;
-				}
-				listPatNumsSelected=formLimitedStatementSelect.ListPatNumsSelected;
-				listProcClaimNums=formLimitedStatementSelect.ListSelectedProcClaimNums;
-				listPaymentClaimNums=formLimitedStatementSelect.ListSelectedPaymentClaimNums;
-				listProcNums=formLimitedStatementSelect.ListSelectedProcedureNums;
-				listAdjNums=formLimitedStatementSelect.ListSelectedAdjustments;
-				listPayNums=formLimitedStatementSelect.ListSelectedPayNums;
-			}
-			else {
+			List<long> listPatNums=null;
+			List<long> listProcClaimNums=null;
+			List<long> listPayClaimNums=null;
+			List<long> listProcNums=null;
+			List<long> listAdjNums=null;
+			List<long> listPayNums=null;
+			if(gridAccount.SelectedIndices.Length>0) {
 				//guaranteed to have rows selected from here down, verify they are allowed transactions
 				if(gridAccount.SelectedIndices.Any(x => table.Rows[x]["StatementNum"].ToString()!="0" || table.Rows[x]["PayPlanNum"].ToString()!="0")) {
 					MsgBox.Show(this,"You can only select procedures, adjustments, payments, and claims.");
@@ -5271,16 +5329,16 @@ namespace OpenDental {
 				listProcClaimNums=ClaimProcs.GetForProcs(gridAccount.SelectedIndices.Where(x => table.Rows[x]["ProcNum"].ToString()!="0")
 					.Select(x => PIn.Long(table.Rows[x]["ProcNum"].ToString())).ToList()).FindAll(x => x.ClaimNum!=0).Select(x => x.ClaimNum).ToList();
 				//get all ClaimNums for any selected claimpayments
-				listPaymentClaimNums=gridAccount.SelectedIndices
+				listPayClaimNums=gridAccount.SelectedIndices
 					.Where(x => table.Rows[x]["ClaimNum"].ToString()!="0" && table.Rows[x]["ClaimPaymentNum"].ToString()=="1")
 					.Select(x => PIn.Long(table.Rows[x]["ClaimNum"].ToString())).ToList();
 				//prevent user from selecting a claimpayment that is not associatede with any of the selected procs
-				if(listPaymentClaimNums.Any(x => !listProcClaimNums.Contains(x))) {
+				if(listPayClaimNums.Any(x => !listProcClaimNums.Contains(x))) {
 					MsgBox.Show(this,"You can only select claim payments for the selected procedures.");
 					gridAccount.SetSelected(false);
 					return;
 				}
-				listPatNumsSelected=gridAccount.SelectedIndices.Select(x => table.Rows[x]["PatNum"].ToString()).Distinct().Select(x => PIn.Long(x)).ToList();
+				listPatNums=gridAccount.SelectedIndices.Select(x => table.Rows[x]["PatNum"].ToString()).Distinct().Select(x => PIn.Long(x)).ToList();
 				listAdjNums=gridAccount.SelectedIndices
 					.Where(x => table.Rows[x]["AdjNum"].ToString()!="0")
 					.Select(x => PIn.Long(table.Rows[x]["AdjNum"].ToString())).ToList();
@@ -5291,9 +5349,17 @@ namespace OpenDental {
 					.Where(x => table.Rows[x]["ProcNum"].ToString()!="0")
 					.Select(x => PIn.Long(table.Rows[x]["ProcNum"].ToString())).ToList();
 			}
+			FormLimitedStatementSelect formL=new FormLimitedStatementSelect(table,listPayClaimNums,listAdjNums,listPayNums,listProcNums,listPatNums);
+			if(formL.ShowDialog()!=DialogResult.OK) {
+				return;
+			}
+			listPatNums=formL.ListSelectedPatNums;
+			listPayClaimNums=formL.ListSelectedPayClaimNums;
+			listProcNums=formL.ListSelectedProcNums;
+			listAdjNums=formL.ListSelectedAdjNums;
+			listPayNums=formL.ListSelectedPayNums;
 			//At this point, all selected items are procedures, adjustments, payments, or claims.
-			Statement stmt=Statements.CreateLimitedStatement(listPatNumsSelected,PatCur.PatNum,listProcClaimNums,listPaymentClaimNums,listAdjNums,listPayNums
-				,listProcNums);
+			Statement stmt=Statements.CreateLimitedStatement(listPatNums,PatCur.PatNum,listPayClaimNums,listAdjNums,listPayNums,listProcNums);
 			//All printing and emailing will be done from within the form:
 			FormStatementOptions FormSO=new FormStatementOptions();
 			FormSO.StmtCur=stmt;

@@ -9116,6 +9116,9 @@
     <None Include="Web References\NewCrop\Update1.wsdl" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\google_signin_pressed.png" />
+    <None Include="Resources\google_signin_normal.png" />
+    <None Include="Resources\google_signin_focus.png" />
     <None Include="Resources\splashBenco.jpg" />
     <None Include="Resources\benco_logo.png" />
     <None Include="Resources\PaySimple_Button_2019_26x75.png" />
