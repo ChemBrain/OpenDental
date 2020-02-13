@@ -9012,9 +9012,10 @@ namespace OpenDental{
 		#region LogOn
 		///<summary>Logs on a user using the passed in credentials or Active Directory or the good old-fashioned log on window.</summary>
 		private void LogOnOpenDentalUser(string odUser,string odPassword) {
-			//CurUser could already be set if using web service because login from ChooseDatabase window.
+			//CurUser will be set if using web service because login from ChooseDatabase window.
 			if(Security.CurUser!=null) {
 				Security.IsUserLoggedIn=true;//This might be wrong.  We set to true for backward compatibility.
+				SecurityLogs.MakeLogEntry(Permissions.UserLogOnOff,0,Lan.g(this,"User:")+" "+Security.CurUser.UserName+" "+Lan.g(this,"has logged on."));
 				return;
 			}
 			UserOdPrefs.SetThemeForUserIfNeeded();

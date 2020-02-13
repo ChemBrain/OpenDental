@@ -25,7 +25,7 @@
 		private void InitializeComponent() {
 			this.SuspendLayout();
 			// 
-			// FormComboPicker2
+			// FormComboPicker
 			// 
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
 			this.BackColor = System.Drawing.SystemColors.Window;
@@ -33,13 +33,14 @@
 			this.DoubleBuffered = true;
 			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
 			this.KeyPreview = true;
-			this.Name = "FormComboPicker2";
+			this.Name = "FormComboPicker";
 			this.ShowInTaskbar = false;
 			this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
 			this.Text = "Form1";
 			this.Deactivate += new System.EventHandler(this.FormComboPicker_Deactivate);
 			this.Load += new System.EventHandler(this.FormComboPicker_Load);
+			this.Shown += new System.EventHandler(this.FormComboPicker_Shown);
 			this.Paint += new System.Windows.Forms.PaintEventHandler(this.FormComboPicker_Paint);
 			this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FormComboPicker_KeyDown);
 			this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.FormComboPicker_KeyUp);

@@ -52,6 +52,7 @@ namespace OpenDental.UI{
 		public FormComboPicker(){
 			vScroll=new VScrollBar();
 			vScroll.Scroll+=VScroll_Scroll;
+			vScroll.KeyDown+=VScroll_KeyDown;
 			this.Controls.Add(vScroll);
 			InitializeComponent();
 		}
@@ -70,17 +71,25 @@ namespace OpenDental.UI{
 			if (e.KeyCode==Keys.ShiftKey && !_isCtrlDown) {
 				_isShiftDown=true;
 			}
-			if(e.KeyCode==Keys.Up && !_isMultiSelect) {
+			if(e.KeyCode==Keys.Up && !_isMultiSelect) {//arrow key up
+				if(_listSelectedIndices.Count<1) {//start at the 0th index
+					_listSelectedIndices.Add(0);
+				}
 				_listSelectedIndices[0]-=1;
 				if(_listSelectedIndices[0]<0) {
 					_listSelectedIndices[0]=0;
 				}
+				SetVScrollValue();
 			}
-			if(e.KeyCode==Keys.Down && !_isMultiSelect) {
+			if(e.KeyCode==Keys.Down && !_isMultiSelect) {//arrow key down
+				if(_listSelectedIndices.Count<1) {//start at a negative index so that it can be incremented later
+					_listSelectedIndices.Add(-1);
+				}
 				_listSelectedIndices[0]+=1;
 				if(_listSelectedIndices[0]>ListStrings.Count-1) {
 					_listSelectedIndices[0]=ListStrings.Count-1;
 				}
+				SetVScrollValue();
 			}
 			Invalidate();
 		}
@@ -92,7 +101,7 @@ namespace OpenDental.UI{
 					Close();
 				}
 			}
-			if (e.KeyCode==Keys.ShiftKey) {
+			if(e.KeyCode==Keys.ShiftKey) {
 				_isShiftDown=false;
 				if(_isMultiSelect) {
 					Close();
@@ -302,6 +311,18 @@ namespace OpenDental.UI{
 			Invalidate();
 		}
 
+		private void FormComboPicker_Shown(object sender,EventArgs e) {
+			//First arrow key would normally not be processed, but would instead just give focus to the vScroll.
+			//The line below makes it so that the first arrow key gets sent the the vScroll and Form as intended.
+			vScroll.Focus();
+		}
+
+		private void VScroll_KeyDown(object sender, KeyEventArgs e) {
+			if(e.KeyCode==Keys.Up || e.KeyCode==Keys.Down) {
+				e.Handled=true;//don't scroll using arrow keys because we handle that manually
+			}
+		}
+
 		private void VScroll_Scroll(object sender,ScrollEventArgs e) {
 			Invalidate();
 		}
@@ -472,6 +493,37 @@ namespace OpenDental.UI{
 				}
 			}
 			return str;
+		}
+
+		///<summary>Sets the value of the scroll bar to a selected item that is outside of view</summary>
+		private void SetVScrollValue() {
+			if(_listSelectedIndices.Count<1) {
+				return;
+			}
+			if(_listSelectedIndices[0]<_indexTopShowing) {//the selected index is above the combobox bounds
+				for(int i=_indexTopShowing;i>0;i--) {
+					if(i==_listSelectedIndices[0]) {
+						break;
+					}
+					if(vScroll.Value-vScroll.SmallChange<0) {
+						vScroll.Value=0;
+						break;
+					}
+					vScroll.Value-=vScroll.SmallChange;
+				}
+			}
+			if((_listSelectedIndices[0]-_indexTopShowing+1)*_heightLineItem>this.Height) {//the selected index is hidden below bounds
+				for(int i=this.Height;i<=(_listSelectedIndices[0]-_indexTopShowing+1)*_heightLineItem;i+=_heightLineItem) {
+					if(i==_listSelectedIndices[0]) {
+						break;
+					}
+					if(vScroll.Value+vScroll.SmallChange>vScroll.Maximum-this.Height) {
+						vScroll.Value=vScroll.Maximum-this.Height+2;
+						break;
+					} 
+					vScroll.Value+=vScroll.SmallChange;
+				}
+			}
 		}
 		#endregion Methods - Private
 	}

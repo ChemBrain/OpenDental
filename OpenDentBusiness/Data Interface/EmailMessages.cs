@@ -661,6 +661,14 @@ namespace OpenDentBusiness{
 						imagePathLocal=tempFile;
 					}
 				}
+				else if(!FileAtoZ.Exists(imagePathLocal) && FileAtoZ.Exists(imagePath)){
+					//File is not in OpenDentImages folder, but is elsewhere locally, so copy it there.
+					FileAtoZ.Copy(imagePath,imagePathLocal,FileAtoZSourceDestination.AtoZToLocal);
+				}	
+				else if(!FileAtoZ.Exists(imagePathLocal) && !FileAtoZ.Exists(imagePath)){
+					//File not found.  Leave the <img src="filename"></img> alone.  This will either be an internet hosted image or a broken image link.
+					continue;
+				}			
 				listLocalImagePaths.Add(imagePathLocal);
 				localHtml=localHtml.Replace(match.Value,"<img alt=\"image\" src=\"cid:"+imgName+"\"/>");
 			}
