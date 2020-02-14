@@ -1571,7 +1571,11 @@ namespace OpenDental {
 					}
 				}
 				SetBrightnessAndContrast();
-				bool doShowPrint=pictureBoxMain.Visible || _webBrowserDocument.Visible;
+				//Previously _webBrowserDocument would occassionaly be null. This is an attempt to fix that.
+				bool doShowPrint=pictureBoxMain.Visible;
+				if(_webBrowserDocument!=null) {
+					doShowPrint=(doShowPrint || _webBrowserDocument.Visible);
+				}
 				EnableTreeItemTools(doShowPrint,true,true,pictureBoxMain.Visible,true,pictureBoxMain.Visible,pictureBoxMain.Visible,pictureBoxMain.Visible,
 					pictureBoxMain.Visible,pictureBoxMain.Visible,pictureBoxMain.Visible,pictureBoxMain.Visible,pictureBoxMain.Visible,isExportable);
 			}

@@ -2383,7 +2383,7 @@ namespace OpenDentBusiness {
 				//accumulate expected charges and interest until principalRemaining is at 0.
 				double expectedInterestTotal=0;
 				while(principalRemaining.IsGreaterThanOrEqualToZero()) {
-					double interestForPeriod=principalRemaining*periodRate;
+					double interestForPeriod=Math.Round(principalRemaining*periodRate,2);
 					principalRemaining+=interestForPeriod-payAmount;
 					expectedInterestTotal+=interestForPeriod;
 				}

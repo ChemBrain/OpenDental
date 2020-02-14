@@ -154,9 +154,6 @@ namespace OpenDental.User_Controls.SetupWizard {
 		///<summary>Sets the simple hide based on the status of the checkbox</summary>
 		private void SetSimple() {
 			panelSimple.Visible=!checkSimple.Checked;
-			checkDefault.Visible=!checkSimple.Checked;
-			labelPrompt.Visible=!checkSimple.Checked;
-			labelDefault.Visible=!checkSimple.Checked;
 		}
 
 		private void checkSimple_Click(object sender,System.EventArgs e) {
