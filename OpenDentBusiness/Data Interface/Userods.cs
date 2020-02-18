@@ -409,14 +409,28 @@ namespace OpenDentBusiness {
 		///with error message to display to the user if anything goes wrong.  Manipulates the appropriate log in failure columns in the db as 
 		///needed.</summary>
 		public static Userod CheckUserAndPassword(string username,string plaintext,bool isEcw) {
+			return CheckUserAndPassword(username,plaintext,isEcw,true);
+		}
+
+		///<summary>Searches the database for a corresponding user by username (not case sensitive).  Returns null is no match found.
+		///Once a user has been found, if the number of failed log in attempts exceeds the limit an exception is thrown with a message to display to the 
+		///user.  Then the hash of the plaintext password (if usingEcw is true, password needs to be hashed before passing into this method) is checked 
+		///against the password hash that is currently in the database.  Once the plaintext password passed in is validated, this method will upgrade the 
+		///hashing algorithm for the password (if necessary) and then returns the entire user object for the corresponding user found.  Throws exceptions 
+		///with error message to display to the user if anything goes wrong.  Manipulates the appropriate log in failure columns in the db as 
+		///needed.  Null will be returned when hasExceptions is false and no matching user found, credentials are invalid, or account is locked.</summary>
+		public static Userod CheckUserAndPassword(string username,string plaintext,bool isEcw,bool hasExceptions) {
 			if(RemotingClient.RemotingRole==RemotingRole.ClientWeb) {
-				return Meth.GetObject<Userod>(MethodBase.GetCurrentMethod(),username,plaintext,isEcw);
+				return Meth.GetObject<Userod>(MethodBase.GetCurrentMethod(),username,plaintext,isEcw,hasExceptions);
 			}
 			//Do not use the cache here because an administrator could have cleared the log in failure attempt columns for this user.
 			//Also, middle tier calls this method every single time a process request comes to it.
 			Userod userDb=GetUserByNameNoCache(username);
 			if(userDb==null) {
-				throw new ODException(Lans.g("Userods","Invalid username or password."),ODException.ErrorCodes.CheckUserAndPasswordFailed);
+				if(hasExceptions) {
+					throw new ODException(Lans.g("Userods","Invalid username or password."),ODException.ErrorCodes.CheckUserAndPasswordFailed);
+				}
+				return null;
 			}
 			DateTime dateTimeNowDb=MiscData.GetNowDateTime();
 			//We found a user via matching just the username passed in.  Now we need to check to see if they have exceeded the log in failure attempts.
@@ -426,8 +440,11 @@ namespace OpenDentBusiness {
 				&& dateTimeNowDb.Subtract(userDb.DateTFail) < TimeSpan.FromMinutes(5) //The last failure has been within the last 5 minutes.
 				&& userDb.FailedAttempts >= 5) //The user failed 5 or more times.
 			{
-				throw new ApplicationException(Lans.g("Userods","Account has been locked due to failed log in attempts."
-					+"\r\nCall your security admin to unlock your account or wait at least 5 minutes."));
+				if(hasExceptions) {
+					throw new ApplicationException(Lans.g("Userods","Account has been locked due to failed log in attempts."
+						+"\r\nCall your security admin to unlock your account or wait at least 5 minutes."));
+				}
+				return null;
 			}
 			bool isPasswordValid=Authentication.CheckPassword(userDb,plaintext,isEcw);
 			Userod userNew=userDb.Copy();
@@ -453,7 +470,10 @@ namespace OpenDentBusiness {
 				return userNew;
 			}
 			else {//Password was not valid.
-				throw new ODException(Lans.g("Userods","Invalid username or password."),ODException.ErrorCodes.CheckUserAndPasswordFailed);
+				if(hasExceptions) {
+					throw new ODException(Lans.g("Userods","Invalid username or password."),ODException.ErrorCodes.CheckUserAndPasswordFailed);
+				}
+				return null;
 			}
 		}
 

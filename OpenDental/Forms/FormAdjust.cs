@@ -403,6 +403,11 @@ namespace OpenDental {
 					MsgBox.Show(this,"Cannot delete adjustment while a payment split is attached due to preference to Enfore Valid Paysplits.");
 					return;
 				}
+				bool isAttachedToPayPlan=PayPlanLinks.GetForFKeyAndLinkType(_adjustmentCur.AdjNum,PayPlanLinkType.Adjustment).Count>0;
+				if(isAttachedToPayPlan) {
+					MsgBox.Show(this,"Cannot delete adjustment that is attached to a dynamic payment plan");
+					return;
+				}
 				if(_listSplitsForAdjustment.Count>0 
 					&& !MsgBox.Show(this,MsgBoxButtons.YesNo,"There are payment splits associated to this adjustment.  Do you want to continue deleting?")) 
 				{//There are splits for this adjustment

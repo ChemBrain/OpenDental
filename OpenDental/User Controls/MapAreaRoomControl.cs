@@ -556,9 +556,9 @@ namespace OpenDental {
 		private static string ShortenEmployeeNameHelper(string name) {
 			string retVal=name;
 			try {
-				//5 character limit decided by Nathan.  
-				//This will throw an exception if the name is less than 5 characters, in which case we will use the entire name.
-				retVal=name.Substring(0,5);
+				//8 character limit decided by Nathan.  
+				//This will throw an exception if the name is less than 8 characters, in which case we will use the entire name.
+				retVal=name.Substring(0,8);
 			}
 			catch(Exception ex) {
 				ex.DoNothing();

@@ -1265,8 +1265,8 @@ namespace OpenDental {
 				//This hook is specifically called after we know a valid appointment has been identified.
 				Plugins.HookAddCode(this, "ContrAppt.pinBoard_MouseUp_validation_end",apptCur);//hook name is historical
 				Appointment apptOld=apptCur.Copy();
-				RefreshModuleDataPatient(apptCur.PatNum);//redundant?
-																	   //Patient pat=Patients.GetPat(pinBoard.SelectedAppt.PatNum);
+				RefreshModuleDataPatient(apptCur.PatNum);//This is to change _patCur.
+				FormOpenDental.S_Contr_PatientSelected(_patCur,true,false);//especially to change name showing in title bar
 				if(apptCur.IsNewPatient && contrApptPanel.DateSelected!=apptCur.AptDateTime.Date) {
 					Procedures.SetDateFirstVisit(contrApptPanel.DateSelected,4,_patCur);
 				}

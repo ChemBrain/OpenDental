@@ -1079,8 +1079,8 @@ namespace OpenDentBusiness {
 			patient.Gender=PatientGender.Unknown;
 			patient.ClinicNum=clinicNum;
 			patient.Email=email;
-			patient.HmPhone=hmPhone;
-			patient.WirelessPhone=wirelessPhone;
+			patient.HmPhone=TelephoneNumbers.AutoFormat(hmPhone);
+			patient.WirelessPhone=TelephoneNumbers.AutoFormat(wirelessPhone);
 			Patients.Insert(patient,false);
 			SecurityLogs.MakeLogEntry(Permissions.PatientCreate,patient.PatNum,securityLogMsg,logSource);
 			CustReference custRef=new CustReference();

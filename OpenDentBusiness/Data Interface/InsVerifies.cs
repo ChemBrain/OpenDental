@@ -409,7 +409,7 @@ namespace OpenDentBusiness{
 			DateTime dateTimeEnd=DateTime.Today.AddDays(PrefC.GetInt(PrefName.InsVerifyAppointmentScheduledDays));//Non past due logic
 			DateTime dateTimeLastPatEligibility=DateTime.Today.AddDays(-PrefC.GetInt(PrefName.InsVerifyPatientEnrollmentDays));
 			DateTime dateTimeLastPlanBenefits=DateTime.Today.AddDays(-PrefC.GetInt(PrefName.InsVerifyBenefitEligibilityDays));
-			logger?.WriteLine($"BatchPatInsVerify has started:\r\n" +
+			logger?.WriteLine($"BatchPatInsVerify has started...\r\n" +
 				$"dateTimeStart={dateTimeStart}\r\n" +
 				$"dateTimeEnd={dateTimeEnd}\r\n" +
 				$"dateTimeLastPatEligibility={dateTimeLastPatEligibility}\r\n" +
@@ -455,7 +455,6 @@ namespace OpenDentBusiness{
 					etransRequest=x270Controller.TryInsVerifyRequest(insVerifyObj.PatInsVerify,dictInsPlans[insVerifyObj.PatInsVerify.PlanNum]
 						,dictTrustedCarriers[insVerifyObj.PatInsVerify.CarrierNum],dictInsSubs[insVerifyObj.PatInsVerify.InsSubNum],out errorStatus
 					);//Can be null
-					logger?.WriteLine($"PatNum:{insVerifyObj.PatInsVerify.PatNum} error status:{errorStatus}",LogLevel.Verbose,"InsVerifyBatch");
 					if(errorStatus.IsNullOrEmpty()) {//No error yet.
 						if(etransRequest==null) {//Can happen when an AAA segment is returned.
 							errorStatus=Lans.g("InsVerifyService","Unexpected carrier response.");
@@ -479,6 +478,11 @@ namespace OpenDentBusiness{
 								List<DTP271> listPlanDates=x271.GetListDtpSubscriber();
 								List<DTP271> listPlanStartDates=listPlanDates.FindAll(x => x.Segment.Get(1)=="539");//539 => Policy Effective
 								List<DTP271> listPlanEndDates=listPlanDates.FindAll(x => x.Segment.Get(1)=="540");//540 => Policy Expiration
+								if(listPlanStartDates.Count==0 && listPlanEndDates.Count==0) {
+									//Use plan dates if no policy dates were received
+									listPlanStartDates=listPlanDates.FindAll(x => x.Segment.Get(1)=="346");//346 => Plan Start.
+									listPlanEndDates=listPlanDates.FindAll(x => x.Segment.Get(1)=="347");//347 => Plan End.
+								}
 								//If the 271 specifies more than 1 date we will always use the last one for both plan start and plan end.
 								if(listPlanStartDates.Count>0) {
 									datePlanStart=X12Parse.ToDate(listPlanStartDates.Last().Segment.Get(3));//Mimics FormInsPlan.butGetElectronic_Click(...)
@@ -490,20 +494,23 @@ namespace OpenDentBusiness{
 								#endregion
 								//The age old classic of short and sweet or long and descriptive.
 								errorStatus+=ValidateAnnualMaxAndGeneralDeductible(listBensForPat,listEb271.Select(x=>x.Benefitt).ToList());
-								if(errorStatus.IsNullOrEmpty()) {//Only create insurance adjustments if the plan has passed all validation up to this point.
+								if(string.IsNullOrWhiteSpace(errorStatus)) {
 									CreateInsuranceAdjustmentIfNeeded(insVerifyObj.PatInsVerify.PatNum,insVerifyObj.PatInsVerify.PlanNum,
 										insVerifyObj.PatInsVerify.InsSubNum,listBensForPat,listEb271);
+									EB271.SetInsuranceHistoryDates(listEb271,insVerifyObj.GetPatNum(),InsSubs.GetOne(insVerifyObj.PatInsVerify.InsSubNum));
 								}
 							}
 						}
 					}
-					if(errorStatus.IsNullOrEmpty()) {
+					if(string.IsNullOrWhiteSpace(errorStatus)) {
 						InsVerifyOnVerify(insVerifyObj);
 						insVerifyObj.PatInsVerify.BatchVerifyState=BatchInsVerifyState.Success;
 					}
 					else {//Error occurred
 						InsVerifySetStatus(insVerifyObj,errorStatusDefNum,errorStatus);
 						insVerifyObj.PatInsVerify.BatchVerifyState=BatchInsVerifyState.Error;
+						logger?.WriteLine($"Validation errors for patnum {insVerifyObj.GetPatNum()}:",LogLevel.Verbose,"InsVerifyBatch");
+						logger?.WriteLine($"{errorStatus}",LogLevel.Verbose,"InsVerifyBatch");
 					}
 				}
 				catch(Exception ex) {
@@ -547,16 +554,15 @@ namespace OpenDentBusiness{
 		///or if no group number was found in the 271.</summary>
 		public static string ValidateGroupNumber(string insPlanGroupNum,string x271GroupNum) {
 			if(String.IsNullOrWhiteSpace(insPlanGroupNum) || insPlanGroupNum.Length<3) {
-				return Lans.g("InsVerifyService",$"Group number on insurance plan is invalid, current:{insPlanGroupNum}, received:{x271GroupNum}");
+				return Lans.g("InsVerifyService",$"Group number on insurance plan is invalid, current:{insPlanGroupNum}, received:{x271GroupNum}. ");
 			}
-			else 
-			if(String.IsNullOrWhiteSpace(x271GroupNum) || x271GroupNum.Length<3) {//If we receive an invalid or empty group number, assume what is in OD is correct.
+			else if(String.IsNullOrWhiteSpace(x271GroupNum) || x271GroupNum.Length<3) {//If we receive an invalid or empty group number, assume what is in OD is correct.
 				return "";
 			}
 			else if(x271GroupNum.StartsWith(insPlanGroupNum) || x271GroupNum.EndsWith(insPlanGroupNum)) {
 				return "";
 			}
-			return Lans.g("InsVerifyService",$"Group number mismatch, current:{insPlanGroupNum}, received:{x271GroupNum}");
+			return Lans.g("InsVerifyService",$"Group number mismatch, current:{insPlanGroupNum}, received:{x271GroupNum}. ");
 		}
 
 		///<summary>Checks to see if a policy start and policy end date was specified in the given x271 object. 
@@ -576,14 +582,14 @@ namespace OpenDentBusiness{
 			InsSubs.Update(insSub);
 			DateTime aptDate=Appointments.GetOneApt(aptNum).AptDateTime.Date;
 			if(datePolicyEnd.Year<=1880 && datePolicyStart>aptDate) {//No end date, but we have a start date, and plan starts in the future
-				return Lans.g("InsVerifyService",$"Policy does not start until {datePolicyStart.ToShortDateString()}");
+				return Lans.g("InsVerifyService",$"Policy does not start until {datePolicyStart.ToShortDateString()} ");
 			}
 			else if(datePolicyStart.Year<=1880 && datePolicyEnd<aptDate) {//No start date, but we have an end date, and plan ended in the past
-				return Lans.g("InsVerifyService",$"Inactive coverage.  Policy ended {datePolicyEnd.ToShortDateString()}");
+				return Lans.g("InsVerifyService",$"Inactive coverage.  Policy ended {datePolicyEnd.ToShortDateString()} ");
 			}
 			//Carriers will sometimes send a valid start date, but a plan end date of Datetime.MinValue. This is considered a valid scenario and must be excluded from our validation.
 			else if(datePolicyEnd.Year>1880 && !DateTime.Today.Between(datePolicyStart,datePolicyEnd)) {
-				return Lans.g("InsVerifyService",$"Invalid policy dates: {datePolicyStart.ToShortDateString()} - {datePolicyEnd.ToShortDateString()}");
+				return Lans.g("InsVerifyService",$"Invalid policy dates: {datePolicyStart.ToShortDateString()} - {datePolicyEnd.ToShortDateString()} ");
 			}
 			return "";
 		}
@@ -640,22 +646,22 @@ namespace OpenDentBusiness{
 			StringBuilder strBuildErrorStatus=new StringBuilder();
 			if(listAnnualMaxInd271.Count>0) {
 				if(annualMaxInd==null || annualMaxInd.MonetaryAmt.In(0,-1) || !listAnnualMaxInd271.Any(x=>x.MonetaryAmt==annualMaxInd.MonetaryAmt)) {
-					strBuildErrorStatus.AppendLine(Lans.g("InsVerifyService","Individual annual max mismatch."));
+					strBuildErrorStatus.AppendLine(Lans.g("InsVerifyService","Individual annual max mismatch. "));
 				}
 			}
 			if(listAnnualMaxFam271.Count>0) {
 				if(annualMaxFam==null || annualMaxFam.MonetaryAmt.In(0,-1) || !listAnnualMaxFam271.Any(x=>x.MonetaryAmt==annualMaxFam.MonetaryAmt)) {
-					strBuildErrorStatus.AppendLine(Lans.g("InsVerifyService","Family annual max mismatch."));
+					strBuildErrorStatus.AppendLine(Lans.g("InsVerifyService","Family annual max mismatch. "));
 				}
 			}
 			if(listGeneralDeductInd271.Count>0) {
 				if(generalDeductInd==null || generalDeductInd.MonetaryAmt.In(0,-1) || !listGeneralDeductInd271.Any(x=>x.MonetaryAmt==generalDeductInd.MonetaryAmt)) {
-					strBuildErrorStatus.AppendLine(Lans.g("InsVerifyService","Individual general deductible mismatch."));
+					strBuildErrorStatus.AppendLine(Lans.g("InsVerifyService","Individual general deductible mismatch. "));
 				}
 			}
 			if(listGeneralDeductFam271.Count>0) {
 				if(generalDeductFam==null || generalDeductFam.MonetaryAmt.In(0,-1) || !listGeneralDeductFam271.Any(x=>x.MonetaryAmt==generalDeductFam.MonetaryAmt)) {
-					strBuildErrorStatus.AppendLine(Lans.g("InsVerifyService","Family general deductible mismatch."));
+					strBuildErrorStatus.AppendLine(Lans.g("InsVerifyService","Family general deductible mismatch. "));
 				}
 			}
 			return strBuildErrorStatus.ToString();

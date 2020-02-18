@@ -2240,13 +2240,13 @@ namespace OpenDental{
 			int selectedIndex=0;
 			if(isPickingFeeSchedGroup) {
 				selectedIndex=GetFeeSchedGroupIndexFromPicker(listGroupsToShow);
-				if(pickerButton==butPickClinic1) {
+				if(pickerButton==butPickClinic1 && comboFeeSchedGroup1.Items.Count>0) {
 					comboFeeSchedGroup1.SelectedIndex=selectedIndex;
 				}
-				else if(pickerButton==butPickClinic2) {
+				else if(pickerButton==butPickClinic2 && comboFeeSchedGroup2.Items.Count>0) {
 					comboFeeSchedGroup2.SelectedIndex=selectedIndex;
 				}
-				else if(pickerButton==butPickClinic3) {
+				else if(pickerButton==butPickClinic3 && comboFeeSchedGroup3.Items.Count>0) {
 					comboFeeSchedGroup3.SelectedIndex=selectedIndex;
 				}
 			}

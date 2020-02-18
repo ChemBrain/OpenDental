@@ -784,7 +784,24 @@ namespace OpenDental {
 				return;
 			}
 			PayPlanProductionEntry entry=(PayPlanProductionEntry)gridLinkedProduction.ListGridRows[e.Row].Tag;
-			entry.AmountOverride=PIn.Decimal(gridLinkedProduction.ListGridRows[e.Row].Cells[e.Col].Text);
+			decimal overrideVal=PIn.Decimal(gridLinkedProduction.ListGridRows[e.Row].Cells[e.Col].Text);//if zero, attempting to remove override if set.
+			if((entry.AmountOriginal.IsEqual(overrideVal))) {//attempting to set override
+				//de-register the event so it doesn't get called after the message box shows.
+				gridLinkedProduction.CellLeave -= new ODGridClickEventHandler(this.gridLinkedProduction_CellLeave);
+				if(!MsgBox.Show(this,MsgBoxButtons.YesNo,"You are attempting to set an override for this entry which will prevent the row " +
+					"from auto updating. Do you want to set the override?")) 
+				{
+					gridLinkedProduction.CellLeave += new ODGridClickEventHandler(this.gridLinkedProduction_CellLeave);
+					SetOverride(entry,0);//In the event the user previously had an override set and they are attempting to clear it. 
+					return;
+				}
+				gridLinkedProduction.CellLeave += new ODGridClickEventHandler(this.gridLinkedProduction_CellLeave);
+			}
+			SetOverride(entry,overrideVal);
+		}
+
+		private void SetOverride(PayPlanProductionEntry entry,decimal overrideVal) {
+			entry.AmountOverride=overrideVal;
 			entry.LinkedCredit.AmountOverride=(double)entry.AmountOverride;
 			textTotalPrincipal.Text=_sumAttachedProduction.ToString("f");
 			FillProduction();

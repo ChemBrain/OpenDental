@@ -122,13 +122,25 @@ namespace OpenDental {
 				// No need to check password when changing task users at HQ to user "Stay Open".
 				userCur=Userods.GetUserByNameNoCache(userName);
 			}
-			else {
-				try {
-					userCur=Userods.CheckUserAndPassword(userName,passwordTyped,isEcw);
+			else {//Not HQ (most common scenario)
+				//Middle Tier sessions should not fire the CheckUserAndPasswordFailed exception code in FormLogOn.
+				//That event would cause a second login window to pop with strange behavior.
+				//Invoke the overload for CheckUserAndPassword that does not throw exceptions and give the user a generic error message if necessary.
+				if(RemotingClient.RemotingRole==RemotingRole.ClientWeb) {
+					userCur=Userods.CheckUserAndPassword(userName,passwordTyped,isEcw,false);
+					if(userCur==null) {
+						MsgBox.Show("Userods","Invalid username, password, or the account has been locked due to failed log in attempts.");
+						return;
+					}
 				}
-				catch(Exception ex) {
-					MessageBox.Show(ex.Message);
-					return;
+				else {//Directly connected to the database.  This code will give a more accurate error message to the user when failing to log in.
+					try {
+						userCur=Userods.CheckUserAndPassword(userName,passwordTyped,isEcw);
+					}
+					catch(Exception ex) {
+						MessageBox.Show(ex.Message);
+						return;
+					}
 				}
 			}
 			//successful login.

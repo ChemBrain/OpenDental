@@ -38,6 +38,12 @@ namespace OpenDental {
 			if(listClaimAttachmentDefs.Count<1) {//At least one Claim Attachment image definition exists.
 				labelClaimAttachWarning.Visible=true;
 			}
+			//Non-DXC numbers (NEA) can be wiped out as they are no longer supported by DentalXChange starting 12/01/19.
+			if(!string.IsNullOrWhiteSpace(_claimCur.AttachmentID) && !_claimCur.AttachmentID.ToLower().StartsWith("dxc") && 
+				MsgBox.Show(this,MsgBoxButtons.YesNo,"The claim has a non DentalXChange Attachment ID. Would you like to clear it out?")) 
+			{
+				ClearAttachmentID();
+			}
 		}
 
 		private void FormClaimAttachment_Shown(object sender,EventArgs e) {
@@ -48,7 +54,7 @@ namespace OpenDental {
 				|| textClaimStatus.Text.ToUpper().Contains("HAS ALREADY BEEN DELIVERED TO THE PAYER"))
 			{
 				MessageBox.Show("The attachment ID is associated to another claim. Please redo your attachments.");
-				_claimCur.AttachmentID="";
+				ClearAttachmentID();
 				ODProgress.ShowAction(()=> { ValidateClaimHelper(); },"Re-validating the claim...");
 			}
 		}
@@ -289,6 +295,19 @@ namespace OpenDental {
 				ClaimConnect.AddAttachment(_claimCur, listAttachments);
 			}
 			Claims.Update(_claimCur);
+		}
+
+		///<summary>Wipes out the existing attachmentID, makes a securitylog for the old ID, and clears the 'Misc' attached flag on the claim.
+		///This must be done when a non-DXC attachmentID has been detected so that claim validation will work as expected.</summary>
+		private void ClearAttachmentID() {
+			//Blindly set the claim's attached flags back to 'Mail' so that, deep down in the 837 text generation logic, the PWK segment will not be written
+			//which will allow DentalXChange to validate the claim as if it is brand new with no attachments. See X837_5010.GenerateMessageText().
+			_claimCur.AttachedFlags="Mail";
+			string oldAttachmentID=_claimCur.AttachmentID;
+			_claimCur.AttachmentID="";
+			Claims.Update(_claimCur);
+			SecurityLogs.MakeLogEntry(Permissions.ClaimEdit,_claimCur.PatNum
+				,$"Removed attachmentID {oldAttachmentID} for ClaimNum:{_claimCur.ClaimNum}");
 		}
 
 		///<summary>Saves all images in the grid to the patient on the claim's directory in the images module. Also creates

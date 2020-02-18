@@ -96,6 +96,8 @@ namespace OpenDentBusiness{
 		///<summary>16 - Open Dental Mobile App.</summary>
 		[Description("Mobile App")]
 		ODMobile,
+		///<summary>17 - Open Dental text messaging.</summary>
+		TextMessaging,
 	}
 
 	

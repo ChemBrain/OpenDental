@@ -344,7 +344,6 @@ namespace OpenDental{
 				//Disabling and hiding UI elements that don't make sense when using the ClaimConnect attachment service.
 				tabNEA.Enabled=false;
 				fillGridSentAttachments();
-				textAttachmentID.Text=ClaimCur.AttachmentID;
 				tabAttach.SelectedTab=tabDXC;
 			}
 		}
@@ -708,8 +707,12 @@ namespace OpenDental{
 						break;
 				}
 			}
-			textAttachmentID.Text=ClaimCur.AttachmentID;
-			textAttachID.Text=ClaimCur.AttachmentID;
+			if(ClaimCur.AttachmentID.ToLower().StartsWith("dxc")) {
+				textAttachmentID.Text=ClaimCur.AttachmentID;
+			}
+			else {
+				textAttachID.Text=ClaimCur.AttachmentID;
+			}
 			//medical/inst
 			textBillType.Text=ClaimCur.UniformBillType;
 			textAdmissionType.Text=ClaimCur.AdmissionTypeCode;
@@ -3056,7 +3059,9 @@ namespace OpenDental{
 				}
 				ClaimCur.AttachedFlags+=flags[i];
 			}
-			ClaimCur.AttachmentID=textAttachID.Text;
+			//Use the DXC attachmentID if it is not blank, otherwise use the NEA attachmentID. In the case they are both blank it does not matter,
+			//but users can have DXC attachments enabled with old NEA numbers attached. This will preserve those.
+			ClaimCur.AttachmentID=textAttachmentID.Text!="" ? textAttachmentID.Text : textAttachID.Text;
 			//Canadian---------------------------------------------------------------------------------
 			if(CultureInfo.CurrentCulture.Name.EndsWith("CA")) {//Canadian. en-CA or fr-CA
 				ClaimCur.CanadianMaterialsForwarded="";

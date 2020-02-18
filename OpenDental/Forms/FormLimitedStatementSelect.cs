@@ -126,7 +126,6 @@ namespace OpenDental {
 		private void FillGrid() {
 			gridMain.BeginUpdate();
 			gridMain.ListGridColumns.Clear();
-			GridColumn col;
 			List<DisplayField> fieldsForGrid=DisplayFields.GetForCategory(DisplayFieldCategory.AccountModule);
 			if(!PrefC.HasClinicsEnabled) {
 				//remove clinics from displayfields if clinics are disabled
@@ -377,6 +376,10 @@ namespace OpenDental {
 
 		private void butOK_Click(object sender,EventArgs e) {
 			List<LimitedRow> listSelectedRows=gridMain.SelectedTags<LimitedRow>();
+			if(listSelectedRows.Count==0) {
+				MsgBox.Show(this,"Please select procedures, adjustments, or payments first.");
+				return;
+			}
 			ListSelectedPatNums=listSelectedRows.Select(x => x.PatNum).Distinct().ToList();
 			ListSelectedAdjNums=listSelectedRows.FindAll(x => x.Type==AccountEntryType.Adjustment).Select(x => x.PrimaryKey).Distinct().ToList();
 			ListSelectedPayNums=listSelectedRows.FindAll(x => x.Type==AccountEntryType.Payment).Select(x => x.PrimaryKey).Distinct().ToList();
