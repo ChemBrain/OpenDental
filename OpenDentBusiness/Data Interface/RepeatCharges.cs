@@ -129,10 +129,10 @@ namespace OpenDentBusiness {
 
 		///<summary>Returns true if the dates passed in from the corresponding repeat charge are active as of DateTime.Today.
 		///Mimics the logic within ActiveRepeatChargeExists() in the sense that dateStart is a valid date and is before or on DateTime.Today 
-		/// and that dateStop is either an invalid date (has yet to be set) OR is a valid date that is in the future or on DateTime.Today.</summary>
+		/// and that dateStop is either an invalid date (has yet to be set) OR is a valid date that is in the future.</summary>
 		public static bool IsRepeatChargeActive(DateTime dateStart,DateTime dateStop) {
-			if((dateStart.Year > 1880 && dateStart<=DateTime.Today)
-				&& (dateStop.Year < 1880 || dateStop>=DateTime.Today)) 
+			if(dateStart.Year > 1880 && dateStart.Date<=DateTime.Today
+				&& (dateStop.Year < 1880 || dateStop.Date>DateTime.Today)) 
 			{
 				return true;
 			}
@@ -150,11 +150,12 @@ namespace OpenDentBusiness {
 			try {
 				List<RepeatCharge> listRepeatingCharges=RepeatCharges.Refresh(0).ToList();
 				if(PrefC.IsODHQ) {
-					//Remove all eService repeating charges.
 					//EService charges have already been calculated and stored in EServiceBilling table. Add those here.
 					List<string> listEServiceCodes=EServiceCodeLink.GetProcCodesForAll();
+					result.ProceduresAddedCount+=EServiceBillings.AddEServiceRepeatingChargesHelper(dateRun,
+						listRepeatingCharges.FindAll(x => listEServiceCodes.Contains(x.ProcCode))).Count;
+					//Remove all eService repeating charges.
 					listRepeatingCharges.RemoveAll(x => listEServiceCodes.Contains(x.ProcCode));
-					result.ProceduresAddedCount+=EServiceBillings.AddEServiceRepeatingChargesHelper(dateRun).Count;
 				}
 				//Must contain all procedures that affect the date range, safe to contain too many, bad to contain too few.
 				List<Procedure> listExistingProcs=Procedures.GetCompletedForDateRange(dateRun.AddMonths(-3),dateRun.AddDays(1),

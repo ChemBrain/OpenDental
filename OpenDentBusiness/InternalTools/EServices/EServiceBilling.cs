@@ -126,9 +126,9 @@ namespace OpenDentBusiness {
 		}
 		
 		///<summary>Should only be called if ODHQ.</summary>
-		public static List<Procedure> AddEServiceRepeatingChargesHelper(DateTime dateRun) {
+		public static List<Procedure> AddEServiceRepeatingChargesHelper(DateTime dateRun,List<RepeatCharge> listRepeatCharges) {
 			if(RemotingClient.RemotingRole==RemotingRole.ClientWeb) {
-				return Meth.GetObject<List<Procedure>>(MethodBase.GetCurrentMethod(),dateRun);
+				return Meth.GetObject<List<Procedure>>(MethodBase.GetCurrentMethod(),dateRun,listRepeatCharges);
 			}
 			DateTime monthRun=new DateTime(dateRun.Year,dateRun.Month,1);
 			//Get all bills that are due to be posted as of this date.
@@ -155,6 +155,11 @@ namespace OpenDentBusiness {
 					Procedures.Insert(proc);
 					retVal.Add(proc);
 					listProcsComplete.Add(proc);
+					RepeatCharge repeatCharge=listRepeatCharges.Where(x => x.PatNum==proc.PatNum)
+						.FirstOrDefault(x => x.ProcCode==ProcedureCodes.GetStringProcCode(proc.CodeNum,listProcCodes));
+					if(repeatCharge!=null) {
+						RepeatCharges.AllocateUnearned(repeatCharge,proc,dateRun);
+					}
 				}
 				eServiceBilling.DateTimeProceduresPosted=DateTime.Now;
 				Crud.EServiceBillingCrud.Update(eServiceBilling);

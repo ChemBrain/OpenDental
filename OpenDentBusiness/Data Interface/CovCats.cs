@@ -23,6 +23,24 @@ namespace OpenDentBusiness {
 			}
 			return listValidStrings.Distinct().ToList();
 		}
+		
+		///<summary>Pass in list of procedures and covCat, return the sum of all CanadaTimeUnits of the procedures in that covCat as a double.</summary>
+		public static double GetAmtUsedForCat(List<Procedure> listProcs,CovCat covCat) {
+			List<ProcedureCode> listProcCodes=new List<ProcedureCode>();
+			for(int i=0;i<listProcs.Count;i++) {
+				listProcCodes.Add(ProcedureCodes.GetProcCode(listProcs[i].CodeNum));	//turn list of procedures into list of procedurecodes.
+			}
+			double total=0;//CanadaTimeUnits can be decimal numbers, like 0.5.
+			for(int i=0;i<listProcCodes.Count;i++) { //for every procedurecode
+				//Can be null if the procedure doesn't fall within any spans (like note proc, the code is "clinical" so doesn't fall inside any spans)
+				CovCat benCat=GetCovCat(CovSpans.GetCat(listProcCodes[i].ProcCode));
+				//if the covCat of that code is the same as the passed-in covCat
+				if(benCat!=null && benCat.CovCatNum==covCat.CovCatNum) {
+					total+=listProcCodes[i].CanadaTimeUnits; //add the Canada time units to the total.
+				}
+			}
+			return total;
+		}
 		#endregion
 
 		#region Modification Methods
