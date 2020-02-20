@@ -86,6 +86,10 @@ namespace OpenDentBusiness {
 		///Aging will run during a one hour block of time starting with the time set.  If AgingBeginDateTime is not blank, aging will not be calculated.
 		///If AgingCalculatedMonthlyInsteadOfDaily is true, aging will not be calculated.  This will be blank if disabled.</summary>
 		AgingServiceTimeDue,
+		///<summary>How often to check for new alerts in Open Dental. Defaults to 180 (3 minutes).</summary>
+		AlertCheckFrequencySeconds,
+		///<summary>After this many minutes of inactivity, alerts will stop processing. Defaults to the same value as SignalInactiveMinutes.</summary>
+		AlertInactiveMinutes,
 		///<summary>FK to allergydef.AllergyDefNum</summary>
 		AllergiesIndicateNone,
 		///<summary>Boolean defaults to true.  If true, allows a user to email CC receipt otherwise not allowed.</summary>

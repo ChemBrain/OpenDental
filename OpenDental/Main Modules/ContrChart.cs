@@ -3852,6 +3852,7 @@ namespace OpenDental {
 			}
 			ToolBarMain.Invalidate();
 			ClearButtons();
+			FillMovementsAndHidden();
 			Logger.LogAction("FillChartViewsGrid",LogPath.ChartModule,() => FillChartViewsGrid(false));
 			if(IsDistributorKey) {
 				FillCustomerTab();
@@ -9565,19 +9566,15 @@ namespace OpenDental {
 
 		#region Movements
 		private void FillMovementsAndHidden(){
-			if(tabProc.Height<50){//skip if the tab control is short(not visible){
-				return;
+			if(toothChart.SelectedTeeth.Count==0) {
+				textShiftM.Text="";
+				textShiftO.Text="";
+				textShiftB.Text="";
+				textRotate.Text="";
+				textTipM.Text="";
+				textTipB.Text="";
 			}
-			if(tabProc.SelectedTab==tabMovements) {//cannot use tab index because of Orion
-				if(toothChart.SelectedTeeth.Count==0) {
-					textShiftM.Text="";
-					textShiftO.Text="";
-					textShiftB.Text="";
-					textRotate.Text="";
-					textTipM.Text="";
-					textTipB.Text="";
-					return;
-				}
+			else {
 				textShiftM.Text=
 					ToothInitials.GetMovement(ToothInitialList,toothChart.SelectedTeeth[0],ToothInitialType.ShiftM).ToString();  
 				textShiftO.Text=
@@ -9620,14 +9617,14 @@ namespace OpenDental {
 						textTipB.Text="";
 					}
 				}
-			}//if movements tab
-			else if(tabProc.SelectedTab==tabMissing) {//cannot use tab index because of Orion
-				listHidden.Items.Clear();
-				HiddenTeeth=ToothInitials.GetHiddenTeeth(ToothInitialList);
-				for(int i=0;i<HiddenTeeth.Count;i++){
-					listHidden.Items.Add(Tooth.ToInternat((string)HiddenTeeth[i]));
-				}
 			}
+			#region Hidden
+			listHidden.Items.Clear();
+			HiddenTeeth=ToothInitials.GetHiddenTeeth(ToothInitialList);
+			for(int i=0;i<HiddenTeeth.Count;i++){
+				listHidden.Items.Add(Tooth.ToInternat((string)HiddenTeeth[i]));
+			}
+			#endregion
 		}
 
 		private void butShiftMminus_Click(object sender,EventArgs e) {
@@ -9822,8 +9819,7 @@ namespace OpenDental {
 			ToothInitialList=ToothInitials.Refresh(PatCur.PatNum);
 			FillToothChart(true);
 		}
-		#endregion Movements
-
+		#endregion
 		#region Primary
 		private void butPrimary_Click(object sender,EventArgs e) {
 			if(toothChart.SelectedTeeth.Count==0) {

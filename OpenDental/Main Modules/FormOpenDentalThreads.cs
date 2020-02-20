@@ -79,6 +79,7 @@ namespace OpenDental {
 				BeginHqMetricsThread();
 				BeginRegKeyThread();
 				BeginRegistrationKeyIsDisabledThread();
+				CheckAlerts(doRunOnThread:true);
 			}
 			else {
 				Enum.GetValues(typeof(FormODThreadNames)).Cast<FormODThreadNames>().ForEach(threadName => {
@@ -107,6 +108,7 @@ namespace OpenDental {
 						case FormODThreadNames.WebSync:
 						case FormODThreadNames.TimeSync:
 						case FormODThreadNames.VoicemailHQ:
+						case FormODThreadNames.CheckAlerts:
 						default:
 							ODThread.QuitAsyncThreadsByGroupName(threadName.GetDescription());
 							break;
@@ -148,13 +150,17 @@ namespace OpenDental {
 
 		///<summary>May begin a thread that checks for alerts and update the main alerts tool bar menu.
 		///Pass false to doRunOnThread if you want to run alerts on the main thread.</summary>
-		private void BeginCheckAlertsThread(bool doRunOnThread=true) {
-			if(IsThreadAlreadyRunning(FormODThreadNames.CheckAlerts)) {
+		private void CheckAlerts(bool doRunOnThread=false) {
+			if(doRunOnThread && IsThreadAlreadyRunning(FormODThreadNames.CheckAlerts)) {
 				return;
 			}
-			long clinicNumCur=Clinics.ClinicNum;
-			long userNumCur=Security.CurUser.UserNum;
 			ODThread.WorkerDelegate getAlerts=new ODThread.WorkerDelegate((o) => {
+				DateTime dtInactive=Security.DateTimeLastActivity.AddMinutes(PrefC.GetInt(PrefName.AlertInactiveMinutes));
+				if(PrefC.GetInt(PrefName.AlertInactiveMinutes)!=0 && DateTime.Now>dtInactive) {
+					return;//user has been inactive for a while, so stop checking alerts.
+				}
+				long clinicNumCur=Clinics.ClinicNum;
+				long userNumCur=Security.CurUser.UserNum;
 				Logger.LogToPath("",LogPath.Signals,LogPhase.Start);
 				List<List<AlertItem>> listUniqueAlerts=AlertItems.GetUniqueAlerts(userNumCur,clinicNumCur);
 				//We will set the alert's tag to all the items in its list so that all can be marked read/deleted later.
@@ -175,7 +181,12 @@ namespace OpenDental {
 				getAlerts(null);
 				return;
 			}
-			ODThread odThread=new ODThread(getAlerts);
+			int checkAlertsIntervalMS=(int)TimeSpan.FromSeconds(PrefC.GetInt(PrefName.AlertCheckFrequencySeconds)).TotalMilliseconds;
+			if(checkAlertsIntervalMS==0) {
+				//Office has disabled alert checking. We won't periodically check alerts, but we will do it when the user does something alert related.
+				return;
+			}
+			ODThread odThread=new ODThread(checkAlertsIntervalMS,getAlerts);
 			odThread.AddExceptionHandler((ex) => ex.DoNothing());
 			odThread.GroupName=FormODThreadNames.CheckAlerts.GetDescription();
 			odThread.Name=FormODThreadNames.CheckAlerts.GetDescription();
@@ -464,7 +475,7 @@ namespace OpenDental {
 				FormToOpen=FormType.FormEServicesEConnector,
 			});
 			//We just inserted an alert so update the alert menu.
-			this.Invoke((Action)(() => BeginCheckAlertsThread()));
+			CheckAlerts();
 		}
 		
 		#endregion

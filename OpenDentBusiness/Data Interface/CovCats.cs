@@ -5,6 +5,7 @@ using System.Data;
 using System.Globalization;
 using System.Reflection;
 using System.Linq;
+using CodeBase;
 
 namespace OpenDentBusiness {
 	///<summary></summary>
@@ -32,10 +33,8 @@ namespace OpenDentBusiness {
 			}
 			double total=0;//CanadaTimeUnits can be decimal numbers, like 0.5.
 			for(int i=0;i<listProcCodes.Count;i++) { //for every procedurecode
-				//Can be null if the procedure doesn't fall within any spans (like note proc, the code is "clinical" so doesn't fall inside any spans)
-				CovCat benCat=GetCovCat(CovSpans.GetCat(listProcCodes[i].ProcCode));
-				//if the covCat of that code is the same as the passed-in covCat
-				if(benCat!=null && benCat.CovCatNum==covCat.CovCatNum) {
+				List<CovCat> listCovCatsForProc=GetCovCats(CovSpans.GetCats(listProcCodes[i].ProcCode));
+				if(listCovCatsForProc.Any(x => x.CovCatNum==covCat.CovCatNum)) {
 					total+=listProcCodes[i].CanadaTimeUnits; //add the Canada time units to the total.
 				}
 			}
@@ -191,6 +190,11 @@ namespace OpenDentBusiness {
 			return GetFirstOrDefault(x => x.CovCatNum==covCatNum);
 		}
 		
+		///<summary></summary>
+		public static List<CovCat> GetCovCats(List<long> listCovCatNum) {
+			return GetWhere(x => x.CovCatNum.In(listCovCatNum));
+		}
+
 		///<summary></summary>
 		public static double GetDefaultPercent(long myCovCatNum) {
 			//No need to check RemotingRole; no call to db.

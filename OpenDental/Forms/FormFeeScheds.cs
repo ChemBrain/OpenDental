@@ -559,9 +559,19 @@ namespace OpenDental{
 					_listFeeScheds[i].ItemOrder=i;
 				}
 			}
-			//Only send a signal if changes were made during the sync.  Changes can't be made if in selection mode.
-			if(!_isSelectionMode && FeeScheds.Sync(_listFeeScheds,_listFeeSchedsOld)) {
-				DataValid.SetInvalid(InvalidType.FeeScheds);
+			try {
+				//Only send a signal if changes were made during the sync.  Changes can't be made if in selection mode.
+				if(!_isSelectionMode && FeeScheds.Sync(_listFeeScheds,_listFeeSchedsOld)) {
+					DataValid.SetInvalid(InvalidType.FeeScheds);
+				}
+			}
+			catch(Exception ex) {
+				string errMsg=Lans.g(this,"Error saving fee schedules.");
+				if(ex is System.Web.Services.Protocols.SoapException && RemotingClient.RemotingRole==RemotingRole.ClientWeb) {
+					//Middle tier users can get this error when their payload is too large. This is done rare enough we can ask them to do a direct connect.
+					errMsg+=" "+Lans.g(this,"Try making a direct connection to the database and performing this action again.");
+				}
+				FriendlyException.Show(errMsg,ex);
 			}
 		}
 		

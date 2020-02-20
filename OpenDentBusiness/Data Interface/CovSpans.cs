@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Reflection;
+using System.Linq;
 
 namespace OpenDentBusiness{
 	///<summary></summary>
@@ -143,6 +144,11 @@ namespace OpenDentBusiness{
 			CovSpan covSpan=GetLastOrDefault(x => String.Compare(myCode,x.FromCode)>=0
 					&& String.Compare(myCode,x.ToCode)<=0);
 			return (covSpan==null ? 0 : covSpan.CovCatNum);
+		}
+
+		public static List<long> GetCats(string myCode) {
+			return GetWhere(x => String.Compare(myCode,x.FromCode)>=0
+				&& String.Compare(myCode,x.ToCode)<=0).Select(x => x.CovCatNum).ToList();
 		}
 
 		///<summary></summary>

@@ -461,7 +461,7 @@ namespace OpenDentBusiness{
 				//case Permissions.SplitCreatePastLockDate:
 				//case Permissions.ProcComplEditLimited:
 				//case Permissions.ClaimDelete:
-				case Permissions.InsWriteOffEdit:
+				//case Permissions.InsWriteOffEdit:
 				case Permissions.ProviderAlphabetize:
 				//case Permissions.ApptConfirmStatusEdit:
 				//case Permissions.GraphicsRemoteEdit:

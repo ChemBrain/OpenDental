@@ -3069,7 +3069,6 @@ namespace OpenDental{
 			ComputerPrefs.UpdateLocalComputerOS();
 			HelpButtonXAdjustment=ComputerPrefs.LocalComputer.HelpButtonXAdjustment;
 			WikiPages.NavPageDelegate=S_WikiLoadPage;
-			BeginCheckAlertsThread();
 			//We are about to start signal processing for the first time so set the initial refresh timestamp.
 			Signalods.SignalLastRefreshed=MiscData.GetNowDateTime();
 			Signalods.ApptSignalLastRefreshed=Signalods.SignalLastRefreshed;
@@ -4558,7 +4557,7 @@ namespace OpenDental{
 			if(clinicCur!=null) { //Should never be null because the clinic should always be in the list
 				RefreshCurrentClinic(clinicCur);
 			}
-			BeginCheckAlertsThread();
+			CheckAlerts();
 		}
 
 		///<summary>This is will set Clinics.ClinicNum and refresh the current module.</summary>
@@ -5106,7 +5105,6 @@ namespace OpenDental{
 					}
 					_hasSignalProcessingPaused=false;
 				}
-				BeginCheckAlertsThread();
 			}
 			catch {
 				//Currently do nothing.
@@ -8133,7 +8131,7 @@ namespace OpenDental{
 		#region Alerts
 
 		private void menuItemAlerts_Popup(object sender,EventArgs e) {
-			BeginCheckAlertsThread(false);
+			CheckAlerts();
 		}
 
 		///<summary>Handles the drawing and coloring for the Alerts menu and its sub items.</summary>
@@ -8258,7 +8256,7 @@ namespace OpenDental{
 			List<long> listAlertItemNums=(List<long>)alertItem.TagOD;
 			if(menuItem.Name==ActionType.MarkAsRead.ToString()) {
 				AlertReadsHelper(listAlertItemNums);
-				BeginCheckAlertsThread(false);
+				CheckAlerts();
 				return;
 			}
 			if(menuItem.Name==ActionType.Delete.ToString()) {
@@ -8266,7 +8264,7 @@ namespace OpenDental{
 					return;
 				}
 				AlertItems.Delete(listAlertItemNums);
-				BeginCheckAlertsThread(false);
+				CheckAlerts();
 				return;
 			}
 			if(menuItem.Name==ActionType.OpenForm.ToString()) {
@@ -8631,25 +8629,10 @@ namespace OpenDental{
 		#region Startup methods
 		///<summary></summary>
 		private void ProcessCommandLine(string[] args) {
-			//if(!Programs.UsingEcwTight() && args.Length==0){
 			if(!Programs.UsingEcwTightOrFullMode() && args.Length==0){//May have to modify to accept from other sw.
 				SetModuleSelected();
 				return;
 			}
-			/*string descript="";
-			for(int i=0;i<args.Length;i++) {
-				if(i>0) {
-					descript+="\r\n";
-				}
-				descript+=args[i];
-			}
-			MessageBox.Show(descript);*/
-			/*
-			PatNum (the integer primary key)
-			ChartNumber (alphanumeric)
-			SSN (exactly nine digits. If required, we can gracefully handle dashes, but that is not yet implemented)
-			UserName
-			Password*/
 			long patNum=0;
 			string chartNumber="";
 			string ssn="";
@@ -8734,68 +8717,72 @@ namespace OpenDental{
 				//jsalmon - This is very much a hack but the customer is very large and needs this change ASAP.  Nathan has suggested that we create a ticket with eCW to complain about this and make them fix it.
 				lbSessionId=args[args.Length-1].Trim('"');
 			}
-			//eCW bridge values-------------------------------------------------------------
+			#region eCW bridge
 			Bridges.ECW.AptNum=PIn.Long(aptNum);
 			Bridges.ECW.EcwConfigPath=ecwConfigPath;
 			Bridges.ECW.UserId=userId;
 			Bridges.ECW.JSessionId=jSessionId;
 			Bridges.ECW.JSessionIdSSO=jSessionIdSSO;
 			Bridges.ECW.LBSessionId=lbSessionId;
-			//Username and password-----------------------------------------------------
-			//users are allowed to use ecw tight integration without command line.  They can manually launch Open Dental.
-			//if((Programs.UsingEcwTight() && Security.CurUser==null)//We always want to trigger login window for eCW tight, even if no username was passed in.
-			if((Programs.UsingEcwTightOrFullMode() && Security.CurUser==null)//We always want to trigger login window for eCW tight, even if no username was passed in.
-				|| (userName!=""//if a username was passed in, but not in tight eCW mode
-				&& (Security.CurUser==null || Security.CurUser.UserName != userName))//and it's different from the current user
-			) {
-				//The purpose of this loop is to use the username and password that were passed in to determine which user to log in
-				//log out------------------------------------
-				LastModule=myOutlookBar.SelectedIndex;
-				myOutlookBar.SelectedIndex=-1;
-				myOutlookBar.Invalidate();
-				UnselectActive();
-				allNeutral();
-				Userod user=Userods.GetUserByName(userName,true);
-				if(user==null) {
-					//if(Programs.UsingEcwTight() && userName!="") {
-					if(Programs.UsingEcwTightOrFullMode() && userName!="") {
-						user=new Userod();
-						user.UserName=userName;
-						user.LoginDetails=Authentication.GenerateLoginDetailsMD5(passHash,true);
-						//This can fail if duplicate username because of capitalization differences.
-						Userods.Insert(user,new List<long> { PIn.Long(ProgramProperties.GetPropVal(ProgramName.eClinicalWorks,"DefaultUserGroup")) });
-						DataValid.SetInvalid(InvalidType.Security);
+			#endregion
+			#region UserName and PassHash
+			//Only consider username and password here when not in Middle Tier mode.
+			//If credentials were passed in the command line arguments for Middle Tier, they were already considered in the Choose Database window.
+			if(RemotingClient.RemotingRole==RemotingRole.ClientDirect) {
+				//Users are allowed to use eCW tight integration without command line.  They can manually launch Open Dental.
+				//We always want to trigger login window for eCW tight, even if no username was passed in.
+				if((Programs.UsingEcwTightOrFullMode() && Security.CurUser==null)
+					//Or if a username was passed in and it's different from the current user
+					|| (userName!="" && (Security.CurUser==null || Security.CurUser.UserName != userName)))
+				{
+					//Use the username and passhash that was passed in to determine which user to log in
+					//log out------------------------------------
+					LastModule=myOutlookBar.SelectedIndex;
+					myOutlookBar.SelectedIndex=-1;
+					myOutlookBar.Invalidate();
+					UnselectActive();
+					allNeutral();
+					Userod user=Userods.GetUserByName(userName,true);
+					if(user==null) {
+						if(Programs.UsingEcwTightOrFullMode() && userName!="") {
+							user=new Userod();
+							user.UserName=userName;
+							user.LoginDetails=Authentication.GenerateLoginDetailsMD5(passHash,true);
+							//This can fail if duplicate username because of capitalization differences.
+							Userods.Insert(user,new List<long> { PIn.Long(ProgramProperties.GetPropVal(ProgramName.eClinicalWorks,"DefaultUserGroup")) });
+							DataValid.SetInvalid(InvalidType.Security);
+						}
+						else {//not using eCW in tight integration mode
+							//So present logon screen
+							ShowLogOn();
+							user=Security.CurUser.Copy();
+						}
 					}
-					else {//not using eCW in tight integration mode
+					//Can't use Userods.CheckPassword, because we only have the hashed password.
+					if(passHash!=user.PasswordHash || !Programs.UsingEcwTightOrFullMode()) {//password not accepted or not using eCW
 						//So present logon screen
 						ShowLogOn();
-						user=Security.CurUser.Copy();
+					}
+					else {//password accepted and using eCW tight.
+						//this part usually happens in the logon window
+						Security.CurUser = user.Copy();
+						SecurityLogs.MakeLogEntry(Permissions.UserLogOnOff,0,Lan.g(this,"User:")+" "+Security.CurUser.UserName+" "+Lan.g(this,"has logged on via command line."));
+					}
+					myOutlookBar.SelectedIndex=Security.GetModule(LastModule);
+					myOutlookBar.Invalidate();
+					SetModuleSelected();
+					Patient pat=Patients.GetPat(CurPatNum);//pat could be null
+					Text=PatientL.GetMainTitle(pat,Clinics.ClinicNum);//handles pat==null by not displaying pat name in title bar
+					if(userControlTasks1.Visible) {
+						userControlTasks1.InitializeOnStartup();
+					}
+					if(myOutlookBar.SelectedIndex==-1) {
+						MsgBox.Show(this,"You do not have permission to use any modules.");
 					}
 				}
-				//Can't use Userods.CheckPassword, because we only have the hashed password.
-				//if(passHash!=user.Password || !Programs.UsingEcwTight())//password not accepted or not using eCW
-				if(passHash!=user.PasswordHash || !Programs.UsingEcwTightOrFullMode())//password not accepted or not using eCW
-				{
-					//So present logon screen
-					ShowLogOn();
-				}
-				else {//password accepted and using eCW tight.
-					//this part usually happens in the logon window
-					Security.CurUser = user.Copy();
-					SecurityLogs.MakeLogEntry(Permissions.UserLogOnOff,0,Lan.g(this,"User:")+" "+Security.CurUser.UserName+" "+Lan.g(this,"has logged on via command line."));
-				}
-				myOutlookBar.SelectedIndex=Security.GetModule(LastModule);
-				myOutlookBar.Invalidate();
-				SetModuleSelected();
-				Patient pat=Patients.GetPat(CurPatNum);//pat could be null
-				Text=PatientL.GetMainTitle(pat,Clinics.ClinicNum);//handles pat==null by not displaying pat name in title bar
-				if(userControlTasks1.Visible) {
-					userControlTasks1.InitializeOnStartup();
-				}
-				if(myOutlookBar.SelectedIndex==-1) {
-					MsgBox.Show(this,"You do not have permission to use any modules.");
-				}
 			}
+			#endregion
+			#region Module
 			if(startingModuleIdx!=-1 && startingModuleIdx==Security.GetModule(startingModuleIdx)) {
 				UnselectActive();
 				allNeutral();//Sets all controls to false.  Needed to set the new module as selected.
@@ -8803,7 +8790,8 @@ namespace OpenDental{
 				myOutlookBar.Invalidate();
 			}
 			SetModuleSelected();
-			//patient id----------------------------------------------------------------
+			#endregion
+			#region PatNum
 			if(patNum!=0) {
 				Patient pat=Patients.GetPat(patNum);
 				if(pat==null) {
@@ -8817,6 +8805,8 @@ namespace OpenDental{
 					FillPatientButton(pat);
 				}
 			}
+			#endregion
+			#region ChartNumber
 			else if(chartNumber!="") {
 				Patient pat=Patients.GetPatByChartNumber(chartNumber);
 				if(pat==null) {
@@ -8831,6 +8821,8 @@ namespace OpenDental{
 					FillPatientButton(pat);
 				}
 			}
+			#endregion
+			#region SSN
 			else if(ssn!="") {
 				Patient pat=Patients.GetPatBySSN(ssn);
 				if(pat==null) {
@@ -8845,8 +8837,9 @@ namespace OpenDental{
 					FillPatientButton(pat);
 				}
 			}
-			else{
-					FillPatientButton(null);
+			#endregion
+			else {
+				FillPatientButton(null);
 			}
 		}
 
@@ -9410,7 +9403,6 @@ namespace OpenDental{
 			SetTimersAndThreads(true);//Safe to start timers since this method was invoked on the main thread if required.
 			//User logged back in so log on form is no longer the active window.
 			IsFormLogOnLastActive=false;
-			BeginCheckAlertsThread();
 			Security.DateTimeLastActivity=DateTime.Now;
 			if(myOutlookBar.SelectedIndex==-1) {
 				MsgBox.Show(this,"You do not have permission to use any modules.");

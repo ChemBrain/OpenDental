@@ -1499,11 +1499,14 @@ namespace OpenDental{
 				row.Cells.Add(str);
 				row.Tag=sigMessage.Copy();
 				gridMessages.ListGridRows.Add(row);
-				if(sigMessage.SigMessageNum.In(listSelectedSigMessageNums)) {
-					gridMessages.SetSelected(gridMessages.ListGridRows.Count-1,true);
-				}
 			}
 			gridMessages.EndUpdate();
+			for(int i=0;i<gridMessages.ListGridRows.Count;i++) {
+				SigMessage sigMessage=(SigMessage)gridMessages.ListGridRows[i].Tag;
+				if(sigMessage.SigMessageNum.In(listSelectedSigMessageNums)) {
+					gridMessages.SetSelected(i,true);
+				}
+			}
 		}
 
 		private void butSend_Click(object sender, System.EventArgs e) {

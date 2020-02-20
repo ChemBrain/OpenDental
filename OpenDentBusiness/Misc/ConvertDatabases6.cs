@@ -2505,5 +2505,16 @@ namespace OpenDentBusiness {
 				Db.NonQ(command);
 			}
 		}
+
+		private static void To19_4_20() {
+			string command;
+			command="INSERT INTO preference (PrefName,ValueString) VALUES('AlertCheckFrequencySeconds','180');";
+			Db.NonQ(command);
+			command="SELECT ValueString FROM preference WHERE PrefName='SignalInactiveMinutes'";
+			string signalInactiveMinutes=Db.GetScalar(command);
+			command=$"INSERT INTO preference (PrefName,ValueString) VALUES('AlertInactiveMinutes','{POut.String(signalInactiveMinutes)}');";
+			Db.NonQ(command);
+		}
+
 	}
 }
