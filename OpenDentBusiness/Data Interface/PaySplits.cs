@@ -859,6 +859,11 @@ namespace OpenDentBusiness{
 			}
 			return listSplits;
 		}
+
+		public static string GetSecurityLogMsgDelete(PaySplit paySplit,Payment payment=null) {
+			return $"Paysplit deleted for: {Patients.GetLim(paySplit.PatNum).GetNameLF()}, {paySplit.SplitAmt.ToString("c")}, with payment type "
+				+$"'{Payments.GetPaymentTypeDesc(payment??Payments.GetPayment(paySplit.PayNum))}'";
+		}
 		#endregion
 
 		///<summary>There were reports of this object failing to serialize when being passed to the middle tier.

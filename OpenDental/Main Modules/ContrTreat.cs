@@ -3803,7 +3803,7 @@ namespace OpenDental{
 			//instead of making the user enter it:
 			ClaimCur.PatRelat=FormIPS.PatRelat;
 			ClaimCur.PlaceService=placeService;
-			Claims.Insert(ClaimCur);
+			ClaimCur=Claims.GetClaim(Claims.Insert(ClaimCur));
 			ClaimProc ClaimProcCur;
 			ClaimProc cpExisting;
 			List<ClaimProc> listClaimProcs=new List<ClaimProc>();

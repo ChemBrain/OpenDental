@@ -192,6 +192,8 @@ namespace OpenDental {
 		private Label labelTPProcWarning;
 		private bool _isPayConnectPortal;
 		private PayConnectResponseWeb _payConnectResponseWeb;
+		///<summary>List of paysplit that were deleted and need a securitylog entry.</summary>
+		private List<PaySplit> _listPaySplitsForSecLog=new List<PaySplit>();
 
 		///<summary>Holds most all the data needed to load the form.</summary>
 		private PaymentEdit.LoadData _loadData;
@@ -4105,7 +4107,7 @@ namespace OpenDental {
 						_listPaySplitsAssociated.Add(splitAssociatedNew);
 					}
 				}
-				List<long> listEditedCharge=DeleteSelected(paySplit);
+				List<long> listEditedCharge=DeleteSelected(paySplit,doCreateSecLog:false);
 				if(paySplit!=null && !_dictPatients.ContainsKey(paySplit.PatNum)) {
 					//add new patnum to _dictPatients
 					Patient pat=Patients.GetLim(paySplit.PatNum);
@@ -4238,7 +4240,7 @@ namespace OpenDental {
 		///<summary>Deletes selected paysplits from the grid and attributes amounts back to where they originated from.
 		///This will return a list of payment plan charges that were affected. This is so that splits can be correctly re-attributed to the payplancharge
 		///when the user edits the paysplit. There should only ever be one payplancharge in that list, since the user can only edit one split at a time.</summary>
-		private List<long> DeleteSelected(PaySplit paySplitToBeAdded = null) {
+		private List<long> DeleteSelected(PaySplit paySplitToBeAdded=null,bool doCreateSecLog=true) {
 			bool suppressMessage=false;
 			//we need to return the payplancharge that the paysplit was associated to so that this paysplit can be correctly re-attributed to that charge.
 			List<long> listPayPlanChargeNum=new List<long>();
@@ -4342,6 +4344,9 @@ namespace OpenDental {
 					_listPaySplitsAssociated.RemoveAll(x => x.PaySplitOrig.IsSame(paySplit) || x.PaySplitLinked.IsSame(paySplit));
 				}
 				_listSplitsCur.Remove(paySplit);
+				if(doCreateSecLog && paySplit.SplitNum!=0) { 
+					_listPaySplitsForSecLog.Add(paySplit);
+				}
 			}
 			return listPayPlanChargeNum;
 		}
@@ -5001,6 +5006,11 @@ namespace OpenDental {
 				_listSplitsCur.RemoveAll(x => x.SplitAmt.IsZero());
 			}
 			bool hasChanged=PaySplits.Sync(_listSplitsCur,_listPaySplitsOld);
+			foreach(PaySplit paySplitOld in _listPaySplitsForSecLog) {
+				//Split was deleted. Add Securitylog Entry
+				SecurityLogs.MakeLogEntry(Permissions.PaymentEdit,paySplitOld.PatNum,PaySplits.GetSecurityLogMsgDelete(paySplitOld,_paymentCur),0,
+					paySplitOld.SecDateTEdit);
+			}
 			foreach(PaySplits.PaySplitAssociated split in _listPaySplitsAssociated) {
 				//Update the FSplitNum after inserts are made. 
 				if(split.PaySplitLinked!=null && split.PaySplitOrig!=null) {

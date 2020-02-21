@@ -505,8 +505,8 @@ namespace OpenDental{
 			try {
 				WrdApp=LetterMerges.WordApp;
 			}
-			catch {
-				MsgBox.Show(this,"Error.  Is MS Word installed?");
+			catch(Exception ex) {
+				FriendlyException.Show(Lan.g(this,"Error. Is MS Word installed?"),ex);
 				return;
 			}
 			//Open a document.
@@ -586,8 +586,8 @@ namespace OpenDental{
 			try{
 				WrdApp=LetterMerges.WordApp;
 			}
-			catch{
-				MsgBox.Show(this,"Error. Is Word installed?");
+			catch(Exception ex) {
+				FriendlyException.Show(Lan.g(this,"Error. Is MS Word installed?"),ex);
 				return;
 			}
 			string errorMessage="";
@@ -739,8 +739,8 @@ namespace OpenDental{
 			try {
 				WrdApp=LetterMerges.WordApp;
 			}
-			catch {
-				MsgBox.Show(this,"Error.  Is MS Word installed?");
+			catch(Exception ex) {
+				FriendlyException.Show(Lan.g(this,"Error. Is MS Word installed?"),ex);
 				return;
 			}
 			//Open a document.

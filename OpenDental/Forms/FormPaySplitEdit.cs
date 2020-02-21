@@ -776,9 +776,7 @@ namespace OpenDental {
 			//We have been getting null reference reports from this security log entry.
 			//Only check if PaySplitCur is null because _paySplitCopy gets set OnLoad() which must have been invoked especially if they clicked Delete.
 			if(PaySplitCur!=null) {
-				SecurityLogs.MakeLogEntry(Permissions.PaymentEdit,PaySplitCur.PatNum,"Paysplit deleted for: "+Patients.GetLim(PaySplitCur.PatNum).GetNameLF()
-					+", "+PaySplitCur.SplitAmt.ToString("c")+", with payment type '"+Payments.GetPaymentTypeDesc(Payments.GetPayment(PaySplitCur.PayNum))+"'",
-					0,_paySplitCopy.SecDateTEdit);
+				SecurityLogs.MakeLogEntry(Permissions.PaymentEdit,PaySplitCur.PatNum,PaySplits.GetSecurityLogMsgDelete(PaySplitCur),0,_paySplitCopy.SecDateTEdit);
 			}
 			//If there are objects in the list and the current paysplit is associated to another paysplit.
 			if(!ListPaySplitAssociated.IsNullOrEmpty() && ListPaySplitAssociated.Exists(x => x.ContainsSplit(PaySplitCur))) {

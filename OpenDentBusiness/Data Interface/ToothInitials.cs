@@ -216,6 +216,9 @@ namespace OpenDentBusiness{
 		public static ArrayList GetHiddenTeeth(List<ToothInitial> initialList) {
 			//No need to check RemotingRole; no call to db.
 			ArrayList hidden=new ArrayList();
+			if(initialList.IsNullOrEmpty()) {
+				return hidden;
+			}
 			for(int i=0;i<initialList.Count;i++) {
 				if(initialList[i].InitialType==ToothInitialType.Hidden
 					&& Tooth.IsValidDB(initialList[i].ToothNum)

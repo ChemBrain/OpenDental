@@ -1338,7 +1338,18 @@ namespace OpenDentBusiness
 					double claimWriteoffAmt=0;
 					double claimDeductibleAmt=0;
 					double claimPaidOtherInsAmt=0;
-					double claimPatientPortionAmt=0;
+					//In addition to the claimprocs attached to the procedures going out on this claim, we must also include amounts for Total Payments from other insurance.
+					//Total payments will go out at claim level and not procedure level.
+					List<long> listProcNums=claimProcs.Select(x => x.ProcNum).Distinct().ToList();
+					List<long> listOtherClaimNums=claimProcList.FindAll(x => x.ClaimNum!=claim.ClaimNum 
+						&& x.Status.In(ClaimProcStatus.CapClaim, ClaimProcStatus.Received, ClaimProcStatus.Supplemental)
+						&& listProcNums.Contains(x.ProcNum)).Select(x => x.ClaimNum).Distinct().ToList();
+					List<ClaimProc> listTotalPaymentProcs=claimProcList.FindAll(x => listOtherClaimNums.Contains(x.ClaimNum) && x.ProcNum==0);
+					foreach(ClaimProc cpTotalPayment in listTotalPaymentProcs) {
+						claimWriteoffAmt+=cpTotalPayment.WriteOff;
+						claimDeductibleAmt+=cpTotalPayment.DedApplied;
+						claimPaidOtherInsAmt+=cpTotalPayment.InsPayAmt;
+					}
 					for(int j=0;j<claimProcs.Count;j++) {//Claim procs for this claim
 						listOtherClaimProcs.Add(new List<ClaimProc>());
 						double procWriteoffAmt=0;
@@ -1359,9 +1370,8 @@ namespace OpenDentBusiness
 						listProcWriteoffAmts.Add(procWriteoffAmt);
 						listProcDeductibleAmts.Add(procDeductibleAmt);
 						listProcPaidOtherInsAmts.Add(procPaidOtherInsAmt);
-						double procPatientPortionAmt=Math.Max(0,claimProcs[j].FeeBilled-listProcWriteoffAmts[j]-listProcDeductibleAmts[j]-listProcPaidOtherInsAmts[j]);
-						claimPatientPortionAmt+=procPatientPortionAmt;
 					}
+					double claimPatientPortionAmt=Math.Max(0,claim.ClaimFee-claimWriteoffAmt-claimDeductibleAmt-claimPaidOtherInsAmt);
 					//If sending the primary claim, then hasAdjForOtherPlans will be false, because all claimprocs for any other plans (secondary) will be estimates.
 					//If sending the secondary claim, then hasAdjForOtherPlans will be true, because the primary claimprocs will be received.
 					//This strategy works for dental and medical plans in any combination: D, M, DD, DM, MD, MM
@@ -2031,7 +2041,8 @@ namespace OpenDentBusiness
 					#endregion 2420 Service Providers (dental)
 					//2430 SVD: (medical,institutional,dental) Line Adjudication Information. Situational.  Required when the claim has been previously adjudicated by payer identified in loop 2330B and this service line has payments and/or adjustments applied to it.
 					//These SVD segments at the procedure level should add up to the loop 2320 AMT*D (COB Payer Paid Amount).
-					if(hasAdjForOtherPlans && IsApex(clearinghouseClin)) {//This section of code might work for other clearinghouses, but has not yet been tested, and nobody else has requested this information yet.
+					//This section of code might work for other clearinghouses, but has not yet been tested, and nobody else has requested this information yet.
+					if(hasAdjForOtherPlans && (IsApex(clearinghouseClin) || IsClaimConnect(clearinghouseClin))) {
 						foreach(ClaimProc claimProcOther in listOtherClaimProcs[j]) {
 							sw.Write("SVD"+s
 								+Sout(GetCarrierElectID(otherCarrier,clearinghouseClin),80,2)+s//SVD01 2/80 Identification Code.  Other payer primary identifier.

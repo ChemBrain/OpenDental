@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type="text/xsl" href="OpenDentalDocumentation.xsl"?>
-<database version="19.4.17.0">
+<database version="19.4.20.0">
     <table name="account">
         <summary>Used in the accounting section in chart of accounts.  Not related to patient accounts in any way.</summary>
         <column order="0" name="AccountNum" type="bigint(20)">
@@ -5423,6 +5423,7 @@
                 <EnumValue name="AutoLogOff">15 - Automatic log off from main form.
             Used to track when auto log off needs to kill the program to force close open forms which are blocked or slow to respond.</EnumValue>
                 <EnumValue name="ODMobile">16 - Open Dental Mobile App.</EnumValue>
+                <EnumValue name="TextMessaging">17 - Open Dental text messaging.</EnumValue>
             </Enumeration>
         </column>
         <column order="5" name="EntryDateTime" type="datetime">
@@ -12516,6 +12517,7 @@
                 <EnumValue name="AutoLogOff">15 - Automatic log off from main form.
             Used to track when auto log off needs to kill the program to force close open forms which are blocked or slow to respond.</EnumValue>
                 <EnumValue name="ODMobile">16 - Open Dental Mobile App.</EnumValue>
+                <EnumValue name="TextMessaging">17 - Open Dental text messaging.</EnumValue>
             </Enumeration>
         </column>
         <column order="9" name="DefNum" type="bigint(20)">

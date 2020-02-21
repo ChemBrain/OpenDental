@@ -43,7 +43,7 @@ namespace OpenDental {
 		}
 
 		private void FillGridMain() {
-			Point selectedCell=gridMain.SelectedCell;
+			ProcedureCode selectedCode=gridMain.SelectedTag<ProcedureCode>();
 			gridMain.BeginUpdate();
 			gridMain.ListGridRows.Clear();
 			if(gridMain.ListGridColumns.Count==0) {
@@ -75,8 +75,12 @@ namespace OpenDental {
 			}
 			SortGridByProc(gridMain);
 			gridMain.EndUpdate();
-			if(selectedCell.X>-1 && selectedCell.Y>-1) {
-				gridMain.SetSelected(selectedCell);
+			//Try an reselect the procedure code that was already selected prior to refreshing the grid.
+			if(selectedCode!=null) {
+				int index=gridMain.ListGridRows.ToList().FindIndex(x => (x.Tag as ProcedureCode).CodeNum==selectedCode.CodeNum);
+				if(index > -1) {
+					gridMain.SetSelected(new Point(3,index));
+				}
 			}
 		}
 
