@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
 using OpenDentBusiness;
 using CodeBase;
@@ -11,10 +9,14 @@ using System.Linq;
 
 namespace OpenDental {
 	public partial class FormFeeSchedGroups:ODForm {
-		///<summary>List of all FeeSchedGroups in db.</summary>
-		private List<FeeSchedGroup> _listFeeSchedGroups;
+		///<summary>All clinics in the cache.</summary>
+		private List<Clinic> _listAllClinics;
 		///<summary>List of all clinics for the selected FeeSchedGroup in the grid.  Used to fill gridClinics.</summary>
 		private List<Clinic> _listClinicsForGroup=new List<Clinic>();
+		///<summary>List of all FeeSchedGroups in db.</summary>
+		private List<FeeSchedGroup> _listFeeSchedGroups;
+		///<summary>List of all FeeSchedGroups that will populate the grid. This is a filtered version of the list retrieved from the cache.</summary>
+		private List<FeeSchedGroup> _listFeeSchedGroupsFiltered;
 
 		public FormFeeSchedGroups() {
 			InitializeComponent();
@@ -22,9 +24,39 @@ namespace OpenDental {
 		}
 
 		private void FormFeeSchedGroups_Load(object sender,EventArgs e) {
-			//No selections when loading form.
+			SetFilterControlsAndAction(() => FilterFeeSchedGroups(),textFeeSched);
+			//No restricting clinics because this window assumes that the user is an admin without restricted clinics
+			_listAllClinics=Clinics.GetWhere(x => x.ClinicNum > -1 && x.IsHidden==false).OrderBy(x => x.Abbr).ToList(); //Get all Clinics from cache that are not hidden
+			_listFeeSchedGroups=FeeSchedGroups.GetAll().OrderBy(x => x.Description).ToList();
+			_listFeeSchedGroupsFiltered=_listFeeSchedGroups.DeepCopyList<FeeSchedGroup,FeeSchedGroup>();
+			FillClinicCombo();
+			FilterFeeSchedGroups();
+		}
+
+		private void FillClinicCombo() {
+			comboClinic.Items.Clear();
+			comboClinic.Items.Add("All");
+			foreach(Clinic clinic in _listAllClinics){
+				comboClinic.Items.Add(clinic.Abbr);
+			}
+			comboClinic.SelectedIndex=0;
+		}
+
+		//Used by comboClinic to filter the list of FeeSchedGroups
+		private void comboClinic_SelectionChanged(object sender,EventArgs e) {
+			FilterFeeSchedGroups();
+		}
+
+		private void FilterFeeSchedGroups() {
+			List<FeeSched> listFilteredFeeScheds=FeeScheds.GetWhere(x => x.Description.ToLower().Contains(textFeeSched.Text.ToLower()));
+			//Clinic filter will be either a list of all clinics or a list containing only the selected clinic
+			List<Clinic> listFilteredClinics=(comboClinic.SelectedIndex==0) ? _listAllClinics : _listAllClinics[comboClinic.SelectedIndex-1].SingleItemToList();
+			//This filter should return everything if both filters are empty.
+			_listFeeSchedGroupsFiltered=_listFeeSchedGroups
+				.Where(x => x.FeeSchedNum.In(listFilteredFeeScheds.Select(y => y.FeeSchedNum)))
+				.Where(x => x.ListClinicNumsAll.Any(y => y.In(listFilteredClinics.Select(z => z.ClinicNum))))
+				.ToList();
 			FillGridGroups();
-			//Need to call on load to set column headers.
 			FillGridClinics();
 		}
 
@@ -32,14 +64,13 @@ namespace OpenDental {
 			gridGroups.BeginUpdate();
 			gridGroups.ListGridColumns.Clear();
 			GridColumn col;
-			col=new GridColumn(Lan.g(this,"Group Name"),100);
+			col=new GridColumn(Lan.g(this,"Group Name"),200);
 			gridGroups.ListGridColumns.Add(col);
-			col=new GridColumn(Lan.g(this,"Fee Schedule"),50);
+			col=new GridColumn(Lan.g(this,"Fee Schedule"),75);
 			gridGroups.ListGridColumns.Add(col);
 			gridGroups.ListGridRows.Clear();
 			GridRow row;
-			_listFeeSchedGroups=FeeSchedGroups.GetAll().OrderBy(x => x.Description).ToList();
-			foreach(FeeSchedGroup feeSchedGroupCur in _listFeeSchedGroups) {
+			foreach(FeeSchedGroup feeSchedGroupCur in _listFeeSchedGroupsFiltered) {
 				row=new GridRow();
 				row.Cells.Add(feeSchedGroupCur.Description);
 				row.Cells.Add(FeeScheds.GetDescription(feeSchedGroupCur.FeeSchedNum));//Returns empty string if the FeeSched couldn't be found.
@@ -85,8 +116,7 @@ namespace OpenDental {
 				FeeSchedGroups.Update(feeSchedGroupCur);
 			}
 			//Still need to refresh incase the user deleted the FeeSchedGroup, since it returns DialogResult.Cancel.
-			FillGridGroups();
-			FillGridClinics();
+			FilterFeeSchedGroups();
 		}
 
 		private void butAdd_Click(object sender,EventArgs e) {
@@ -95,8 +125,9 @@ namespace OpenDental {
 			formFG.ShowDialog();
 			if(formFG.DialogResult==DialogResult.OK) {
 				FeeSchedGroups.Insert(feeSchedGroupNew);
-				FillGridGroups();
-				FillGridClinics();
+				_listFeeSchedGroups.Add(feeSchedGroupNew);
+				_listFeeSchedGroups=_listFeeSchedGroups.OrderBy(x => x.Description).ToList();
+				FilterFeeSchedGroups();
 			}
 		}
 

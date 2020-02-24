@@ -146,7 +146,7 @@ namespace OpenDental {
 				return false;
 			}
 			if(_listClinicsInGroup.IsNullOrEmpty()) {
-				MsgBox.Show(this,MsgBoxButtons.YesNo,"This group contains no clinics.  Clinics are required to make Fee Schedule Groups.");
+				MsgBox.Show(this,"This group contains no clinics.  Clinics are required to make Fee Schedule Groups.");
 				return false;
 			}
 			return true;

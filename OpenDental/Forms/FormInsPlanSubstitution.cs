@@ -79,7 +79,7 @@ namespace OpenDental {
 			if(selectedCode!=null) {
 				int index=gridMain.ListGridRows.ToList().FindIndex(x => (x.Tag as ProcedureCode).CodeNum==selectedCode.CodeNum);
 				if(index > -1) {
-					gridMain.SetSelected(new Point(3,index));
+					gridMain.SetSelected(new Point(2,index));
 				}
 			}
 		}
