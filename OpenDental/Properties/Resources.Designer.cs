@@ -207,16 +207,6 @@ namespace OpenDental.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        public static System.Drawing.Bitmap butDentalIntel {
-            get {
-                object obj = ResourceManager.GetObject("butDentalIntel", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         public static System.Drawing.Bitmap butExport {
             get {
                 object obj = ResourceManager.GetObject("butExport", resourceCulture);
@@ -510,9 +500,9 @@ namespace OpenDental.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        public static System.Drawing.Bitmap DI_Button_100x24 {
+        public static System.Drawing.Bitmap DentalIntelligence_Button_100x24 {
             get {
-                object obj = ResourceManager.GetObject("DI_Button_100x24", resourceCulture);
+                object obj = ResourceManager.GetObject("DentalIntelligence_Button_100x24", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

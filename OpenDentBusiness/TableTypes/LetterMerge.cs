@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Xml.Serialization;
+using Newtonsoft.Json;
 
 namespace OpenDentBusiness{
 
@@ -21,9 +23,14 @@ namespace OpenDentBusiness{
 		///<summary>FK to definition.DefNum. This determines the default Image Category that will be selected when printing or previewing the letter.
 		///Can be 0 which means 'None' will be selected.</summary>
 		public long ImageFolder;
+
 		///<summary>Not a database column.  Filled using fk from the lettermergefields table.  A collection of strings representing field names.</summary>
-		[CrudColumn(IsNotDbColumn=true)]
-		public List<string> Fields;
+		[XmlIgnore,JsonIgnore]
+		public List<string> Fields {
+			get {
+				return LetterMergeFields.GetForLetter(this.LetterMergeNum);
+			}
+		}
 
 		
 		public LetterMerge Copy() {

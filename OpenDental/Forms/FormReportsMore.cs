@@ -140,7 +140,7 @@ namespace OpenDental {
 			// pictureDentalIntel
 			// 
 			this.pictureDentalIntel.HasBorder = false;
-			this.pictureDentalIntel.Image = global::OpenDental.Properties.Resources.DI_Button_100x24;
+			this.pictureDentalIntel.Image = global::OpenDental.Properties.Resources.DentalIntelligence_Button_100x24;
 			this.pictureDentalIntel.Location = new System.Drawing.Point(8, 19);
 			this.pictureDentalIntel.Name = "pictureDentalIntel";
 			this.pictureDentalIntel.Size = new System.Drawing.Size(95, 24);

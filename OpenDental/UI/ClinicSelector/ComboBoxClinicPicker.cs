@@ -143,8 +143,15 @@ namespace OpenDental.UI {
 				return;
 			}
 			if(_selectedClinicNoPermission!=null){
-				MsgBox.Show("Not allowed");
-				return;
+				if(Security.IsAuthorized(Permissions.UnrestrictedSearch,true)) {
+					//Clinic is hidden, but user is allowed to move this object (e.g. patient) to different clinic
+					//FormComboPicker will come up, and the displayed Abbr will disappear because form has no access to the hidden clinic.  That's ok.
+					//If user then selects a non-hidden clinic, _selectedClinicNoPermission will get set to null.
+				}
+				else {
+					MsgBox.Show(this,"Not allowed");
+					return;
+				}
 			}
 			_formComboPicker=new FormComboPicker();
 			_formComboPicker.FormClosing += _formComboPicker_FormClosing;
@@ -259,6 +266,9 @@ namespace OpenDental.UI {
 			_formComboPicker.FormClosing-=_formComboPicker_FormClosing;
 			_selectedIndex=_formComboPicker.SelectedIndex;
 			_listSelectedIndices=_formComboPicker.SelectedIndices;
+			if(_listSelectedIndices.Count>0) {//this needs to be set to null if a hidden clinic is no longer selected.  See OnMouseDown.
+				_selectedClinicNoPermission=null;
+			}
 			OnSelectionChangeCommitted(this,e);
 			OnSelectedIndexChanged(this,e);
 			Refresh();
@@ -622,14 +632,17 @@ namespace OpenDental.UI {
 
 		///<summary>If multiple items are selected, we string them together with commas.  But if the string is wider than widthMax, we instead show "Multiple".</summary>
 		private string GetDisplayText(int widthMax){
+			if(_selectedClinicNoPermission!=null){
+				if(_selectedClinicNoPermission.IsHidden) {
+					return _selectedClinicNoPermission.Abbr+Lan.g(this," (hidden)");
+				}
+				return _selectedClinicNoPermission.Abbr;
+			}
 			if(_listSelectedIndices.Count==0){
 				return "";
 			}
 			if(_listSelectedIndices.Contains(0) && _listClinics[0].ClinicNum==CLINIC_NUM_ALL){
 				return "All";
-			}
-			if(_selectedClinicNoPermission!=null){
-				return _selectedClinicNoPermission.Abbr;
 			}
 			string str="";
 			for(int i=0;i<_listSelectedIndices.Count;i++){

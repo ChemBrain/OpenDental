@@ -379,7 +379,6 @@ namespace OpenDental{
 			}
 			LetterMerge letter=new LetterMerge();
 			letter.Category=_listLetterMergeCatDefs[listCategories.SelectedIndex].DefNum;
-			letter.Fields=new List<string>();
 			FormLetterMergeEdit FormL=new FormLetterMergeEdit(letter);
 			FormL.IsNew=true;
 			FormL.ShowDialog();

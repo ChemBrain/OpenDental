@@ -32,9 +32,6 @@ namespace OpenDentBusiness{
 			protected override List<LetterMerge> GetCacheFromDb() {
 				string command="SELECT * FROM lettermerge ORDER BY Description";
 				List<LetterMerge> listLetterMerges=Crud.LetterMergeCrud.SelectMany(command);
-				foreach(LetterMerge letterMerge in listLetterMerges) {
-					letterMerge.Fields=LetterMergeFields.GetForLetter(letterMerge.LetterMergeNum);
-				}
 				return listLetterMerges;
 			}
 			protected override List<LetterMerge> TableToList(DataTable table) {

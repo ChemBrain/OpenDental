@@ -985,7 +985,7 @@ namespace OpenDental {
 			this.checkIncludeExplicitCreditsOnly.Text = "Show Only Allocated Credits";
 			this.checkIncludeExplicitCreditsOnly.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			this.checkIncludeExplicitCreditsOnly.UseVisualStyleBackColor = true;
-			this.checkIncludeExplicitCreditsOnly.CheckedChanged += new System.EventHandler(this.checkIncludeExplicitCreditsOnly_CheckedChanged);
+			this.checkIncludeExplicitCreditsOnly.Click += new System.EventHandler(this.CheckIncludeExplicitCreditsOnly_Click);
 			// 
 			// checkShowAll
 			// 
@@ -1810,7 +1810,7 @@ namespace OpenDental {
 			if(ListEntriesPayFirst==null) {
 				ListEntriesPayFirst=new List<AccountEntry>();//will be null when double clicking from account module. 
 			}
-			bool doShowExplicitCreditsOnly=checkIncludeExplicitCreditsOnly.Checked && checkIncludeExplicitCreditsOnly.Visible;
+			bool doShowExplicitCreditsOnly=checkIncludeExplicitCreditsOnly.Checked && checkIncludeExplicitCreditsOnly.Enabled;
 			PaymentEdit.InitData initData=PaymentEdit.Init(_loadData.ListAssociatedPatients,_famCur,_superFamCur,_paymentCur,_listSplitsCur
 				,ListEntriesPayFirst,_patCur.PatNum,_dictPatients,checkPayTypeNone.Checked,_preferCurrentPat,loadData,doAutoSplit,doShowExplicitCreditsOnly);
 			_paymentCur.PayAmt=(double)AmtTotal;//Reset it.	
@@ -4048,7 +4048,8 @@ namespace OpenDental {
 				else {
 					butCreatePartial.Visible=false;
 				}
-				checkIncludeExplicitCreditsOnly.Visible=false;
+				checkIncludeExplicitCreditsOnly.Enabled=false;
+				checkIncludeExplicitCreditsOnly.Checked=false;
 			}
 			else {
 				checkShowAll.Enabled=true;
@@ -4058,7 +4059,7 @@ namespace OpenDental {
 				butCreatePartial.Visible=true;
 				butCreatePartial.Text=Lan.g(this,"Add Partials");
 				butPay.Visible=true;
-				checkIncludeExplicitCreditsOnly.Visible=true;
+				checkIncludeExplicitCreditsOnly.Enabled=true;
 			}
 			CheckUIState();
 			SetComboDepositAccounts();
@@ -4585,7 +4586,7 @@ namespace OpenDental {
 			FillGridSplits();//Fills charge grid too.
 		}
 
-		private void checkIncludeExplicitCreditsOnly_CheckedChanged(object sender,EventArgs e) {
+		private void CheckIncludeExplicitCreditsOnly_Click(object sender,EventArgs e) {
 			List<long> listPatNumsFamily=_famCur.ListPats.Select(x => x.PatNum).ToList();
 			if(_patCur.SuperFamily>0 && checkShowSuperfamily.Checked) {
 				listPatNumsFamily.AddRange(_superFamCur.ListPats.Select(x => x.PatNum).ToList());
