@@ -1315,6 +1315,7 @@ namespace OpenDentBusiness
 				List<double> listProcDeductibleAmts=new List<double>();
 				List<double> listProcPaidOtherInsAmts=new List<double>();
 				bool hasAdjForOtherPlans=false;
+				DateTime datePaidOtherIns=DateTime.MinValue;
 				//2320 Other subscriber------------------------------------------------------------------------------------------
 				if(otherPlan!=null) {
 					//2320 SBR: Other Subscriber Information. Situational.
@@ -1502,14 +1503,11 @@ namespace OpenDentBusiness
 					EndSegment(sw);//N404 through N407 are either not used or are for addresses outside of the United States.
 					//2330B DTP: 573 (medical,institutional,dental) Claim Check or Remittance Date. Situational. Claim Paid date.
 					if(hasAdjForOtherPlans) {
-						DateTime datePaidOtherIns=DateTime.Today;
-						DateTime dtThisCP;
-						for(int j=0;j<claimProcs.Count;j++) {
-							dtThisCP=ClaimProcs.GetDatePaid(claimProcList,claimProcs[j].ProcNum,claimProcs[j].PlanNum);
-							if(dtThisCP>datePaidOtherIns) {
-								datePaidOtherIns=dtThisCP;
-							}
-						}
+						//In the future, we should consider getting the datePaidOtherIns from claimpayment.DateIssued instead,
+						//since this is the date on the check from the carrier, which is what the format is asking for.
+						//The claimpayment.DateIssued field is currently optional in UI, thus we would need to validate it below.
+						//There will always be at least 1 claimproc in listOtherClaimProcs since hasAdjForOtherPlans is true.
+						datePaidOtherIns=listOtherClaimProcs.SelectMany(x => x).Max(x => x.DateCP);
 						//it's a required segment, so always include it.
 						sw.Write("DTP"+s
 							+"573"+s//DTP01 3/3 Date/Time Qualifier: 573=Date Claim Paid.
@@ -2092,7 +2090,15 @@ namespace OpenDentBusiness
 							EndSegment(sw);
 						}
 					}
-					//2430 DTP: (medical,institutional,dental) Line Check or Remittance Date. We do not support.
+					//2430 DTP: (medical,institutional,dental) Line Check or Remittance Date.  Required.
+					//Apex has not required this segment in the past and we will not send it to them until they require it of us.
+					if(hasAdjForOtherPlans && IsClaimConnect(clearinghouseClin)) {
+						sw.Write("DTP"+s
+							+"573"+s//DTP01 3/3 Date/Time Qualifier: 573=Date Claim Paid.
+							+"D8"+s//DTP02 2/3 Date Time Period Format Qualifier: D8=Date Expressed in Format CCYYMMDD.
+							+datePaidOtherIns.ToString("yyyyMMdd"));//DTP03 1/35 Date Time Period:
+						EndSegment(sw);
+					}
 					//2430 AMT: (medical,institutional,dental) Remaining Patient Liability. We do not support.
 					//2440 LQ: (medical) Form Identification Code. Situational. We do not use.
 					//2440 FRM: (medical) Supporting Documentation. We do not use.

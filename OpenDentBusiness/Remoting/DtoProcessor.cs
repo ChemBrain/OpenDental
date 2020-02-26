@@ -31,6 +31,9 @@ namespace OpenDentBusiness {
 					ODThread.AddInitializeHandler<string>(() => Security.PasswordTyped,password => Security.PasswordTyped=password);
 					//Ditto for CurComputerName
 					ODThread.AddInitializeHandler<string>(() => Security.CurComputerName,computerName => Security.CurComputerName=computerName);
+					//Calling CDT.Class1.Decrypt will cause CDT to verify the assembly and then save the encryption key. This needs to be done here because
+					//if we later call CDT.Class1.Decrypt inside a thread, we won't we able to find OpenDentalServer.dll in the call stack.
+					ODException.SwallowAnyException(() => CDT.Class1.Decrypt("odv2e$fakeciphertext",out _));
 					_isMiddleTierInitialized=true;
 				}
 				#endregion

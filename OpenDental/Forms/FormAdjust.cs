@@ -399,8 +399,8 @@ namespace OpenDental {
 				DialogResult=DialogResult.Cancel;
 			}
 			else{
-				if(_listSplitsForAdjustment.Count>0 && PrefC.GetInt(PrefName.RigorousAccounting)==(int)RigorousAccounting.EnforceFully) {
-					MsgBox.Show(this,"Cannot delete adjustment while a payment split is attached due to preference to Enfore Valid Paysplits.");
+				if(_listSplitsForAdjustment.Count>0) {
+					MsgBox.Show(this,"Cannot delete adjustment while a payment split is attached.");
 					return;
 				}
 				bool isAttachedToPayPlan=PayPlanLinks.GetForFKeyAndLinkType(_adjustmentCur.AdjNum,PayPlanLinkType.Adjustment).Count>0;

@@ -34,14 +34,6 @@ namespace OpenDentBusiness{
 		#region Delete
 		#endregion
 
-		#region Insert
-
-		#endregion
-		#region Udate
-
-		#endregion
-		#region Delete
-		#endregion
 		#endregion
 		#region Misc Methods
 		#endregion

@@ -89,22 +89,11 @@ namespace OpenDental {
 				butClosePlan.Visible=false;
 				butUnlock.Visible=false;
 				textTotalPrincipal.Text="";
+				butSave.Visible=false;
+				butCancelTerms.Visible=false;
 			}
 			else {//already saved payment plan, user needs to unlock before they can edit anything.
-				if(_payPlanCur.IsLocked) {
-					butUnlock.Visible=false;
-					checkProductionLock.Checked=true;
-					checkProductionLock.Enabled=false;
-					butChangeGuar.Visible=false;
-					LockProduction();
-				}
-				if(_listPayPlanChargesDb.Count > 0) {
-					textDateFirstPay.ReadOnly=true;
-				}
-				textDownPayment.ReadOnly=true;//users can only add or modify downpayment on new plans since they will get immediately inserted.
-				groupBoxFrequency.Enabled=false;
-				groupTerms.Enabled=false;
-				textTotalPrincipal.Text=_sumAttachedProduction.ToString("f");
+				FillUiForSavedPayPlan();
 			}
 			if(_payPlanCur.IsClosed) {
 				butOK.Text=Lan.g(this,"Reopen");
@@ -155,6 +144,23 @@ namespace OpenDental {
 				this.gridCharges.CellDoubleClick-=gridCharges_CellDoubleClick;
 			}
 			_isLoading=false;
+		}
+
+		private void FillUiForSavedPayPlan() {
+			if(_payPlanCur.IsLocked) {
+				butUnlock.Visible=false;
+				checkProductionLock.Checked=true;
+				checkProductionLock.Enabled=false;
+				butChangeGuar.Visible=false;
+				LockProduction();
+			}
+			if(_listPayPlanChargesDb.Count > 0) {
+				textDateFirstPay.ReadOnly=true;
+			}
+			textDownPayment.ReadOnly=true;//users can only add or modify downpayment on new plans since they will get immediately inserted.
+			groupBoxFrequency.Enabled=false;
+			groupTerms.Enabled=false;
+			textTotalPrincipal.Text=_sumAttachedProduction.ToString("f");
 		}
 
 		private void FillProduction() {
@@ -1074,6 +1080,11 @@ namespace OpenDental {
 		///isUiValid is false when another method has run TryGetTermsFromUI and returned false, 
 		///meaning an error message has been presented and we don't want to present another here.</summary>
 		private bool SaveData(bool isPrinting=false,bool isUiValid=true) {
+			if(PayPlans.GetOne(_payPlanCur.PayPlanNum)==null) {
+				//The payment plan no longer exists in the database. 
+				MsgBox.Show(this,"This payment plan has been deleted by another user.");
+				return false;
+			}
 			if(textAPR.Text=="") {
 				textAPR.Text="0";
 			}
@@ -1096,6 +1107,28 @@ namespace OpenDental {
 			_payPlanCur.DownPayment=terms.DownPayment;
 			_payPlanCur.PaySchedule=PayPlanEdit.GetPayScheduleFromFrequency(terms.Frequency);
 			_payPlanCur.DatePayPlanStart=terms.DateFirstPayment;
+			if(_payPlanCur.IsNew) {
+				if(!terms.DownPayment.IsZero()) {
+					//insert down payment(s) if none exist. Get a new copy from DB so we can guarantee no one else has made this payment plan yet. 
+					if(PayPlanCharges.GetForPayPlan(_payPlanCur.PayPlanNum).Count==0) {
+						List<PayPlanCharge> listDownPayments=PayPlanCharges.GetForDownPayment(terms,_famCur,_listPayPlanLinks,_payPlanCur);
+						foreach(PayPlanCharge downPayment in listDownPayments) {
+							PayPlanCharges.Insert(downPayment);
+							_listPayPlanChargesDb.Add(downPayment);
+						}
+					}
+				}
+			}
+			if(terms.DateFirstPayment.Date==DateTime.Today) {
+				//immediately call the code to run the "service" on this payment plan in case they created a plan who's first charge is today. 
+				List<PayPlanCharge> listCharges=PayPlanEdit.GetListExpectedCharges(_listPayPlanChargesDb,terms,_famCur,_listPayPlanLinks,_payPlanCur,true
+					,listPaySplits:_listPaySplits)
+					.FindAll(x => x.ChargeDate <= DateTime.Today);
+				if(listCharges.Count > 0) {
+					PayPlanCharges.InsertMany(listCharges);
+					_listPayPlanChargesDb.AddRange(listCharges);
+				}
+			}
 			if(!_payPlanCur.IsLocked && checkProductionLock.Checked) {
 				foreach(PayPlanProductionEntry entry in _listPayPlanProductionEntries) {
 					//find matching credit.
@@ -1107,15 +1140,13 @@ namespace OpenDental {
 				_payPlanCur.IsLocked=true;
 			}
 			_payPlanCur.PlanCategory=comboCategory.GetSelectedDefNum();
-			if(PayPlans.GetOne(_payPlanCur.PayPlanNum)==null) {
-				//The payment plan no longer exists in the database. 
-				MsgBox.Show(this,"This payment plan has been deleted by another user.");
-				return false;
-			}
+			_payPlanCur.IsNew=false;
 			PayPlans.Update(_payPlanCur);//always saved to db before opening this form
 			PayPlanL.MakeSecLogEntries(_payPlanCur,_payPlanOld,signatureBoxWrapper.GetSigChanged(),
 				_isSigOldValid,signatureBoxWrapper.SigIsBlank,signatureBoxWrapper.IsValid,isPrinting);
 			PayPlanLinks.Sync(_listPayPlanLinks,_payPlanCur.PayPlanNum);
+			//When sign & print is clicked (saves the plan) on new plan to let users know it has been saved and some thing can no longer be edited.
+			FillUiForSavedPayPlan();
 			return true;
 		}
 
@@ -1146,26 +1177,6 @@ namespace OpenDental {
 			}
 			if(!TryGetTermsFromUI(out PayPlanTerms terms)) {
 				return;
-			}
-			if(_payPlanCur.IsNew) {
-				if(!terms.DownPayment.IsZero()) {
-					//insert down payment(s) if none exist. Get a new copy from DB so we can guarantee no one else has made this payment plan yet. 
-					if(PayPlanCharges.GetForPayPlan(_payPlanCur.PayPlanNum).Count==0) {
-						List<PayPlanCharge> listDownPayments=PayPlanCharges.GetForDownPayment(terms,_famCur,_listPayPlanLinks,_payPlanCur);
-						foreach(PayPlanCharge downPayment in listDownPayments) {
-							PayPlanCharges.Insert(downPayment);
-						}
-					}
-				}
-			}
-			if(terms.DateFirstPayment.Date==DateTime.Today) {
-				//immediately call the code to run the "service" on this payment plan in case they created a plan who's first charge is today. 
-				List<PayPlanCharge> listCharges=PayPlanEdit.GetListExpectedCharges(_listPayPlanChargesDb,terms,_famCur,_listPayPlanLinks,_payPlanCur,true
-					,listPaySplits:_listPaySplits)
-					.FindAll(x => x.ChargeDate <= DateTime.Today);
-				if(listCharges.Count > 0) {
-					PayPlanCharges.InsertMany(listCharges);
-				}
 			}
 			if(!SaveData()) {
 				return;

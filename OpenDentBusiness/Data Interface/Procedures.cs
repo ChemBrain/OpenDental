@@ -594,10 +594,14 @@ namespace OpenDentBusiness {
 			if(Db.GetCount(command)!="0") {
 				throw new Exception(Lans.g("Procedures","Not allowed to delete a procedure that is attached to a prescription."));
 			}
+			command=$"SELECT COUNT(*) FROM payplancharge WHERE payplancharge.ProcNum={POut.Long(procNum)}";
+			if(Db.GetCount(command)!="0") {
+				throw new Exception(Lans.g("Procedures","Not allowed to delete procedure that is attached to a payment plan."));
+			}
 			command=$"SELECT COUNT(*) FROM payplanlink WHERE payplanlink.FKey={POut.Long(procNum)} " +
 				$"AND payplanlink.LinkType={POut.Int((int)PayPlanLinkType.Procedure)}";
 			if(Db.GetCount(command)!="0") {
-				throw new Exception(Lans.g("Procedures","Not allowed to delete a procedure that is attached to a dynamic payment plan"));
+				throw new Exception(Lans.g("Procedures","Not allowed to delete a procedure that is attached to a dynamic payment plan."));
 			}
 		}
 		

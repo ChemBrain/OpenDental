@@ -1991,7 +1991,7 @@ namespace OpenDental.UI{
 				//Some secondary and tertiary overlaps can be created in rare situations.  Fix those.
 				//This seems like a waste of resources, but it only gets triggered when we push our way in at the right.
 				//And it goes fast because we only pass in the short list of appointments that we moved
-				ProcessOverlaps(listApptLayoutInfos,listOverlaps,widthCol,apptLayoutInfo.IdxOp,widthNarrowedOnRight);
+				ProcessOverlaps(listApptLayoutInfos,listOverlaps,widthCol,apptLayoutInfo.IdxOp,widthNarrowedOnRight,isWeeklyView,widthWeekDay,widthWeekAppt);
 			}
 			return listApptLayoutInfos;
 			//Local function to avoid passing lots of parameters.
@@ -2022,7 +2022,8 @@ namespace OpenDental.UI{
 		}
 
 		///<summary>A recursive function for rare secondary and tertiary overlaps created by adding a single appointment that shifted other tall appts.</summary>
-		private static void ProcessOverlaps(List<ApptLayoutInfo> listApptLayoutInfos,List<ApptLayoutInfo> listOverlapsPrevious,float widthCol,float idxOp,float widthNarrowedOnRight)
+		private static void ProcessOverlaps(List<ApptLayoutInfo> listApptLayoutInfos,List<ApptLayoutInfo> listOverlapsPrevious,float widthCol,float idxOp,
+			float widthNarrowedOnRight,bool isWeeklyView,float widthWeekDay,float widthWeekAppt)
 		{
 			for(int k=0;k<listOverlapsPrevious.Count;k++){
 				for(int i=0;i<listApptLayoutInfos.Count;i++){
@@ -2035,16 +2036,29 @@ namespace OpenDental.UI{
 					if(Rectangle.Truncate(listApptLayoutInfos[i].RectangleBounds).IntersectsWith(Rectangle.Truncate(listOverlapsPrevious[k].RectangleBounds))){
 						//there is overlap, so fix it
 						//we are leaving overlapPrevious alone, and changing the other one
-						listApptLayoutInfos[i].OverlapSections=listOverlapsPrevious[k].OverlapSections;  //size it to match overlapPrevious
-						//OverlapPosition remains unchanged.
-						listApptLayoutInfos[i].RectangleBounds=new RectangleF(
-							widthCol*idxOp+(widthCol-widthNarrowedOnRight)*listApptLayoutInfos[i].OverlapPosition/listApptLayoutInfos[i].OverlapSections,//3/6
-							listApptLayoutInfos[i].RectangleBounds.Y,
-							(widthCol-widthNarrowedOnRight)/listApptLayoutInfos[i].OverlapSections,// 1/6
-							listApptLayoutInfos[i].RectangleBounds.Height);
+						if(listApptLayoutInfos[i].OverlapSections<listOverlapsPrevious[k].OverlapSections){
+							//increasing OverlapSections (e.g. from 5 to 6) shifts it left and makes it smaller.
+							//This works unless number of appointments in column gets up to about 7, then it can start to fail.
+							listApptLayoutInfos[i].OverlapSections=listOverlapsPrevious[k].OverlapSections;  //size it to match overlapPrevious
+						}
+						if(isWeeklyView){
+							listApptLayoutInfos[i].RectangleBounds=new RectangleF(
+								widthWeekDay*listApptLayoutInfos[i].DayOfWeek+widthWeekAppt*idxOp+widthWeekAppt*listApptLayoutInfos[i].OverlapPosition/listApptLayoutInfos[i].OverlapSections,
+								listApptLayoutInfos[i].RectangleBounds.Y,
+								(widthWeekAppt-2)/listApptLayoutInfos[i].OverlapSections,
+								listApptLayoutInfos[i].RectangleBounds.Height);
+						}
+						else{
+							//OverlapPosition remains unchanged.
+							listApptLayoutInfos[i].RectangleBounds=new RectangleF(
+								widthCol*idxOp+(widthCol-widthNarrowedOnRight)*listApptLayoutInfos[i].OverlapPosition/listApptLayoutInfos[i].OverlapSections,//3/6
+								listApptLayoutInfos[i].RectangleBounds.Y,
+								(widthCol-widthNarrowedOnRight)/listApptLayoutInfos[i].OverlapSections,// 1/6
+								listApptLayoutInfos[i].RectangleBounds.Height);
+						}
 						//now, send this fixed appt in recursively to see if it affected anything else
 						ProcessOverlaps(listApptLayoutInfos,new List<ApptLayoutInfo>(){listApptLayoutInfos[i]},//just pass in this single
-							widthCol,idxOp,widthNarrowedOnRight);
+							widthCol,idxOp,widthNarrowedOnRight,isWeeklyView,widthWeekDay,widthWeekAppt);
 					}
 				}
 			}
