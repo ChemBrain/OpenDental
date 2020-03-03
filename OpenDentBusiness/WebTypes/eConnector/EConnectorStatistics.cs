@@ -50,10 +50,12 @@ namespace OpenDentBusiness.WebTypes {
 				eConnStats.CountActiveClinics=0;
 				eConnStats.CountInactiveClinics=OpenDentBusiness.Clinics.GetCount();
 			}
-			eConnStats.CountActivePatients=OpenDentBusiness.Procedures.GetCountPatsComplete(DateTime.Today.AddYears(-2),DateTime.Today);
-			eConnStats.CountNonactivePatients=OpenDentBusiness.Patients.GetPatCountAll()-eConnStats.CountActivePatients;
-			eConnStats.ListEServiceSignals=OpenDentBusiness.EServiceSignals.GetServiceHistory(eServiceCode.ListenerService,DateTime.Today.AddDays(-30),
-				DateTime.Today,30);
+			if(DateTime.Now.Hour==0) { //These are heavy queries so only run them once a day around midnight.
+				eConnStats.CountActivePatients=OpenDentBusiness.Procedures.GetCountPatsComplete(DateTime.Today.AddYears(-2),DateTime.Today);
+				eConnStats.CountNonactivePatients=OpenDentBusiness.Patients.GetPatCountAll()-eConnStats.CountActivePatients;
+				eConnStats.ListEServiceSignals=OpenDentBusiness.EServiceSignals.GetServiceHistory(eServiceCode.ListenerService,DateTime.Today.AddDays(-30),
+					DateTime.Today,30);
+			}
 			eConnStats.DateTimeNow=DateTime.Now;
 			eConnStats.ListEServicePrefs=new List<Pref>();
 			foreach(PrefName prefName in Enum.GetValues(typeof(PrefName))) {

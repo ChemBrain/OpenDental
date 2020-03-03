@@ -1,18 +1,15 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.IO;
-using System.Text;
+using System.Linq;
 using System.Windows.Forms;
+using CodeBase;
 using OpenDental.UI;
 using OpenDentBusiness;
 
 namespace OpenDental {
 	public partial class FormExamSheets:ODForm {
 		//DataTable table;
-		private List<Sheet> sheetList;
+		private List<Sheet> _listSheets;
 		public long PatNum;
 
 		public FormExamSheets() {
@@ -30,9 +27,9 @@ namespace OpenDental {
 		private void FillListExamTypes(){
 			listExamTypes.Items.Clear();
 			List<SheetDef> sheetDefs=SheetDefs.GetCustomForType(SheetTypeEnum.ExamSheet);
-			listExamTypes.Items.Add(Lan.g(this,"All"));//Option to filter for all exam types.
+			listExamTypes.Items.Add(new ODBoxItem<SheetDef>(Lan.g(this,"All"),new SheetDef() { SheetDefNum=-1 }));//Option to filter for all exam types.
 			for(int i=0;i<sheetDefs.Count;i++) {
-				listExamTypes.Items.Add(sheetDefs[i].Description);
+				listExamTypes.Items.Add(new ODBoxItem<SheetDef>(sheetDefs[i].Description,sheetDefs[i]));
 			}
 			listExamTypes.SelectedIndex=0;//Default to "All".
 		}
@@ -45,7 +42,7 @@ namespace OpenDental {
 			//if a sheet is selected, remember it
 			long selectedSheetNum=0;
 			if(gridMain.GetSelectedIndex()!=-1) {
-				selectedSheetNum=sheetList[gridMain.GetSelectedIndex()].SheetNum;//PIn.Long(table.Rows[gridMain.GetSelectedIndex()]["SheetNum"].ToString());
+				selectedSheetNum=_listSheets[gridMain.GetSelectedIndex()].SheetNum;//PIn.Long(table.Rows[gridMain.GetSelectedIndex()]["SheetNum"].ToString());
 			}
 			gridMain.BeginUpdate();
 			gridMain.ListGridColumns.Clear();
@@ -55,23 +52,26 @@ namespace OpenDental {
 			gridMain.ListGridColumns.Add(col);
 			col=new GridColumn(Lan.g(this,"Description"),210);
 			gridMain.ListGridColumns.Add(col);
+			col=new GridColumn(Lan.g(this,"Type"),0);
+			gridMain.ListGridColumns.Add(col);
 			gridMain.ListGridRows.Clear();
 			GridRow row;
-			//Pass in empty description string when filtering for "All".
-			string filterStr=(listExamTypes.SelectedIndex==0?"":listExamTypes.SelectedItem.ToString());//0 => All
-			sheetList=Sheets.GetExamSheetsTable(PatNum,DateTime.MinValue,DateTime.MaxValue,filterStr,true);
-			for(int i=0;i<sheetList.Count;i++){
+			long selectedDefNum=listExamTypes.GetSelected<SheetDef>().SheetDefNum;//-1 when 'All' is selected
+			_listSheets=Sheets.GetExamSheetsTable(PatNum,DateTime.MinValue,DateTime.MaxValue,selectedDefNum);
+			List<SheetDef> listExamSheetDefs=SheetDefs.GetCustomForType(SheetTypeEnum.ExamSheet);
+			for(int i=0;i<_listSheets.Count;i++){
 				row=new GridRow();
-				row.Cells.Add(sheetList[i].DateTimeSheet.ToShortDateString());// ["date"].ToString());
-				row.Cells.Add(sheetList[i].DateTimeSheet.ToShortTimeString());// ["time"].ToString());
-				row.Cells.Add(sheetList[i].Description);
+				row.Cells.Add(_listSheets[i].DateTimeSheet.ToShortDateString());// ["date"].ToString());
+				row.Cells.Add(_listSheets[i].DateTimeSheet.ToShortTimeString());// ["time"].ToString());
+				row.Cells.Add(_listSheets[i].Description);
+				row.Cells.Add(listExamSheetDefs.FirstOrDefault(x => x.SheetDefNum==_listSheets[i].SheetDefNum)?.Description??"");
 				gridMain.ListGridRows.Add(row);
 			}
 			gridMain.EndUpdate();
 			//reselect
 			if(selectedSheetNum!=0) {
-				for(int i=0;i<sheetList.Count;i++) {
-					if(sheetList[i].SheetNum==selectedSheetNum){ //table.Rows[i]["SheetNum"].ToString()==selectedSheetNum.ToString()) {
+				for(int i=0;i<_listSheets.Count;i++) {
+					if(_listSheets[i].SheetNum==selectedSheetNum){ //table.Rows[i]["SheetNum"].ToString()==selectedSheetNum.ToString()) {
 						gridMain.SetSelected(i,true);
 						break;
 					}
@@ -81,7 +81,7 @@ namespace OpenDental {
 
 		private void gridMain_CellDoubleClick(object sender,ODGridClickEventArgs e) {
 			//Sheets
-			long sheetNum=sheetList[e.Row].SheetNum;// PIn.Long(table.Rows[e.Row]["SheetNum"].ToString());
+			long sheetNum=_listSheets[e.Row].SheetNum;// PIn.Long(table.Rows[e.Row]["SheetNum"].ToString());
 			Sheet sheet=Sheets.GetSheet(sheetNum);//must use this to get fields
 			FormSheetFillEdit.ShowForm(sheet,FormSheetFillEdit_Grid_FormClosing);
 		}

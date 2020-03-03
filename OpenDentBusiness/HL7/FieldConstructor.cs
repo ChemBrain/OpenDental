@@ -7,23 +7,36 @@ namespace OpenDentBusiness.HL7 {
 	public class FieldConstructor {
 		private static bool _isEcwDef;
 		
-		///<summary>Sends null values in for objects not required.  GenerateField will return an empty string if a field requires an object and that object is null.</summary>
-		public static string GenerateFieldADT(HL7Def def,string fieldName,Patient pat,Provider prov,Patient guar,int sequenceNum,EventTypeHL7 eventType,SegmentNameHL7 segName) {
+		///<summary>Sends null values in for objects not required.  GenerateField will return an empty string if a field requires an object and that
+		///object is null.</summary>
+		public static string GenerateFieldADT(HL7Def def,string fieldName,Patient pat,Provider prov,Patient guar,int sequenceNum,EventTypeHL7 eventType,
+			SegmentNameHL7 segName)
+		{
 			return GenerateField(def,fieldName,MessageTypeHL7.ADT,pat,prov,null,guar,null,sequenceNum,eventType,null,null,MessageStructureHL7.ADT_A01,segName);
 		}
 		
-		///<summary>Sends null values in for objects not required.  GenerateField will return an empty string if a field requires an object and that object is null.</summary>
-		public static string GenerateFieldSIU(HL7Def def,string fieldName,Patient pat,Provider prov,Patient guar,Appointment apt,int sequenceNum,EventTypeHL7 eventType,SegmentNameHL7 segName) {
+		///<summary>Sends null values in for objects not required.  GenerateField will return an empty string if a field requires an object and that
+		///object is null.</summary>
+		public static string GenerateFieldSIU(HL7Def def,string fieldName,Patient pat,Provider prov,Patient guar,Appointment apt,int sequenceNum,
+			EventTypeHL7 eventType,SegmentNameHL7 segName)
+		{
 			return GenerateField(def,fieldName,MessageTypeHL7.SIU,pat,prov,null,guar,apt,sequenceNum,eventType,null,null,MessageStructureHL7.SIU_S12,segName);
 		}
 		
-		///<summary>Sends null values in for objects not required.  GenerateField will return an empty string if a field requires an object and that object is null.</summary>
-		public static string GenerateFieldSRR(HL7Def def,string fieldName,Patient pat,Provider prov,Appointment apt,int sequenceNum,EventTypeHL7 eventType,SegmentNameHL7 segName) {
+		///<summary>Sends null values in for objects not required.  GenerateField will return an empty string if a field requires an object and that
+		///object is null.</summary>
+		public static string GenerateFieldSRR(HL7Def def,string fieldName,Patient pat,Provider prov,Appointment apt,int sequenceNum,
+			EventTypeHL7 eventType,SegmentNameHL7 segName)
+		{
 			return GenerateField(def,fieldName,MessageTypeHL7.SRR,pat,prov,null,null,apt,sequenceNum,eventType,null,null,MessageStructureHL7.SRR_S01,segName);
 		}
 
-		///<summary>apt, guar, proc, prov, pdfDescription, pdfDataString, patplanCur, inssubCur, insplanCur, carrierCur, and patSub can be null and will return an empty string if a field requires that object</summary>
-		public static string GenerateField(HL7Def def,string fieldName,MessageTypeHL7 msgType,Patient pat,Provider prov,Procedure proc,Patient guar,Appointment apt,int sequenceNum,EventTypeHL7 eventType,string pdfDescription,string pdfDataString,MessageStructureHL7 msgStructure,SegmentNameHL7 segName) {
+		///<summary>apt, guar, proc, prov, pdfDescription, pdfDataString, patplanCur, inssubCur, insplanCur, carrierCur, and patSub can be null and will
+		///return an empty string if a field requires that object</summary>
+		public static string GenerateField(HL7Def def,string fieldName,MessageTypeHL7 msgType,Patient pat,Provider prov,Procedure proc,Patient guar,
+			Appointment apt,int sequenceNum,EventTypeHL7 eventType,string pdfDescription,string pdfDataString,MessageStructureHL7 msgStructure,
+			SegmentNameHL7 segName)
+		{
 			string retval="";
 			if(def.InternalType==HL7InternalType.eCWFull
 				|| def.InternalType==HL7InternalType.eCWTight
@@ -567,7 +580,9 @@ namespace OpenDentBusiness.HL7 {
 		}
 
 		///<summary>Only for creating the IN1 segment(s).</summary>
-		public static string GenerateFieldIN1(HL7Def def,string fieldName,int sequenceNum,PatPlan patplanCur,InsSub inssubCur,InsPlan insplanCur,Carrier carrierCur,int patplanCount,Patient patSub) {
+		public static string GenerateFieldIN1(HL7Def def,string fieldName,int sequenceNum,PatPlan patplanCur,InsSub inssubCur,InsPlan insplanCur,
+			Carrier carrierCur,int patplanCount,Patient patSub)
+		{
 			switch(fieldName) {
 				#region Carrier
 				case "carrier.addressCityStateZip":
@@ -822,6 +837,9 @@ namespace OpenDentBusiness.HL7 {
 		}
 
 		private static string gNewLines(string escapeChar,string note) {
+			if(string.IsNullOrEmpty(note)) {
+				return "";
+			}
 			return note.Replace("\r\n","\n").Replace("\r","\n").Replace("\n",escapeChar+".br"+escapeChar);
 		}
 

@@ -2118,7 +2118,9 @@ namespace OpenDentBusiness {
 					) prodlink ON prodlink.PayPlanLinkNum=payplanlink.PayPlanLinkNum 
 					WHERE (payplan.Guarantor IN ({familyPatNums}) OR payplan.PatNum IN ({familyPatNums}))";
 				DataTable payplanLinks=new DataTable();
-				payplanLinks=dcon.GetTable(command);
+				if(!isInvoice && stmt.StatementType!=StmtType.LimitedStatement) {
+					payplanLinks=dcon.GetTable(command);
+				}
 				for(int i = 0;i < payplanLinks.Rows.Count;i++) {
 					row=table.NewRow();
 					string num=payplanLinks.Rows[i]["Num"].ToString();
@@ -2344,7 +2346,7 @@ namespace OpenDentBusiness {
 		}
 
 		///<summary>Calculates and sets the correct values for rows that represent dynamic pay plans in the rawPayPlan table created in GetAccount().
-		///This is needed GetAccount() sets the principal_ and interest_ columns to the sum of charges and interest that have been posted,
+		///This is because needed GetAccount() sets the principal_ and interest_ columns to the sum of charges and interest that have been posted,
 		///but doesn't calculate expected charges and interest for dynamic pay plans.</summary>
 		private static void SetPrincipalAndInterestForDynamicPayPlans(DataTable rawPayPlan) {
 			//Get list of PayPlanNums for dynamic pay plans.
@@ -2359,11 +2361,16 @@ namespace OpenDentBusiness {
 			Dictionary<long,List<PaySplit>> dictPaySplits=PaySplits.GetForPayPlans(listDynamicPayPlanNums)
 					.GroupBy(x => x.PayPlanNum)
 					.ToDictionary(x => x.Key,x => x.ToList());
+			//Get all PayPlanProductionEntries for dynamic pay plans.
+			List<PayPlanLink> listPayPlanLinks=PayPlanLinks.GetForPayPlans(listDynamicPayPlanNums);
+			Dictionary<long,List<PayPlanProductionEntry>> dictPayPlanProductionEntries=PayPlanProductionEntry.GetProductionForLinks(listPayPlanLinks)
+				.GroupBy(x => x.LinkedCredit.PayPlanNum)
+				.ToDictionary(x => x.Key,x => x.ToList());
 			foreach(DataRow rowPayPlan in rawPayPlan.Rows) {
 				if(!PIn.Bool(rowPayPlan["IsDynamic"].ToString())) {
 					continue;//Skip pay plan if it isn't dynamic.
 				}
-				//Get lists of charges and pay splits for pay plan.
+				//Get lists of charges, list of pay splits, and list of PayPlanProductionEntries for pay plan.
 				long payPlanNumCur=PIn.Long(rowPayPlan["PayPlanNum"].ToString());
 				if(!dictPayPlanCharges.TryGetValue(payPlanNumCur,out List<PayPlanCharge> listPayPlanChargesInDb)) {
 					listPayPlanChargesInDb=new List<PayPlanCharge>();
@@ -2371,23 +2378,26 @@ namespace OpenDentBusiness {
 				if(!dictPaySplits.TryGetValue(payPlanNumCur,out List<PaySplit> listPaySplits)) {
 					listPaySplits=new List<PaySplit>();
 				}
-				//Completed amount actually holds principal for dynamic pay plans.
-				//May need to do more for getting estimated principal if treatment planned work can be added in future versions.
-				double principal=PIn.Double(rowPayPlan["CompletedAmt"].ToString());
+				if(!dictPayPlanProductionEntries.TryGetValue(payPlanNumCur,out List<PayPlanProductionEntry> listPayPlanProductionEntries)) {
+					listPayPlanProductionEntries=new List<PayPlanProductionEntry>();
+				}
+				decimal sumAttachedProduction=listPayPlanProductionEntries.Sum(x => x.AmountOverride==0 ? x.AmountOriginal : x.AmountOverride);
 				double pastInterestTotal=PIn.Double(rowPayPlan["interest_"].ToString());//interest_ holds interest that has been posted so far.
 				double downPayment=PIn.Double(rowPayPlan["DownPayment"].ToString());
-				double principalRemaining=PayPlanEdit.CalculatePrincipalAmtRemaining(principal,downPayment,listPaySplits,listPayPlanChargesInDb);
+				double principalNotPaid=PayPlanEdit.CalculatePrincipalAmtRemaining((double)sumAttachedProduction,downPayment,listPaySplits,listPayPlanChargesInDb);
+				double principalNotCharged=(double)sumAttachedProduction-listPayPlanChargesInDb.Sum(x => x.Principal);
 				double periodRate=
 					PayPlanEdit.CalcPeriodRate(PIn.Double(rowPayPlan["APR"].ToString()),PIn.Enum<PayPlanFrequency>(rowPayPlan["ChargeFrequency"].ToString()));
 				double payAmount=PIn.Double(rowPayPlan["PayAmt"].ToString());
 				//accumulate expected charges and interest until principalRemaining is at 0.
 				double expectedInterestTotal=0;
-				while(principalRemaining.IsGreaterThanOrEqualToZero()) {
-					double interestForPeriod=Math.Round(principalRemaining*periodRate,2);
-					principalRemaining+=interestForPeriod-payAmount;
+				while(principalNotCharged.IsGreaterThanZero()) {
+					double interestForPeriod=Math.Round(principalNotPaid*periodRate,2);
+					principalNotPaid+=interestForPeriod-payAmount;
+					principalNotCharged+=interestForPeriod-payAmount;
 					expectedInterestTotal+=interestForPeriod;
 				}
-				rowPayPlan["principal_"]=(decimal)principal;//Setting principal_ to correct amount in table.
+				rowPayPlan["principal_"]=sumAttachedProduction;//Setting principal_ to correct amount in table.
 				rowPayPlan["interest_"]=(decimal)(pastInterestTotal+expectedInterestTotal);
 			}
 		}

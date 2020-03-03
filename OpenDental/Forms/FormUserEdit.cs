@@ -412,7 +412,7 @@ namespace OpenDental{
 					UserOdPrefs.DeleteMany(_doseSpotUserPrefDefault.UserNum,_doseSpotUserPrefDefault.Fkey,UserOdFkeyType.Program);
 				}
 				else {
-					_doseSpotUserPrefDefault.ValueString=textDoseSpotUserID.Text;
+					_doseSpotUserPrefDefault.ValueString=textDoseSpotUserID.Text.Trim();
 					UserOdPrefs.Upsert(_doseSpotUserPrefDefault);
 				}
 			}

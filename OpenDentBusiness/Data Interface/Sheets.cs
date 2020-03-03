@@ -627,21 +627,16 @@ namespace OpenDentBusiness{
 		}
 
 		///<summary>Returns all sheets for the given patient in the given date range which have a description matching the examDescript in a case insensitive manner. If examDescript is blank, then sheets with any description are returned.</summary>
-		public static List<Sheet> GetExamSheetsTable(long patNum,DateTime startDate,DateTime endDate,string examDescript,bool isExactMatch=false) {
+		public static List<Sheet> GetExamSheetsTable(long patNum,DateTime startDate,DateTime endDate,long sheetDefNum=-1) {
 			if(RemotingClient.RemotingRole==RemotingRole.ClientWeb) {
-				return Meth.GetObject<List<Sheet>>(MethodBase.GetCurrentMethod(),patNum,startDate,endDate,examDescript,isExactMatch);
+				return Meth.GetObject<List<Sheet>>(MethodBase.GetCurrentMethod(),patNum,startDate,endDate,sheetDefNum);
 			}
 			string command="SELECT * "
 				+"FROM sheet WHERE IsDeleted=0 "
 				+"AND PatNum="+POut.Long(patNum)+" "
 				+"AND SheetType="+POut.Int((int)SheetTypeEnum.ExamSheet)+" ";
-			if(examDescript!=""){
-				if(isExactMatch) {
-					command+="AND Description = '"+POut.String(examDescript)+"' ";//exact text matches
-				}
-				else {
-				command+="AND Description LIKE '%"+POut.String(examDescript)+"%' ";//case insensitive text matches
-				}
+			if(sheetDefNum!=-1){
+				command+="AND SheetDefNum = "+POut.Long(sheetDefNum)+" ";
 			}
 			command+="AND "+DbHelper.DtimeToDate("DateTimeSheet")+">="+POut.Date(startDate)+" AND "+DbHelper.DtimeToDate("DateTimeSheet")+"<="+POut.Date(endDate)+" "
 				+"ORDER BY DateTimeSheet";

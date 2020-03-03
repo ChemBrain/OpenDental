@@ -105,8 +105,8 @@ namespace OpenDental {
 		}
 
 		private void butOK_Click(object sender,EventArgs e) {
-			ClinicIdVal=textClinicID.Text;
-			ClinicKeyVal=textClinicKey.Text;
+			ClinicIdVal=textClinicID.Text.Trim();
+			ClinicKeyVal=textClinicKey.Text.Trim();
 			DialogResult=DialogResult.OK;
 		}
 

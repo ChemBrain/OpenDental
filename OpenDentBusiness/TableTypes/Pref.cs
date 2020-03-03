@@ -1718,6 +1718,11 @@ namespace OpenDentBusiness {
 		UnschedDaysPast,
 		///<summary>Bool, true by default, prevents recall appointments from being sent to the Unscheduled List.</summary>
 		UnscheduledListNoRecalls,
+		///<summary>Hidden preference, no UI to enable this and is missing in most databases. Use GetStringNoCache() to get the value of this preference.
+		///If this preference exists and is set to 1, altering large tables will not use the large table helper method of creating a copy of the table
+		///structure, altering the empty copy, and then inserting all of the rows from the original table.  Instead, the alter table method will be run
+		///directly on the large table.</summary>
+		UpdateAlterLargeTablesDirectly,
 		UpdateCode,
 		UpdateInProgressOnComputerName,
 		///<summary>Described in the Update Setup window and in the manual.  Can contain multiple db names separated by commas.  Should not include current db name.</summary>

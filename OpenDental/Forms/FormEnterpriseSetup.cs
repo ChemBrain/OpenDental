@@ -155,6 +155,13 @@ namespace OpenDental {
 			else {
 				checkUpdateStreamlinePassword.Visible=false;
 			}
+			string updateLargeTables=GetHiddenPrefString(PrefName.UpdateAlterLargeTablesDirectly);
+			if(updateLargeTables!=null) {
+				checkUpdateAlterLargeTablesDirectly.Checked=updateLargeTables=="1";
+			}
+			else {
+				checkUpdateAlterLargeTablesDirectly.Visible=false;
+			}
 		}
 
 		///<summary>Returns the ValueString of a pref or null if that pref is not found in the database.</summary>

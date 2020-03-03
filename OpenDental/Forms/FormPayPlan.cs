@@ -2018,7 +2018,7 @@ namespace OpenDental{
 					MessageBox.Show(Lan.g(this,"This payment plan will never be paid off. The interest being charged on each payment is")+" "
 						+ppCharge.Interest.ToString("f")+" "+Lan.g(this,"and the payment amount is")+" "+periodPaymentAmt.ToString("f")+". "
 						+Lan.g(this,"Choose a lower interest rate or a higher payment amount."));
-					_listPayPlanCharges.Clear();//We don't want to leave charges in this list since we're stopping our calculations.
+					_listPayPlanCharges.RemoveAll(x => x.ChargeType==PayPlanChargeType.Debit);//We don't want to leave charges in this list since we're stopping our calculations.
 					break;
 				}
 				ppCharge=PayPlanEdit.CreateDebitCharge(_payPlanCur,FamCur,comboProv.GetSelectedProvNum(),comboClinic.SelectedClinicNum,0,0

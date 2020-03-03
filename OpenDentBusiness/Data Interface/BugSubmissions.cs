@@ -200,35 +200,33 @@ namespace OpenDentBusiness {
 		}
 		
 		///<summary>Attempts to insert the given BugSubmission.</summary>
-		public static BugSubmissionResult TryInsertBugSubmission(BugSubmission sub,string programVersion,bool isForeign,out string matchedFixedVersion,bool doCheckVersion=true) {
+		public static BugSubmissionResult TryInsertBugSubmission(BugSubmission sub,out string matchedFixedVersion,Func<BugSubmission,bool> funcFilterValidation,bool doFilterValidation=true) {
 			//No need to check RemotingRole; out parameter.
 			BugSubmissionResult result=BugSubmissionResult.None;
 			matchedFixedVersion=null;
-			if(ODBuild.IsDebug() || !doCheckVersion || VersionReleases.IsVersionRecent(new Version(programVersion),isForeign)) {
-				if(IsValidBug(sub)) {
-					result=BugSubmissionHashes.ProcessSubmission(sub,out long matchedBugId,out matchedFixedVersion,out long matchedBugSubmissionHashNum);
-					switch(result){
-						default:
-						case BugSubmissionResult.SuccessMatched://Hash found and points to valid bugId, but associated bug not flagged as fixed.
-						case BugSubmissionResult.SuccessMatchedFixed://Same as above but bug is flagged as fixed, matchedVersionsFixed is set also.
-							sub.BugId=matchedBugId;
-							sub.BugSubmissionHashNum=matchedBugSubmissionHashNum;
-							break;
-						case BugSubmissionResult.SuccessHashFound://Seen this submission before but no attached bug found. BugId=0.
-							sub.BugSubmissionHashNum=matchedBugSubmissionHashNum;
-							break;
-						case BugSubmissionResult.SuccessHashNeeded://New submission we do not have a hash for. BugId=0.
-							long bugSubmissionHashNum=BugSubmissionHashes.Insert(new BugSubmissionHash() {
-								FullHash=sub.HashedStackTrace,
-								PartialHash=sub.HashedSimpleStackTrace
-							});
-							sub.BugSubmissionHashNum=bugSubmissionHashNum;
-							break;
-						case BugSubmissionResult.Failed:
-							break;
-					}
-					Insert(sub);
+			if(!doFilterValidation || funcFilterValidation(sub)) {
+				result=BugSubmissionHashes.ProcessSubmission(sub,out long matchedBugId,out matchedFixedVersion,out long matchedBugSubmissionHashNum);
+				switch(result){
+					default:
+					case BugSubmissionResult.SuccessMatched://Hash found and points to valid bugId, but associated bug not flagged as fixed.
+					case BugSubmissionResult.SuccessMatchedFixed://Same as above but bug is flagged as fixed, matchedVersionsFixed is set also.
+						sub.BugId=matchedBugId;
+						sub.BugSubmissionHashNum=matchedBugSubmissionHashNum;
+						break;
+					case BugSubmissionResult.SuccessHashFound://Seen this submission before but no attached bug found. BugId=0.
+						sub.BugSubmissionHashNum=matchedBugSubmissionHashNum;
+						break;
+					case BugSubmissionResult.SuccessHashNeeded://New submission we do not have a hash for. BugId=0.
+						long bugSubmissionHashNum=BugSubmissionHashes.Insert(new BugSubmissionHash() {
+							FullHash=sub.HashedStackTrace,
+							PartialHash=sub.HashedSimpleStackTrace
+						});
+						sub.BugSubmissionHashNum=bugSubmissionHashNum;
+						break;
+					case BugSubmissionResult.Failed:
+						break;
 				}
+				Insert(sub);
 			}
 			else{
 				result=BugSubmissionResult.UpdateRequired;
@@ -426,20 +424,17 @@ namespace OpenDentBusiness {
 				+"Exception:  "+sub.ExceptionStackTrace;
 		}
 
-		///<summary>Pass in the BugSubmission for the bug that was just submitted.  This method will check the database for key phrases that are part of
-		///unhandled exceptions that HQ cannot do anything programmatically to fix.
-		///E.g. we don't want to document corrupted tables because there is nothing we can do to help the customer sans them calling us for support,
-		///3rd party plug-ins can crash and burn and where the user needs to call the 3rd party or disable the plug-in., etc.</summary>
-		public static bool IsValidBug(BugSubmission bug) {
+		///<summary></summary>
+		public static List<string> GetFilterPhrases(){
 			if(RemotingClient.RemotingRole==RemotingRole.ClientWeb) {
-				return Meth.GetBool(MethodBase.GetCurrentMethod(),bug);
+				return Meth.GetObject<List<string>>(MethodBase.GetCurrentMethod());
 			}
-			List<string> listPhrases=new List<string>();
+			List<string> listPhrases=null;
 			//Query the database for all phrases that we don't accept and see if the exception text passed in contains any of the phrases from the database.
 			DataAction.RunBugsHQ(() => {
 				listPhrases=Db.GetListString("SELECT Phrase FROM bugsubmissionfilter WHERE Phrase!=''");
 			});
-			return !listPhrases.Any(x => bug.ExceptionMessageText.Contains(x) || bug.ExceptionStackTrace.Contains(x));
+			return listPhrases;
 		}
 
 		///<summary>Removes file names and line numbers to reveal a simplified stack path.</summary>

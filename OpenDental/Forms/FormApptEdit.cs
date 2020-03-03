@@ -2586,8 +2586,9 @@ namespace OpenDental{
 						Commlogs.Insert(CommlogCur);
 					}
 				}
-				//If there is an existing HL7 def enabled, send a SIU message if there is an outbound SIU message defined
-				if(HL7Defs.IsExistingHL7Enabled()) {
+				//If there is an existing HL7 def enabled with an outbound SIU message defined, this appointment has been inserted, and there is an outbound
+				//message with AptCur.AptNum, send an SIU_S17 Appt Deletion message
+				if(AptCur.AptNum>0 && HL7Defs.IsExistingHL7Enabled() && HL7Msgs.MessageWasSent(AptCur.AptNum)) {
 					//S17 - Appt Deletion event
 					MessageHL7 messageHL7=MessageConstructor.GenerateSIU(pat,fam.GetPatient(pat.Guarantor),EventTypeHL7.S17,AptCur);
 					//Will be null if there is no outbound SIU message defined, so do nothing

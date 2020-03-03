@@ -354,6 +354,9 @@ namespace OpenDentBusiness {
 						rx.PatientInstruction=rx.PatientInstruction==null?rxOld.PatientInstruction:rx.PatientInstruction;
 						rx.ErxPharmacyInfo=rx.ErxPharmacyInfo==null?rxOld.ErxPharmacyInfo:rx.ErxPharmacyInfo;
 						rx.IsControlled=rxOld.IsControlled;
+						if(rxOld.RxDate.Year>1880) {
+							rx.RxDate=rxOld.RxDate;
+						}
 					}
 				}
 				else {

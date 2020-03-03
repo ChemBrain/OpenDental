@@ -541,6 +541,7 @@ namespace xCrudGenerator {
 				PrefName.ScannerCompression,
 				PrefName.RequiredFieldColor,
 				//Secret prefs
+				PrefName.UpdateAlterLargeTablesDirectly,
 				PrefName.UpdateStreamLinePassword,
 				//Clinicpref only prefs
 				PrefName.PatientPortalInviteUseDefaults,

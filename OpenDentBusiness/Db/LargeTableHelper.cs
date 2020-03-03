@@ -564,6 +564,11 @@ namespace OpenDentBusiness {
 				return;//nothing to do, just return
 			}
 			string alterTableStmt="ALTER TABLE `"+_tableName+"` "+string.Join(",",listChanges);
+			command="SELECT ValueString FROM preference WHERE PrefName='UpdateAlterLargeTablesDirectly'";		
+			if(Db.GetScalar(command)=="1") {
+				Db.NonQ(alterTableStmt);//execute the alter table statement on the original table
+				return;
+			}
 			try {
 				SetListPriKeyMaxPerBatch();
 			}

@@ -931,10 +931,11 @@ namespace OpenDental{
 			//If changing selection or initial selection.
 			bool isChangingTP=(treatPlan!=null && treatPlan.TreatPlanNum!=(_selectedTreatPlan?.TreatPlanNum));
 			if(isChangingTP) {
-				if(_selectedTreatPlan!=null && _selectedTreatPlan.TPStatus==TreatPlanStatus.Active) {//Changing FROM Active treatment plan.
+				List<TreatPlanStatus> listSavableCheckStatuses=new List<TreatPlanStatus> { TreatPlanStatus.Active,TreatPlanStatus.Inactive };
+				if(_selectedTreatPlan!=null && _selectedTreatPlan.TPStatus.In(listSavableCheckStatuses)) {//Changing FROM Active treatment plan.
 					_checkboxesShowState.Save();
 				}
-				else if(treatPlan.TPStatus==TreatPlanStatus.Active) {//Changing TO Active treatment plan.
+				else if(treatPlan.TPStatus.In(listSavableCheckStatuses)) {//Changing TO Active treatment plan.
 					_checkboxesShowState.Load();
 				}
 				_selectedTreatPlan=treatPlan;//Update to new selection.
@@ -1132,8 +1133,8 @@ namespace OpenDental{
 				fields.RemoveAll(x => x.InternalName=="Pri Ins" || x.InternalName=="Sec Ins" || x.InternalName=="Allowed");//If patient does have discount plan, don't show Pri or Sec Ins or allowed fee.
 			}
 			bool hasSalesTax=HasSalesTax(fields);
-			//Changing to TreatPlan other than Active.  CheckBox states have already been reset to user selections if changing to the Active TreatPlan.
-			if(hasSelectedTpChanged && _listTreatPlans[gridPlans.SelectedIndices[0]].TPStatus!=TreatPlanStatus.Active) {
+			//Changing to TreatPlan other than Active/Inactive.  CheckBox states have already been reset to user selections if changing to the Active/Inactive TreatPlan.
+			if(hasSelectedTpChanged && !_listTreatPlans[gridPlans.SelectedIndices[0]].TPStatus.In(TreatPlanStatus.Active,TreatPlanStatus.Inactive)) {
 				bool wasShowInsChecked=checkShowIns.Checked;
 				SetCheckboxesFromData(RowsMain);
 				if(!wasShowInsChecked && checkShowIns.Checked) {//checkShowIns was changed to checked, which affects how FillMainData() sets each row.Fee.
@@ -1366,7 +1367,7 @@ namespace OpenDental{
 		private void SetCheckboxesFromData(List<TpRow> listRows) {
 			foreach(TpRow row in listRows) {
 				checkShowFees.Checked|=(row.Fee.IsGreaterThanZero());
-				checkShowIns.Checked|=(row.PriIns.IsGreaterThanZero() || row.SecIns.IsGreaterThanZero() || row.FeeAllowed.IsGreaterThan(-1));
+				checkShowIns.Checked|=(row.PriIns.IsGreaterThanZero() || row.SecIns.IsGreaterThanZero() || row.FeeAllowed.IsGreaterThan(0));
 				checkShowDiscount.Checked|=(row.Discount.IsGreaterThanZero());
 			}
 		}
@@ -2014,8 +2015,8 @@ namespace OpenDental{
 		}
 
 		private void checkShowIns_Click(object sender,EventArgs e) {
-			if(!checkShowIns.Checked) {
-				if(MsgBox.Show(this,MsgBoxButtons.YesNo,"Turn off automatic checking of this box for the rest of this session?")) {
+			if(!checkShowIns.Checked && !checkShowInsNotAutomatic) {
+				if(MsgBox.Show(this,MsgBoxButtons.YesNo,"Turn off automatic checking of this box for Active/Inactive Treatment Plans for the rest of this session?")) {
 					checkShowInsNotAutomatic=true;
 				}
 			}
@@ -2024,7 +2025,7 @@ namespace OpenDental{
 
 		private void checkShowDiscount_Click(object sender,EventArgs e) {
 			if(!checkShowDiscount.Checked && !checkShowDiscountNotAutomatic) {
-				if(MsgBox.Show(this,MsgBoxButtons.YesNo,"Turn off automatic checking of this box for the rest of this session?")) {
+				if(MsgBox.Show(this,MsgBoxButtons.YesNo,"Turn off automatic checking of this box for Active/Inactive Treatment Plans for the rest of this session?")) {
 					checkShowDiscountNotAutomatic=true;
 				}
 			}

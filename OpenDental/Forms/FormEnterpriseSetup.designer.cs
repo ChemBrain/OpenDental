@@ -122,6 +122,7 @@ namespace OpenDental {
 			this.label11 = new System.Windows.Forms.Label();
 			this.label9 = new System.Windows.Forms.Label();
 			this.butOK = new OpenDental.UI.Button();
+			this.checkUpdateAlterLargeTablesDirectly = new System.Windows.Forms.CheckBox();
 			this.checkShowFeeSchedGroups = new System.Windows.Forms.CheckBox();
 			this.tabControlMain.SuspendLayout();
 			this.tabAccount.SuspendLayout();
@@ -506,6 +507,7 @@ namespace OpenDental {
 			// tabAdvanced
 			// 
 			this.tabAdvanced.BackColor = System.Drawing.SystemColors.Window;
+			this.tabAdvanced.Controls.Add(this.checkUpdateAlterLargeTablesDirectly);
 			this.tabAdvanced.Controls.Add(this.groupPatientSelect);
 			this.tabAdvanced.Controls.Add(this.checkUserNameManualEntry);
 			this.tabAdvanced.Controls.Add(this.label3);
@@ -551,9 +553,8 @@ namespace OpenDental {
 			this.groupPatientSelect.Controls.Add(this.textPatSelectPauseMs);
 			this.groupPatientSelect.Controls.Add(this.labelPatSelectMinChars);
 			this.groupPatientSelect.Controls.Add(this.textPatSelectMinChars);
-			this.groupPatientSelect.Location = new System.Drawing.Point(6, 352);
+			this.groupPatientSelect.Location = new System.Drawing.Point(6, 370);
 			this.groupPatientSelect.Name = "groupPatientSelect";
-			this.groupPatientSelect.Size = new System.Drawing.Size(482, 122);
 			this.groupPatientSelect.Size = new System.Drawing.Size(482, 144);
 			this.groupPatientSelect.TabIndex = 289;
 			this.groupPatientSelect.TabStop = false;
@@ -647,7 +648,7 @@ namespace OpenDental {
 			// 
 			// label3
 			// 
-			this.label3.Location = new System.Drawing.Point(6, 323);
+			this.label3.Location = new System.Drawing.Point(6, 341);
 			this.label3.Name = "label3";
 			this.label3.Size = new System.Drawing.Size(392, 25);
 			this.label3.TabIndex = 282;
@@ -660,16 +661,16 @@ namespace OpenDental {
 			this.checkUpdateStreamlinePassword.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
 			this.checkUpdateStreamlinePassword.Enabled = false;
 			this.checkUpdateStreamlinePassword.FlatStyle = System.Windows.Forms.FlatStyle.System;
-			this.checkUpdateStreamlinePassword.Location = new System.Drawing.Point(215, 274);
+			this.checkUpdateStreamlinePassword.Location = new System.Drawing.Point(252, 274);
 			this.checkUpdateStreamlinePassword.Name = "checkUpdateStreamlinePassword";
-			this.checkUpdateStreamlinePassword.Size = new System.Drawing.Size(258, 18);
+			this.checkUpdateStreamlinePassword.Size = new System.Drawing.Size(221, 18);
 			this.checkUpdateStreamlinePassword.TabIndex = 287;
 			this.checkUpdateStreamlinePassword.Text = "Update Streamline Password";
 			this.checkUpdateStreamlinePassword.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
 			// textSigInterval
 			// 
-			this.textSigInterval.Location = new System.Drawing.Point(399, 325);
+			this.textSigInterval.Location = new System.Drawing.Point(399, 343);
 			this.textSigInterval.MaxVal = 1000000;
 			this.textSigInterval.MinVal = 1;
 			this.textSigInterval.Name = "textSigInterval";
@@ -690,9 +691,9 @@ namespace OpenDental {
 			this.checkDBMSkipCheckTable.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
 			this.checkDBMSkipCheckTable.Enabled = false;
 			this.checkDBMSkipCheckTable.FlatStyle = System.Windows.Forms.FlatStyle.System;
-			this.checkDBMSkipCheckTable.Location = new System.Drawing.Point(276, 238);
+			this.checkDBMSkipCheckTable.Location = new System.Drawing.Point(252, 238);
 			this.checkDBMSkipCheckTable.Name = "checkDBMSkipCheckTable";
-			this.checkDBMSkipCheckTable.Size = new System.Drawing.Size(197, 18);
+			this.checkDBMSkipCheckTable.Size = new System.Drawing.Size(221, 18);
 			this.checkDBMSkipCheckTable.TabIndex = 271;
 			this.checkDBMSkipCheckTable.Text = "DBM Skip Check Table";
 			this.checkDBMSkipCheckTable.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -703,9 +704,9 @@ namespace OpenDental {
 			this.checkDBMDisableOptimize.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
 			this.checkDBMDisableOptimize.Enabled = false;
 			this.checkDBMDisableOptimize.FlatStyle = System.Windows.Forms.FlatStyle.System;
-			this.checkDBMDisableOptimize.Location = new System.Drawing.Point(287, 220);
+			this.checkDBMDisableOptimize.Location = new System.Drawing.Point(252, 220);
 			this.checkDBMDisableOptimize.Name = "checkDBMDisableOptimize";
-			this.checkDBMDisableOptimize.Size = new System.Drawing.Size(186, 18);
+			this.checkDBMDisableOptimize.Size = new System.Drawing.Size(221, 18);
 			this.checkDBMDisableOptimize.TabIndex = 270;
 			this.checkDBMDisableOptimize.Text = "DBM Disable Optimize";
 			this.checkDBMDisableOptimize.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -733,7 +734,7 @@ namespace OpenDental {
 			// 
 			// textInactiveSignal
 			// 
-			this.textInactiveSignal.Location = new System.Drawing.Point(399, 296);
+			this.textInactiveSignal.Location = new System.Drawing.Point(399, 314);
 			this.textInactiveSignal.MaxVal = 1000000;
 			this.textInactiveSignal.MinVal = 1;
 			this.textInactiveSignal.Name = "textInactiveSignal";
@@ -743,7 +744,7 @@ namespace OpenDental {
 			// 
 			// label12
 			// 
-			this.label12.Location = new System.Drawing.Point(6, 294);
+			this.label12.Location = new System.Drawing.Point(6, 312);
 			this.label12.Name = "label12";
 			this.label12.Size = new System.Drawing.Size(392, 25);
 			this.label12.TabIndex = 284;
@@ -1214,6 +1215,18 @@ namespace OpenDental {
 			this.butOK.Text = "&OK";
 			this.butOK.Click += new System.EventHandler(this.butOK_Click);
 			// 
+			// checkUpdateAlterLargeTablesDirectly
+			// 
+			this.checkUpdateAlterLargeTablesDirectly.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+			this.checkUpdateAlterLargeTablesDirectly.Enabled = false;
+			this.checkUpdateAlterLargeTablesDirectly.FlatStyle = System.Windows.Forms.FlatStyle.System;
+			this.checkUpdateAlterLargeTablesDirectly.Location = new System.Drawing.Point(252, 292);
+			this.checkUpdateAlterLargeTablesDirectly.Name = "checkUpdateAlterLargeTablesDirectly";
+			this.checkUpdateAlterLargeTablesDirectly.Size = new System.Drawing.Size(221, 18);
+			this.checkUpdateAlterLargeTablesDirectly.TabIndex = 290;
+			this.checkUpdateAlterLargeTablesDirectly.Text = "Update alter large tables directly";
+			this.checkUpdateAlterLargeTablesDirectly.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
 			// checkShowFeeSchedGroups
 			// 
 			this.checkShowFeeSchedGroups.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -1362,5 +1375,6 @@ namespace OpenDental {
 		private System.Windows.Forms.GroupBox groupClaimSnapshot;
 		private System.Windows.Forms.CheckBox checkPatientSelectFilterRestrictedClinics;
 		private System.Windows.Forms.CheckBox checkShowFeeSchedGroups;
+		private System.Windows.Forms.CheckBox checkUpdateAlterLargeTablesDirectly;
 	}
 }

@@ -350,19 +350,21 @@ namespace OpenDental{
 			#region Determine if any appts conflict exist and potentially show them
 			//List of all appointments for all child ops. If conflict was detected the appointments OperatoryNum will bet set to -1
 			List<ODTuple<Appointment,bool>> listTupleApptsToMerge=Operatories.MergeApptCheck(masterOpNum,listSelectedOpNums.FindAll(x => x!=masterOpNum));
-			ListConflictingAppts=listTupleApptsToMerge.Where(x => x.Item2).Select(x => x.Item1).ToList();
-			List<Appointment> listApptsToMerge=listTupleApptsToMerge.Select(x => x.Item1).ToList();
-			if(ListConflictingAppts.Count > 0) {//Appointments conflicts exist, can not merge
-				if(!MsgBox.Show(this,true,"Cannot merge operatories due to appointment conflicts.\r\n\r\n"
-					+"These conflicts need to be resolved before combining can occur.\r\n"
-					+"Click OK to view the conflicting appointments."))
-				{
-					ListConflictingAppts.Clear();
+			if(!PrefC.GetYN(PrefName.ApptsAllowOverlap)) { //We only want to check appt overlap and return if the customer has the relevant pref turned off
+				ListConflictingAppts=listTupleApptsToMerge.Where(x => x.Item2).Select(x => x.Item1).ToList();
+				if(ListConflictingAppts.Count > 0) {//Appointments conflicts exist, can not merge
+					if(!MsgBox.Show(this,true,"Cannot merge operatories due to appointment conflicts.\r\n\r\n"
+						+"These conflicts need to be resolved before combining can occur.\r\n"
+						+"Click OK to view the conflicting appointments.")) 
+					{
+						ListConflictingAppts.Clear();
+						return;
+					}
+					Close();//Having ListConflictingAppts filled with appointments will cause outside windows that care to show the corresponding window.
 					return;
 				}
-				Close();//Having ListConflictingAppts filled with appointments will cause outside windows that care to show the corresponding window.
-				return;
 			}
+			List<Appointment> listApptsToMerge=listTupleApptsToMerge.Select(x => x.Item1).ToList();
 			#endregion
 			#region Final prompt, displays number of appts to move and the 'master' ops abbr.
 			int apptCount=listApptsToMerge.FindAll(x => x.Op!=masterOpNum).Count;
@@ -372,7 +374,7 @@ namespace OpenDental{
 					+Lan.g(this,"appointments from their current operatories to")+" "+selectedOpName+"?\r\n\r\n"
 					+Lan.g(this,"You cannot undo this!")
 					,"WARNING"
-					,MessageBoxButtons.OKCancel)!=DialogResult.OK) 
+					,MessageBoxButtons.YesNo)!=DialogResult.Yes) 
 				{
 					return;
 				}
@@ -392,7 +394,7 @@ namespace OpenDental{
 				return;
 			}
 			MessageBox.Show(Lan.g("Operatories","The following operatories and all of their appointments were merged into the")
-					+" "+_listOps.FirstOrDefault(x => x.OperatoryNum==masterOpNum).Abbrev+" "+Lan.g("Operatories","operatory;")+"\r\n"
+					+" "+_listOps.FirstOrDefault(x => x.OperatoryNum==masterOpNum).Abbrev+" "+Lan.g("Operatories","operatory:")+"\r\n"
 					+string.Join(", ",_listOps.FindAll(x => x.OperatoryNum!=masterOpNum && listSelectedOpNums.Contains(x.OperatoryNum)).Select(x => x.Abbrev)));
 			RefreshList();
 			FillGrid();

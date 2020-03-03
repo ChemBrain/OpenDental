@@ -1107,6 +1107,7 @@ namespace OpenDental {
 			_payPlanCur.DownPayment=terms.DownPayment;
 			_payPlanCur.PaySchedule=PayPlanEdit.GetPayScheduleFromFrequency(terms.Frequency);
 			_payPlanCur.DatePayPlanStart=terms.DateFirstPayment;
+			List<PayPlanCharge> listDownPaymentCharges=new List<PayPlanCharge>();
 			if(_payPlanCur.IsNew) {
 				if(!terms.DownPayment.IsZero()) {
 					//insert down payment(s) if none exist. Get a new copy from DB so we can guarantee no one else has made this payment plan yet. 
@@ -1114,7 +1115,7 @@ namespace OpenDental {
 						List<PayPlanCharge> listDownPayments=PayPlanCharges.GetForDownPayment(terms,_famCur,_listPayPlanLinks,_payPlanCur);
 						foreach(PayPlanCharge downPayment in listDownPayments) {
 							PayPlanCharges.Insert(downPayment);
-							_listPayPlanChargesDb.Add(downPayment);
+							listDownPaymentCharges.Add(downPayment);
 						}
 					}
 				}
@@ -1128,6 +1129,9 @@ namespace OpenDental {
 					PayPlanCharges.InsertMany(listCharges);
 					_listPayPlanChargesDb.AddRange(listCharges);
 				}
+			}
+			else if(listDownPaymentCharges.Count>0) {
+				_listPayPlanChargesDb.AddRange(listDownPaymentCharges);
 			}
 			if(!_payPlanCur.IsLocked && checkProductionLock.Checked) {
 				foreach(PayPlanProductionEntry entry in _listPayPlanProductionEntries) {
