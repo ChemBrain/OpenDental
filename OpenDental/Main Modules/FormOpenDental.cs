@@ -3076,6 +3076,11 @@ namespace OpenDental{
 			if(Programs.GetCur(ProgramName.BencoPracticeManagement).Enabled) {
 				menuItemRemoteSupport.Visible=false;
 			}
+			if(ODBuild.IsWeb()) {
+				menuItemCreateAtoZFolders.Visible=false;
+				menuItemServiceManager.Visible=false;
+				menuItemRemoteSupport.Visible=false;
+			}
 			Plugins.HookAddCode(this,"FormOpenDental.Load_end");
 		}
 

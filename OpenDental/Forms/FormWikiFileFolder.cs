@@ -8,6 +8,7 @@ using System.IO;
 using System.Windows.Forms;
 using OpenDentBusiness;
 using OpenDental.UI;
+using CodeBase;
 
 namespace OpenDental {
 	public partial class FormWikiFileFolder:ODForm {
@@ -43,7 +44,7 @@ namespace OpenDental {
 
 		private void butOK_Click(object sender,EventArgs e) {
 			if(IsFolderMode){
-				if(!Directory.Exists(textLink.Text)) {
+				if(!ODBuild.IsWeb() && !Directory.Exists(textLink.Text)) {
 					if(!MsgBox.Show(this,MsgBoxButtons.OKCancel,"Folder does not exist. Continue anyway?")) {
 						return;
 					}
@@ -57,7 +58,7 @@ namespace OpenDental {
 				}
 			}
 			else{//file mode
-				if(!File.Exists(textLink.Text)) {
+				if(!ODBuild.IsWeb() && !File.Exists(textLink.Text)) {
 					if(!MsgBox.Show(this,MsgBoxButtons.OKCancel,"File does not exist. Continue anyway?")) {
 						return;
 					}

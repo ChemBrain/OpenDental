@@ -37,7 +37,10 @@ namespace OpenDentBusiness.WebTypes {
 
 		///<summary>Send a summary of eConnector statistics to OD HQ. This should only be called from the eConnector.</summary>
 		public static void UpdateEConnectorStats() {
-			OpenDentBusiness.WebTypes.EConnectorStatistics eConnStats=new OpenDentBusiness.WebTypes.EConnectorStatistics();
+			EConnectorStatistics eConnStats=new EConnectorStatistics() {
+				ListEServiceSignals=new List<EServiceSignal>(),
+				ListEServicePrefs=new List<Pref>(),
+			};
 			eConnStats.EConnectorComputerName=Environment.MachineName;
 			eConnStats.EConnectorDomainUserName=Environment.UserName;
 			eConnStats.EConnectorIP=ODEnvironment.GetLocalIPAddress();
@@ -57,7 +60,6 @@ namespace OpenDentBusiness.WebTypes {
 					DateTime.Today,30);
 			}
 			eConnStats.DateTimeNow=DateTime.Now;
-			eConnStats.ListEServicePrefs=new List<Pref>();
 			foreach(PrefName prefName in Enum.GetValues(typeof(PrefName))) {
 				if(prefName.In(
 					PrefName.RegistrationKey,

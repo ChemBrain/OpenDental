@@ -1142,7 +1142,9 @@ namespace OpenDental{
 				listPatNumsSelected.Add(message.PatNum);
 				str=PrefC.GetString(PrefName.ConfirmEmailMessage);
 				str=str.Replace("[NameF]",Table.Rows[gridMain.SelectedIndices[i]]["nameF"].ToString());
-				str=str.Replace("[NameFL]",Table.Rows[gridMain.SelectedIndices[i]]["nameFL"].ToString());
+				//Last name should NOT be included in confirmations (HIPPA).  But, prior to B19814, [NameFL] had been an available tag, so we have to 
+				//continue to make a substitution where [NameFL] is in use.
+				str=str.Replace("[NameFL]",Table.Rows[gridMain.SelectedIndices[i]]["nameF"].ToString());
 				str=str.Replace("[date]",((DateTime)Table.Rows[gridMain.SelectedIndices[i]]["AptDateTime"]).ToString(PrefC.PatientCommunicationDateFormat));
 				str=str.Replace("[time]",((DateTime)Table.Rows[gridMain.SelectedIndices[i]]["AptDateTime"]).ToShortTimeString());
 				message.BodyText=EmailMessages.FindAndReplacePostalAddressTag(str,clinicNum);
@@ -1284,7 +1286,7 @@ namespace OpenDental{
 				txtMsgOk=((YN)PIn.Int(Table.Rows[gridMain.SelectedIndices[i]]["TxtMsgOk"].ToString()));
 				message=PrefC.GetString(PrefName.ConfirmTextMessage);
 				message=message.Replace("[NameF]",Table.Rows[gridMain.SelectedIndices[i]]["nameF"].ToString());
-				message=message.Replace("[NameFL]",Table.Rows[gridMain.SelectedIndices[i]]["nameFL"].ToString());
+				message=message.Replace("[NameFL]",Table.Rows[gridMain.SelectedIndices[i]]["nameF"].ToString());//Last name should NOT be included in confirmations.
 				message=message.Replace("[date]",((DateTime)Table.Rows[gridMain.SelectedIndices[i]]["AptDateTime"])
 					.ToString(PrefC.PatientCommunicationDateFormat));
 				message=message.Replace("[time]",((DateTime)Table.Rows[gridMain.SelectedIndices[i]]["AptDateTime"]).ToShortTimeString());

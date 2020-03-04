@@ -823,6 +823,7 @@
     <Compile Include="UI\ComboBoxJ.Designer.cs">
       <DependentUpon>ComboBoxJ.cs</DependentUpon>
     </Compile>
+    <Compile Include="UI\FolderBrowserDialog.cs" />
     <Compile Include="UI\ODColorPicker.cs">
       <SubType>UserControl</SubType>
     </Compile>

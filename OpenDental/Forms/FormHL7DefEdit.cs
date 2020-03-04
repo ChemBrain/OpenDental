@@ -373,6 +373,10 @@ namespace OpenDental {
 			if(!checkEnabled.Checked) {
 				return true;
 			}
+			if(ODBuild.IsWeb()) {
+				MsgBox.Show(this,"HL7 is not supported in web mode.");
+				return false;
+			}
 			if(textHL7Server.Text=="") {
 				MsgBox.Show(this,"HL7 Server may not be blank.");
 				return false;

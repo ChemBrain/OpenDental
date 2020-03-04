@@ -28,7 +28,7 @@ namespace OpenDental{
 			this.label1=new System.Windows.Forms.Label();
 			this.textLog=new System.Windows.Forms.TextBox();
 			this.label2=new System.Windows.Forms.Label();
-			this.folderEligibilityPath=new System.Windows.Forms.FolderBrowserDialog();
+			this.folderEligibilityPath=new OpenDental.FolderBrowserDialog();
 			this.label3=new System.Windows.Forms.Label();
 			this.textEligibilityFile=new System.Windows.Forms.TextBox();
 			this.dateTimeFrom=new System.Windows.Forms.DateTimePicker();
@@ -230,7 +230,7 @@ namespace OpenDental{
 		private OpenDental.UI.Button butBrowse;
 		private System.Windows.Forms.TextBox textLog;
 		private System.Windows.Forms.Label label2;
-		private System.Windows.Forms.FolderBrowserDialog folderEligibilityPath;
+		private OpenDental.FolderBrowserDialog folderEligibilityPath;
 		private System.Windows.Forms.Label label3;
 		private System.Windows.Forms.TextBox textEligibilityFile;
 		private OpenDental.UI.Button butCopy;

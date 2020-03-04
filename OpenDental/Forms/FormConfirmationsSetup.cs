@@ -73,7 +73,7 @@ namespace OpenDental {
 			//
 			row=new GridRow();
 			row.Cells.Add(Lan.g(this,"E-mail"));
-			row.Cells.Add(Lan.g(this,"Confirmation message. Available variables: [NameF], [NameFL], [date], [time]."));
+			row.Cells.Add(Lan.g(this,"Confirmation message. Available variables: [NameF], [date], [time]."));
 			row.Cells.Add(PrefC.GetString(PrefName.ConfirmEmailMessage));
 			row.Tag=PrefName.ConfirmEmailMessage;
 			gridMain.ListGridRows.Add(row);
@@ -82,7 +82,7 @@ namespace OpenDental {
 			//Text Messaging----------------------------------------------------------------------------------------------
 			row=new GridRow();
 			row.Cells.Add(Lan.g(this,"Text"));
-			row.Cells.Add(Lan.g(this,"Confirmation message. Available variables: [NameF], [NameFL], [date], [time]."));
+			row.Cells.Add(Lan.g(this,"Confirmation message. Available variables: [NameF], [date], [time]."));
 			row.Cells.Add(PrefC.GetString(PrefName.ConfirmTextMessage));
 			row.Tag=PrefName.ConfirmTextMessage;
 			gridMain.ListGridRows.Add(row);

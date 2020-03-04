@@ -553,7 +553,7 @@ namespace OpenDental {
 				e.Cancel=true;
 				return;
 			}
-			else if(e.Url.ToString().Contains("wikifile:")) {
+			else if(e.Url.ToString().Contains("wikifile:") && !ODBuild.IsWeb()) {
 				string fileName=e.Url.ToString().Substring(e.Url.ToString().LastIndexOf("wikifile:")+9).Replace("/","\\");
 				if(!File.Exists(fileName)) {
 					MessageBox.Show(Lan.g(this,"File does not exist: ")+fileName);
@@ -569,7 +569,7 @@ namespace OpenDental {
 				e.Cancel=true;
 				return;
 			}
-			else if(e.Url.ToString().Contains("folder:")) {
+			else if(e.Url.ToString().Contains("folder:") && !ODBuild.IsWeb()) {
 				string folderName=e.Url.ToString().Substring(e.Url.ToString().LastIndexOf("folder:")+7).Replace("/","\\");
 				if(!Directory.Exists(folderName)) {
 					MessageBox.Show(Lan.g(this,"Folder does not exist: ")+folderName);

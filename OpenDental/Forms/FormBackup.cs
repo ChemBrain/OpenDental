@@ -67,6 +67,16 @@ namespace OpenDental {
 			}
 			textSupplementalBackupCopyNetworkPath.Text=PrefC.GetString(PrefName.SupplementalBackupNetworkPath);
 			#endregion Supplemental Tab
+			if(ODBuild.IsWeb()) {
+				//OD Cloud users cannot use this tool because they're InnoDb.
+				tabControl1.TabPages.Remove(tabPageBackup);
+				//We don't want to allow the user to connect to another server.
+				checkArchiveDoBackupFirst.Visible=false;
+				checkArchiveDoBackupFirst.Checked=false;
+				groupBoxBackupConnection.Visible=false;
+				//We don't want the user to be able to tell if a directory exists.
+				tabControl1.TabPages.Remove(tabPageSupplementalBackups);
+			}
 		}
 
 		#region Backup Tab

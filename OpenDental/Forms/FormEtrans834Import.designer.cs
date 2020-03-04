@@ -25,7 +25,7 @@ namespace OpenDental{
 		private void InitializeComponent() {
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormEtrans834Import));
 			this.label1 = new System.Windows.Forms.Label();
-			this.folderBrowserImportPath = new System.Windows.Forms.FolderBrowserDialog();
+			this.folderBrowserImportPath = new OpenDental.FolderBrowserDialog();
 			this.gridInsPlanFiles = new OpenDental.UI.ODGrid();
 			this.label2 = new System.Windows.Forms.Label();
 			this.butRefresh = new OpenDental.UI.Button();
@@ -164,7 +164,7 @@ namespace OpenDental{
 		private ODtextBox textImportPath;
 		private System.Windows.Forms.Label label1;
 		private UI.Button butImportPathPick;
-		private System.Windows.Forms.FolderBrowserDialog folderBrowserImportPath;
+		private OpenDental.FolderBrowserDialog folderBrowserImportPath;
 		private UI.ODGrid gridInsPlanFiles;
 		private UI.Button butRefresh;
 		private System.Windows.Forms.Label label2;

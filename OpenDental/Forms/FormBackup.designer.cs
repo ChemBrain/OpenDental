@@ -119,7 +119,7 @@
 			this.textSupplementalBackupDateLastComplete = new OpenDental.ODtextBox();
 			this.checkSupplementalBackupEnabled = new System.Windows.Forms.CheckBox();
 			this.labelExplanation = new System.Windows.Forms.Label();
-			this.folderBrowserSupplementalCopyNetworkPath = new System.Windows.Forms.FolderBrowserDialog();
+			this.folderBrowserSupplementalCopyNetworkPath = new OpenDental.FolderBrowserDialog();
 			this.tabControl1.SuspendLayout();
 			this.tabPageBackup.SuspendLayout();
 			this.groupManagedBackups.SuspendLayout();
@@ -711,7 +711,7 @@
 		private ODtextBox textSupplementalBackupDateLastComplete;
 		private System.Windows.Forms.CheckBox checkSupplementalBackupEnabled;
 		private System.Windows.Forms.Label labelExplanation;
-		private System.Windows.Forms.FolderBrowserDialog folderBrowserSupplementalCopyNetworkPath;
+		private OpenDental.FolderBrowserDialog folderBrowserSupplementalCopyNetworkPath;
 		private UI.Button butSupplementalSaveDefaults;
 	}
 }

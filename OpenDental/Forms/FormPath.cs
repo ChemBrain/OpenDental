@@ -116,7 +116,7 @@ namespace OpenDental{
 			this.textExportPath = new System.Windows.Forms.TextBox();
 			this.butBrowseExport = new OpenDental.UI.Button();
 			this.butBrowseDoc = new OpenDental.UI.Button();
-			this.fb = new System.Windows.Forms.FolderBrowserDialog();
+			this.fb = new OpenDental.FolderBrowserDialog();
 			this.label1 = new System.Windows.Forms.Label();
 			this.labelPathSameForAll = new System.Windows.Forms.Label();
 			this.label3 = new System.Windows.Forms.Label();

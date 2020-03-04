@@ -120,21 +120,28 @@ namespace OpenDental {
 			//Determine if it's a folder or a file that was clicked
 			//If a folder, do nothing
 			//If a file, download a thumbnail and display it
-			if(gridMain.ListGridRows[gridMain.GetSelectedIndex()].Cells[0].Text.Contains(".")) {//They selected a file because there is an extension.
-				//Place thumbnail within odPictureox to display
-				OpenDentalCloud.Core.TaskStateThumbnail state=CloudStorage.GetThumbnail(textPath.Text,gridMain.ListGridRows[gridMain.GetSelectedIndex()].Cells[0].Text);
-				if(state==null || state.FileContent==null || state.FileContent.Length<2) {
-					labelThumbnail.Visible=true;
-					odPictureBox.Visible=false;
-				}
-				else { 
-					labelThumbnail.Visible=false;
-					odPictureBox.Visible=true;
-					using(MemoryStream stream=new MemoryStream(state.FileContent)) {
-						_thumbnail=new Bitmap(Image.FromStream(stream));
+			if(ImageStore.HasImageExtension(gridMain.ListGridRows[gridMain.GetSelectedIndex()].Cells[0].Text)) {
+				try {
+					//Place thumbnail within odPictureox to display
+					OpenDentalCloud.Core.TaskStateThumbnail state=CloudStorage.GetThumbnail(textPath.Text,gridMain.ListGridRows[gridMain.GetSelectedIndex()].Cells[0].Text);
+					if(state==null || state.FileContent==null || state.FileContent.Length<2) {
+						labelThumbnail.Visible=true;
+						odPictureBox.Visible=false;
 					}
-					odPictureBox.Image=_thumbnail;
-					odPictureBox.Invalidate();
+					else {
+						labelThumbnail.Visible=false;
+						odPictureBox.Visible=true;
+						using(MemoryStream stream=new MemoryStream(state.FileContent)) {
+							_thumbnail=new Bitmap(Image.FromStream(stream));
+						}
+						odPictureBox.Image=_thumbnail;
+						odPictureBox.Invalidate();
+					}
+				}
+				catch(Exception ex) {
+					labelThumbnail.Visible=false;
+					odPictureBox.Visible=false;
+					ex.DoNothing();
 				}
 			}
 			else {

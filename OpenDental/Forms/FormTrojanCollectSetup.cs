@@ -199,6 +199,11 @@ namespace OpenDental {
 		#endregion
 
 		private void FormTrojanCollectSetup_Load(object sender,EventArgs e) {
+			if(ODBuild.IsWeb()) {
+				MsgBox.Show(this,"This program is not available in web mode.");
+				Close();
+				return;
+			}
 			_progCur=Programs.GetCur(ProgramName.TrojanExpressCollect);
 			textExportFolder.Text=ProgramProperties.GetPropVal(_progCur.ProgramNum,"FolderPath");
 			long billtype=PIn.Long(ProgramProperties.GetPropVal(_progCur.ProgramNum,"BillingType"));

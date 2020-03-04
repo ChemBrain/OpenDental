@@ -1784,7 +1784,7 @@ namespace OpenDentBusiness{
 				pat.LName=rawtable.Rows[i]["LName"].ToString();
 				pat.FName=rawtable.Rows[i]["FName"].ToString();
 				pat.Preferred=rawtable.Rows[i]["Preferred"].ToString();
-				row["nameF"]=pat.GetNameFirstOrPreferred();
+				row["nameF"]=pat.FName;
 				row["nameFL"]=pat.GetNameFirstOrPrefL();
 				row["Note"]=rawtable.Rows[i]["Note"].ToString();
 				row["patientName"]=	pat.LName+"\r\n";

@@ -22,7 +22,7 @@ namespace OpenDental {
 		private System.ComponentModel.IContainer components;
 		private CheckBox checkShow;
 		private UI.Button butFix;
-		private Label label6;
+		private Label labelInnoDb;
 		private UI.Button butInnoDB;
 		private Label label5;
 		private Label labelApptProcs;
@@ -152,7 +152,7 @@ namespace OpenDental {
 			this.butRemoveNulls = new OpenDental.UI.Button();
 			this.label7 = new System.Windows.Forms.Label();
 			this.butTokens = new OpenDental.UI.Button();
-			this.label6 = new System.Windows.Forms.Label();
+			this.labelInnoDb = new System.Windows.Forms.Label();
 			this.butInnoDB = new OpenDental.UI.Button();
 			this.label5 = new System.Windows.Forms.Label();
 			this.labelApptProcs = new System.Windows.Forms.Label();
@@ -351,14 +351,14 @@ namespace OpenDental {
 			this.butTokens.Text = "Tokens";
 			this.butTokens.Click += new System.EventHandler(this.butTokens_Click);
 			// 
-			// label6
+			// labelInnoDb
 			// 
-			this.label6.Location = new System.Drawing.Point(150, 280);
-			this.label6.Name = "label6";
-			this.label6.Size = new System.Drawing.Size(631, 20);
-			this.label6.TabIndex = 40;
-			this.label6.Text = "Converts database storage engine to/from InnoDb.";
-			this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			this.labelInnoDb.Location = new System.Drawing.Point(150, 280);
+			this.labelInnoDb.Name = "labelInnoDb";
+			this.labelInnoDb.Size = new System.Drawing.Size(631, 20);
+			this.labelInnoDb.TabIndex = 40;
+			this.labelInnoDb.Text = "Converts database storage engine to/from InnoDb.";
+			this.labelInnoDb.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 			// 
 			// butInnoDB
 			// 
@@ -751,7 +751,7 @@ namespace OpenDental {
 			this.tabTools.Controls.Add(this.label3);
 			this.tabTools.Controls.Add(this.butTokens);
 			this.tabTools.Controls.Add(this.labelApptProcs);
-			this.tabTools.Controls.Add(this.label6);
+			this.tabTools.Controls.Add(this.labelInnoDb);
 			this.tabTools.Controls.Add(this.label5);
 			this.tabTools.Controls.Add(this.butInnoDB);
 			this.tabTools.Location = new System.Drawing.Point(4, 22);
@@ -980,6 +980,11 @@ namespace OpenDental {
 			textBoxUpdateInProg.Text=PrefC.GetString(PrefName.UpdateInProgressOnComputerName);
 			if(string.IsNullOrWhiteSpace(textBoxUpdateInProg.Text)) {
 				butClearUpdateInProgress.Enabled=false;
+			}
+			if(ODBuild.IsWeb()) {
+				//If the office converted their db to MyISAM, their backups would stop working.
+				butInnoDB.Visible=false;
+				labelInnoDb.Visible=false;
 			}
 		}
 
