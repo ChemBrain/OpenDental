@@ -1310,6 +1310,7 @@ namespace OpenDentBusiness
 				}
 				#endregion 2310 Claim Providers (dental)
 				#region 2320 Other subscriber information
+				double claimWriteoffAmt=0;
 				List<List <ClaimProc>> listOtherClaimProcs=new List<List<ClaimProc>>();
 				List<double> listProcWriteoffAmts=new List<double>();
 				List<double> listProcDeductibleAmts=new List<double>();
@@ -1336,7 +1337,7 @@ namespace OpenDentBusiness
 						+s//SBR08 2/2 Employment Status Code: Not Used.
 						+GetFilingCode(otherPlan));//SBR09 1/2 Claim Filing Indicator Code: 12=PPO,17=DMO,BL=BCBS,CI=CommercialIns,FI=FEP,HM=HMO. Will no longer be required when HIPPA National Plan ID is mandated.
 					EndSegment(sw);
-					double claimWriteoffAmt=0;
+					claimWriteoffAmt=0;
 					double claimDeductibleAmt=0;
 					double claimPaidOtherInsAmt=0;
 					//In addition to the claimprocs attached to the procedures going out on this claim, we must also include amounts for Total Payments from other insurance.
@@ -2067,7 +2068,8 @@ namespace OpenDentBusiness
 					//See task #2351950: DentalXChange vouched that we can send both claim-level and line-level CAS segments on 01/06/2020.
 					if(hasAdjForOtherPlans && (IsApex(clearinghouseClin) || IsClaimConnect(clearinghouseClin))) {
 						double procPatientPortionAmt=Math.Max(0,claimProcs[j].FeeBilled-listProcWriteoffAmts[j]-listProcDeductibleAmts[j]-listProcPaidOtherInsAmts[j]);
-						if(listProcWriteoffAmts[j]>0) {
+						//ClaimConnect sometimes expects zero value contractual obligations for line adjustments. Excluding them can cause an error on their end.
+						if(listProcWriteoffAmts[j]>0 || (IsClaimConnect(clearinghouseClin) && claimWriteoffAmt>0)) {
 							sw.Write("CAS"+s
 								+"CO"+s//CAS01 1/2 Claim Adjustment Group Code: CO=Contractual Obligations.
 								+"45"+s//CAS02 1/5 Claim Adjustment Reason Code: 45=Charge exceeds fee schedule/maximum allowable or contracted/legislated fee arrangement.

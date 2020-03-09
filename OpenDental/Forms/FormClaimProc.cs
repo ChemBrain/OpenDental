@@ -1378,12 +1378,12 @@ namespace OpenDental {
 			}
 			bool needsLog=false;
 			if(ClaimProcOld.WriteOff!=ClaimProcCur.WriteOff) {
-				insWriteOffEditLog+=$"Writeoff amount changed from ${ClaimProcOld.WriteOff.ToString("C")} to ${ClaimProcCur.WriteOff.ToString("C")}. ";
+				insWriteOffEditLog+=$"Writeoff amount changed from {ClaimProcOld.WriteOff.ToString("C")} to {ClaimProcCur.WriteOff.ToString("C")}. ";
 				needsLog=true;
 			}
 			if(ClaimProcOld.WriteOffEst!=ClaimProcCur.WriteOffEst) {
-				insWriteOffEditLog+=$"Writeoff estimate amount changed from ${ClaimProcOld.WriteOff.ToString("C")} to "
-					+$"${ClaimProcCur.WriteOff.ToString("C")}. ";
+				insWriteOffEditLog+=$"Writeoff estimate amount changed from {ClaimProcOld.WriteOff.ToString("C")} to "
+					+$"{ClaimProcCur.WriteOff.ToString("C")}. ";
 				needsLog=true;
 			}
 			if(needsLog) {
@@ -1391,13 +1391,13 @@ namespace OpenDental {
 			}
 			needsLog=false;
 			if(ClaimProcOld.InsPayAmt!=ClaimProcCur.InsPayAmt) {
-				insPayEditLog+=$"Insurance payment amount changed from ${ClaimProcOld.InsPayAmt.ToString("C")} to "
-					+$"${ClaimProcCur.InsPayAmt.ToString("C")}. ";
+				insPayEditLog+=$"Insurance payment amount changed from {ClaimProcOld.InsPayAmt.ToString("C")} to "
+					+$"{ClaimProcCur.InsPayAmt.ToString("C")}. ";
 				needsLog=true;
 			}
 			if(ClaimProcOld.InsPayEst!=ClaimProcCur.InsPayEst) {
-				insPayEditLog+=$"Insurance payment estimate amount changed from ${ClaimProcOld.InsPayEst.ToString("C")} to "
-					+$"${ClaimProcCur.InsPayEst.ToString("C")}. ";
+				insPayEditLog+=$"Insurance payment estimate amount changed from {ClaimProcOld.InsPayEst.ToString("C")} to "
+					+$"{ClaimProcCur.InsPayEst.ToString("C")}. ";
 				needsLog=true;
 			}
 			if(needsLog) {
