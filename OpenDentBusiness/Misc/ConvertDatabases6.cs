@@ -2195,7 +2195,17 @@ namespace OpenDentBusiness {
 			DetachTransferClaimProcsFromClaimPayments();
 		}
 
-		private static void To19_3_51() {
+		private static void To19_3_51() {//This method did not truly get added until 19.3.52.
+			string command;
+			if(!LargeTableHelper.IndexExists("smstomobile","GuidMessage")) {
+				command="ALTER TABLE smstomobile ADD INDEX (GuidMessage)";
+				Db.NonQ(command);
+			}
+		}
+
+		private static void To19_3_60() {
+			//The method To19_3_51() was committed just as 19.3.51 was being released, so it did not make it in until 19.3.52. We will run this again for
+			//any offices that updated to 19.3.51.
 			string command;
 			if(!LargeTableHelper.IndexExists("smstomobile","GuidMessage")) {
 				command="ALTER TABLE smstomobile ADD INDEX (GuidMessage)";

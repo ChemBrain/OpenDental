@@ -393,17 +393,7 @@ namespace OpenDentBusiness{
 					InsVerifies.DeleteByFKey(patPlanNum,VerifyTypes.PatientEnrollment);
 				}
 			}
-			Family fam=Patients.GetFamily(patNum);
-			Patient pat=fam.GetPatient(patNum);
-			List<ClaimProc> claimProcs=ClaimProcs.Refresh(patNum);
-			List<ClaimProc> listClaimProcsEsts=claimProcs.Where(x => x.Status.In(ClaimProcStatus.Estimate,ClaimProcStatus.CapEstimate)).ToList();
-			List<Procedure> procs=Procedures.Refresh(patNum);
-			patPlans=PatPlans.Refresh(patNum);
-			List<InsSub> subList=InsSubs.RefreshForFam(fam);
-			List<InsPlan> planList=InsPlans.RefreshForSubList(subList);
-			List<Benefit> benList=Benefits.Refresh(patPlans,subList);
-			Procedures.ComputeEstimatesForAll(patNum,listClaimProcsEsts,procs,planList,patPlans,benList,pat.Age,subList,claimProcs);
-			Patients.SetHasIns(patNum);
+			InsPlans.ComputeEstimatesForPatNums(new List<long> { patNum });
 //Cameron_ Possibly create outbound ADT message to update insurance info
 		}
 

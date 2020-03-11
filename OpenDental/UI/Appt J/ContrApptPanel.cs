@@ -3069,6 +3069,7 @@ namespace OpenDental.UI{
 			g.DrawLine(_penBlack,WidthProvOnAppt,0,WidthProvOnAppt,heightAppt);
 			#region Main rows
 			PointF pointDraw=new PointF(WidthProvOnAppt+1,0);
+			g.Clip=new Region(new RectangleF(pointDraw.X,pointDraw.Y,widthAppt,heightAppt));//sets a region the size of the appt that can't be drawn outside of
 			int elementI=0;
 			while(pointDraw.Y<heightAppt && elementI<ListApptViewItemRowElements.Count) {
 				if(ListApptViewItemRowElements[elementI].ElementAlignment!=ApptViewAlignment.Main){
@@ -3106,6 +3107,7 @@ namespace OpenDental.UI{
 				elementI--;
 			}
 			#endregion
+			g.ResetClip();
 			g.DrawPath(_penBlack,graphicsPathRightSide);
 			g.DrawPath(_penBlack,graphicsPathLeftSide);
 			//broken X
@@ -4495,6 +4497,12 @@ namespace OpenDental.UI{
 		private int HitTestAppt(Point point) {
 			if(ListOpsVisible.Count==0) {//no ops visible.
 				return -1;
+			}
+			if(_heightProvOpHeaders>point.Y){
+				return -1;
+			}
+			if(hScrollBar1.Visible && point.Y>=hScrollBar1.Location.Y) {
+				return -1;//if the scrollbar is present, you shouldn't be able to select appts through it
 			}
 			PointF pointF=TranslateContrToMain(point);
 			for(int i=0;i<_listApptLayoutInfos.Count;i++){

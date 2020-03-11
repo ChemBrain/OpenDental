@@ -1105,7 +1105,8 @@ namespace OpenDentBusiness {
 			ComputeEstimatesForPatNums(patnums);
 		}
 
-		private static void ComputeEstimatesForPatNums(List<long> patnums) {
+		///<summary>Computes estimates for all patients passed.</summary>
+		public static void ComputeEstimatesForPatNums(List<long> patnums) {
 			//No need to check RemotingRole; no call to db.
 			long patNum=0;
 			for(int i=0;i<patnums.Count;i++) {

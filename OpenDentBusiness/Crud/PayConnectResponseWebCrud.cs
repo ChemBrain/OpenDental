@@ -178,7 +178,7 @@ namespace OpenDentBusiness.Crud{
 				+    POut.Bool  (payConnectResponseWeb.IsTokenSaved)+","
 				+"'"+POut.String(payConnectResponseWeb.PaymentToken)+"',"
 				+"'"+POut.String(payConnectResponseWeb.ExpDateToken)+"',"
-				+"'"+POut.String(payConnectResponseWeb.RefNumber)+"')"
+				+"'"+POut.String(payConnectResponseWeb.RefNumber)+"',"
 				+"'"+POut.String(payConnectResponseWeb.TransType.ToString())+"')";
 			if(payConnectResponseWeb.LastResponseStr==null) {
 				payConnectResponseWeb.LastResponseStr="";

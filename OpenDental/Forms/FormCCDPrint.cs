@@ -353,8 +353,13 @@ namespace OpenDental {
 			if(!Security.IsAuthorized(Permissions.InsPayCreate)) {
 				return;
 			}
+			//The following 2 checks mimic logic found in Canadian.EOBImportHelper(...)
 			if(!transactionCode.In("21","23")) {
 				MsgBox.Show(this,"You can only write claim amounts with either EOBs or Predetermination EOBs.");
+				return;
+			}
+			if(claimprocs.Exists(x => x.Status.In(ClaimProcStatus.Received,ClaimProcStatus.Supplemental,ClaimProcStatus.CapComplete) || x.ClaimPaymentNum!=0)) {
+				MsgBox.Show(this,"Cannot import because the claim has previously been recieved or is attached to a payment. Set the claim not recieved and try again.");
 				return;
 			}
 			if(!formData.HasValidPaymentLines()) {
@@ -370,9 +375,6 @@ namespace OpenDental {
 			}
 			List<Procedure> listAllProcs=Procedures.Refresh(patient.PatNum);
 			List<ClaimProc> listAllClaimProcs=ClaimProcs.Refresh(patient.PatNum);
-			if(claim.ClaimType!="PreAuth") {//The claimproc status of PreAuth claims must remain "ClaimProcStatus.Preauth" at all times.
-				claimprocs.ForEach(x => x.Status=ClaimProcStatus.NotReceived);//Change status so that the following function will overwrite the claimProc amounts.
-			}
 			EraBehaviors eraBehavior;
 			if(Clearinghouses.GetClearinghouse(etrans.ClearingHouseNum)!=null) {
 				eraBehavior=Clearinghouses.GetClearinghouse(etrans.ClearingHouseNum).IsEraDownloadAllowed;//use etrans clearinghouse, 

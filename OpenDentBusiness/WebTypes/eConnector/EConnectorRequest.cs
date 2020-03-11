@@ -18,6 +18,8 @@ namespace OpenDentBusiness.WebTypes {
 		public DateTime DateTimeHQ;
 		///<summary>Should only be set at HQ.</summary>
 		public bool IsBlacklisted;
+		///<summary>Unique identifier for the eConnector.</summary>
+		public string SessionGuid;
 		
 		///<summary>Returns an empty list if deserialization fails.</summary>
 		public static List<EConnectorRequest> DeserializeListFromJson(string jsonString) {
@@ -63,6 +65,11 @@ namespace OpenDentBusiness.WebTypes {
 			if(eConnA==null || eConnB==null) {
 				return false;
 			}
+			if(!string.IsNullOrWhiteSpace(eConnA.SessionGuid) && !string.IsNullOrWhiteSpace(eConnB.SessionGuid) && eConnA.SessionGuid==eConnB.SessionGuid){
+				//Both Guids are initialized and are equal.
+				return true;
+			}
+			//SessionGuids are not initialized(one or both), or SessionGuids do not match. Compare CompName and PublicIP.
 			string nameA=eConnA.CompName.ToLower().Trim();
 			string ipA=eConnA.PublicIP.ToLower().Trim();
 			string nameB=eConnB.CompName.ToLower().Trim();
@@ -77,8 +84,9 @@ namespace OpenDentBusiness.WebTypes {
 
 		private static IEnumerable<EConnectorRequest> OrderRequests(List<EConnectorRequest> listRequests) {
 			return listRequests.OrderByDescending(x => x.DateTimeHQ)
-				.ThenBy(x => x.PublicIP)//Tie breaker 1
-				.ThenBy(x => x.CompName);//Tie breaker 2
+				.ThenBy(x => x.SessionGuid)//Tie breaker 1
+				.ThenBy(x => x.PublicIP)//Tie breaker 2
+				.ThenBy(x => x.CompName);//Tie breaker 3
 		}
 	}
 }

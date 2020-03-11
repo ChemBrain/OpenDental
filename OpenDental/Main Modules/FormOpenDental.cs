@@ -3080,6 +3080,7 @@ namespace OpenDental{
 				menuItemCreateAtoZFolders.Visible=false;
 				menuItemServiceManager.Visible=false;
 				menuItemRemoteSupport.Visible=false;
+				menuItemReplication.Visible=false;
 			}
 			Plugins.HookAddCode(this,"FormOpenDental.Load_end");
 		}
