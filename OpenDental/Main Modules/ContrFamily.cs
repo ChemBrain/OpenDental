@@ -2424,7 +2424,7 @@ namespace OpenDental{
 					sub.SubscriberID=subscriber.MedicaidID;
 				}
 				sub.ReleaseInfo=true;
-				sub.AssignBen=true;
+				sub.AssignBen=PrefC.GetBool(PrefName.InsDefaultAssignBen);
 				InsSubs.Insert(sub);
 				Benefit ben;
 				foreach(CovCat covCat in CovCats.GetWhere(x => x.DefaultPercent!=-1,true)) {

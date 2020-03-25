@@ -576,8 +576,10 @@ namespace OpenDentBusiness{
 			if(!PrefC.HasClinicsEnabled) {
 				return Providers.GetDeepCopy(true);//if clinics not enabled, return all visible providers.
 			}
+			//The GetWhere uses a "UserClinicNum>-1" in its selection to behave as a "Where true" to retrieve everything from the cache 
+			Dictionary<long,List<long>> dictUserClinicsReference=UserClinics.GetWhere(x => x.UserClinicNum>-1).GroupBy(x => x.UserNum).ToDictionary(x => x.Key,x => x.Select(y => y.ClinicNum).ToList());
 			Dictionary<long,List<long>> dictUserClinics=Userods.GetDeepCopy()
-				.ToDictionary(x => x.UserNum,x => UserClinics.GetWhere(y => y.UserNum==x.UserNum).Select(y=>y.ClinicNum).ToList());
+				.ToDictionary(x => x.UserNum,x => dictUserClinicsReference.ContainsKey(x.UserNum)?dictUserClinicsReference[x.UserNum]:new List<long>());
 			Dictionary<long,List<long>> dictProvUsers=Userods.GetWhere(x => x.ProvNum>0).GroupBy(x => x.ProvNum)
 				.ToDictionary(x => x.Key,x => x.Select(y => y.UserNum).ToList());
 			HashSet<long> hashSetProvsRestrictedOtherClinic=new HashSet<long>(ProviderClinicLinks.GetProvsRestrictedToOtherClinics(clinicNum));

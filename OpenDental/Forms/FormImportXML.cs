@@ -151,7 +151,7 @@ namespace OpenDental{
 			subsc.BillingType=PrefC.GetLong(PrefName.PracticeDefaultBillType);
 			sub=new InsSub();
 			sub.ReleaseInfo=true;
-			sub.AssignBen=true;
+			sub.AssignBen=PrefC.GetBool(PrefName.InsDefaultAssignBen);
 			plan=new InsPlan();
 			carrier=new Carrier();
 			insRelat="self";//this is the default if not included
@@ -848,10 +848,10 @@ namespace OpenDental{
 							sub.AssignBen=false;
 							break;
 						case "":
-							sub.AssignBen=true;
+							sub.AssignBen=PrefC.GetBool(PrefName.InsDefaultAssignBen);
 							break;
 						default:
-							sub.AssignBen=true;
+							sub.AssignBen=PrefC.GetBool(PrefName.InsDefaultAssignBen);
 							warnings+="Invalid AssignmentOfBenefits\r\n";
 							break;
 					}

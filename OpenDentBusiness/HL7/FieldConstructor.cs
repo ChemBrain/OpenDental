@@ -861,6 +861,9 @@ namespace OpenDentBusiness.HL7 {
 		}
 
 		private static string gProcCodeOld(Procedure proc,bool hasLongDCodes) {
+			if(proc==null) {
+				return "";
+			}
 			string retVal="";
 			ProcedureCode procCode=ProcedureCodes.GetProcCode(proc.CodeNum);
 			if(procCode.ProcCode.Length>5
@@ -878,6 +881,9 @@ namespace OpenDentBusiness.HL7 {
 		private static string gProcCode(Procedure proc,HL7Def def) {
 			//CNE data type, ProcNum^Descript^CD2^^^^2014^^LaymanTerm
 			//Example: D0150^comprehensive oral evaluation - new or established patient^CD2^^^^2014^^Comprehensive Exam
+			if(proc==null) {
+				return "";
+			}
 			ProcedureCode procCode=ProcedureCodes.GetProcCode(proc.CodeNum);
 			return gConcat(def.ComponentSeparator,procCode.ProcCode,procCode.Descript,"CD2","","","","2014","",procCode.LaymanTerm);			
 		}
@@ -921,6 +927,9 @@ namespace OpenDentBusiness.HL7 {
 
 		///<summary>The value for the parameter componentSep is def.ComponentSeparator (default ^) for eCW bridges.  But for all other bridges it will be def.SubcomponentSeparator (default &amp;)., we will place the "procedure code modifier" all in the first component, the "Identifier" component.  The second component is "Text" so it doesn't really make sense to put the tooth or range of teeth in the "Identifier" component and the surface/quad/sextant/arch in the "Text" component.  Now the whole tooth/surf/range/quad/sextant/arch modifier will be in the "Identifier" component with 0, 1, or 2 subcomponents.  Examples for eCW: |4^MODL|, |^UL|, |1,2,3|, |^3|.  Examples for everyone else: |4&amp;MODL|, |&amp;UL|, |1,2,3|, |&amp;3|</summary>
 		private static string gTreatArea(string componentSep,Procedure proc,bool isQuadAsToothNum) {
+			if(proc==null) {
+				return "";
+			}
 			string retVal="";
 			ProcedureCode procCode=ProcedureCodes.GetProcCode(proc.CodeNum);
 			if(procCode.TreatArea==TreatmentArea.ToothRange) {
@@ -941,6 +950,9 @@ namespace OpenDentBusiness.HL7 {
 
 		///<summary>XTN is a phone number.</summary>
 		private static string gXTN(string phone,int numDigits) {
+			if(string.IsNullOrEmpty(phone)) {
+				return "";
+			}
 			string retVal="";
 			for(int i=0;i<phone.Length;i++) {
 				if(!Char.IsNumber(phone,i)) {

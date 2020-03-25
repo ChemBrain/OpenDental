@@ -772,7 +772,8 @@ namespace OpenDentBusiness {
 		#endregion
 		#region Dynamic Payment Plans
 		public static List<PayPlanCharge> GetListExpectedCharges(List<PayPlanCharge> listChargesInDB,PayPlanTerms terms,Family famCur
-			,List<PayPlanLink> listPayPlanLinks,PayPlan payplan,bool isNextPeriodOnly,bool isForDownPaymentCharge=false,List<PaySplit> listPaySplits=null)
+			,List<PayPlanLink> listPayPlanLinks,PayPlan payplan,bool isNextPeriodOnly,bool isForDownPaymentCharge=false,List<PaySplit> listPaySplits=null
+			,List<PayPlanCharge> listExpectedChargesDownPayment=null)
 		{
 			//no remoting role check; no call to db
 			if(listPaySplits==null) {
@@ -784,18 +785,24 @@ namespace OpenDentBusiness {
 				periodCount--;//down payment does not count towards the period count since it was made before the start date.
 			}
 			return GetListExpectedCharges(listChargesInDB,terms,famCur,listPayPlanLinks,listPaySplits,payplan,isNextPeriodOnly,chargesCount,periodCount
-				,isForDownPaymentCharge);
+				,isForDownPaymentCharge,listExpectedChargesDownPayment);
 		}
 
 		///<summary>Purpose is to calculate expected charges that have not come due yet, based on current terms. Does not include down payment. </summary>
 		public static List<PayPlanCharge> GetListExpectedCharges(List<PayPlanCharge> listChargesInDB,PayPlanTerms terms,Family famCur
 			,List<PayPlanLink> listPayPlanLinks,List<PaySplit> listPaySplits,PayPlan payplan,bool isNextPeriodOnly,int chargesCount,int periodCount
-			,bool isForDownPaymentCharge)
+			,bool isForDownPaymentCharge,List<PayPlanCharge> listExpectedChargesDownPayment=null)
 		{
 			//no remoting role check; no call to db
 			List<PayPlanCharge> listExpectedCharges=new List<PayPlanCharge>();
 			//Get production attached to credits attached to the payment plan (what we will be making charges for)
 			List<PayPlanProductionEntry> listCreditsAndProduction=PayPlanProductionEntry.GetWithAmountRemaining(listPayPlanLinks,listChargesInDB);
+			if(listExpectedChargesDownPayment!=null) {
+				foreach(PayPlanProductionEntry productionEntry in listCreditsAndProduction) {
+					productionEntry.AmountRemaining-=(decimal)listExpectedChargesDownPayment
+						.Where(x => x.FKey==productionEntry.PriKey && x.LinkType==productionEntry.LinkType).Sum(x => x.Principal);
+				}
+			}
 			double periodRate=CalcPeriodRate(terms.APR,terms.Frequency);
 			decimal principalRemaining=(decimal)CalculatePrincipalAmtRemaining(terms.PrincipalAmount,terms.DownPayment,listPaySplits,listChargesInDB);
 			//If plan has no charges in DB yet, and method isn't being called to create down payment charges,

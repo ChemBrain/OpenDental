@@ -52,6 +52,12 @@ namespace OpenDentBusiness.HL7 {
 				return sb.ToString();
 			}
 			set {
+				if(string.IsNullOrEmpty(value)) {
+					fullText="";
+					ListRepeatFields=new List<FieldHL7>();
+					Components=new List<ComponentHL7>();
+					return;
+				}
 				string repeatSepEscaped="\\~";//defaults: escape char='\' and repetitionSeparater='~'. '\~' is a literal tilde, not a repetition separator
 				if(_delimiters!=null && _delimiters.Length>2) {
 					//user may have defined custom chars for escape and repetitionSeparator (not recommended, but allowed), use those instead of defaults

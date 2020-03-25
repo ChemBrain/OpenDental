@@ -68,7 +68,7 @@ namespace OpenDental {
 					labelMessageHeader.TextAlign=ContentAlignment.MiddleRight;
 				}
 				Size textSize=TextRenderer.MeasureText(labelMessageHeader.Text,panelScroll.Font,
-					new Size(bodyWidth,Int32.MaxValue),TextFormatFlags.WordBreak);
+					new Size(bodyWidth,Int32.MaxValue),TextFormatFlags.WordBreak | TextFormatFlags.TextBoxControl);
 				labelMessageHeader.Width=bodyWidth;
 				labelMessageHeader.Height=textSize.Height+2;//Extra vertical padding to ensure that the text will fit when including the border.
 				labelMessageHeader.Location=new Point(0,y);
@@ -91,7 +91,7 @@ namespace OpenDental {
 				textBoxMessage.Text=msg.Message.Replace("\r\n","\n").Replace("\n","\r\n");//Normalize \n coming from RichTextBox to \r\n for TextBox.
 				//Each message wraps horizontally.
 				textSize=TextRenderer.MeasureText(textBoxMessage.Text,panelScroll.Font,
-					new Size((int)(bodyWidth*0.7),Int32.MaxValue),TextFormatFlags.WordBreak);
+					new Size((int)(bodyWidth*0.7),Int32.MaxValue),TextFormatFlags.WordBreak | TextFormatFlags.TextBoxControl);
 				textBoxMessage.Width=textSize.Width+4;//Extra horizontal padding to ensure that the text will fit when including the border.
 				textBoxMessage.Height=textSize.Height+4;//Extra vertical padding to ensure that the text will fit when including the border.
 				textBoxMessage.ReadOnly=true;

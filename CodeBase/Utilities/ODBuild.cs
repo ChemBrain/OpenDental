@@ -7,6 +7,13 @@ using System.Threading.Tasks;
 namespace CodeBase {
 	public class ODBuild {
 
+		///<summary>Returns true if current build is for Windows OS.</summary>
+		public static bool IsWindows {
+			get {
+				return true;//Later this will be enhanced when we have non-Windows builds.
+			}
+		}
+
 		///<summary>Returns true if the current build is debug. Useful when you want the release code to show up when searching for references.</summary>
 		public static bool IsDebug() {
 #if DEBUG

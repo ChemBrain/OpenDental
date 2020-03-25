@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using OpenDentBusiness;
 using OpenDental.UI;
+using CodeBase;
 
 namespace OpenDental.User_Controls {
 	public partial class ContrNewPatHostedURL:UserControl {
@@ -175,7 +176,7 @@ namespace OpenDental.User_Controls {
 
 		private void butCopy_Click(object sender,EventArgs e) {
 			try {
-				Clipboard.SetText(textSchedulingURL.Text);
+				ODClipboard.SetClipboard(textSchedulingURL.Text);
 			}
 			catch(Exception ex) {
 				FriendlyException.Show(Lan.g(this,"Unable to copy to clipboard."),ex);

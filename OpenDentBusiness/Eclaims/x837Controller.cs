@@ -14,7 +14,16 @@ using System.Linq;
 namespace OpenDentBusiness.Eclaims
 {
 	/// <summary></summary>
-	public class x837Controller{
+	public partial class x837Controller {
+
+		private static string RECSFileExistsMsg => Lans.g("FormClaimsSend","You must send your existing claims from the RECS program before you can "
+			+"create another batch.");
+
+		static x837Controller() {
+			//Need to initiliaze this here because ODCloudClient doesn't have access to OpenDentBusiness.Lans.
+			_lans_g=Lans.g;
+		}
+
 		///<summary></summary>
 		public x837Controller()
 		{
@@ -24,16 +33,16 @@ namespace OpenDentBusiness.Eclaims
 		///<summary>Gets the filename for this batch. Used when saving or when rolling back.</summary>
 		private static string GetFileName(Clearinghouse clearinghouseClin,int batchNum,bool isAutomatic) { //called from this.SendBatch. Clinic-level clearinghouse passed in.
 			string saveFolder=clearinghouseClin.ExportPath;
-			if(!Directory.Exists(saveFolder)) {
+			if(!ODBuild.IsWeb() && !Directory.Exists(saveFolder)) {
 				if(!isAutomatic) {
 					MessageBox.Show(saveFolder+" not found.");
 				}
 				return "";
 			}
 			if(clearinghouseClin.CommBridge==EclaimsCommBridge.RECS){
-				if(File.Exists(ODFileUtils.CombinePaths(saveFolder,"ecs.txt"))){
+				if(!ODBuild.IsWeb() && File.Exists(ODFileUtils.CombinePaths(saveFolder,"ecs.txt"))){
 					if(!isAutomatic) {
-						MessageBox.Show(Lans.g("FormClaimsSend","You must send your existing claims from the RECS program before you can create another batch."));
+						MessageBox.Show(RECSFileExistsMsg);
 					}
 					return "";//prevents overwriting an existing ecs.txt.
 				}
@@ -80,8 +89,30 @@ namespace OpenDentBusiness.Eclaims
 					messageText=messageText.Replace("\r","");
 					messageText=messageText.Replace("\n","");
 				}
-				File.WriteAllText(saveFile,messageText,Encoding.ASCII);
-				CopyToArchive(saveFile);
+				if(ODBuild.IsWeb()) {
+					try {
+						ODCloudClient.ExportClaim(saveFile,messageText,doOverwriteFile:clearinghouseClin.CommBridge!=EclaimsCommBridge.RECS);
+					}
+					catch(ODException odEx) {
+						if(odEx.ErrorCodeAsEnum==ODException.ErrorCodes.FileExists && clearinghouseClin.CommBridge==EclaimsCommBridge.RECS) {
+							MessageBox.Show(RECSFileExistsMsg,"x837");
+						}
+						else {
+							MessageBox.Show(odEx.Message,"x837");
+						}
+						if(odEx.ErrorCodeAsEnum!=ODException.ErrorCodes.ClaimArchiveFailed) {//If archiving failed, we can continue with sending.
+							return "";
+						}
+					}
+					catch(Exception ex) {
+						MessageBox.Show(ex.Message,"x837");
+						return "";
+					}
+				}
+				else {
+					File.WriteAllText(saveFile,messageText,Encoding.ASCII);
+					CopyToArchive(saveFile);
+				}
 			}
 			return messageText;
 		}
@@ -105,24 +136,6 @@ namespace OpenDentBusiness.Eclaims
 				}
 			}
 			return messageText;
-		}
-
-	///<summary>Copies the given file to an archive directory within the same directory as the file.</summary>
-		private static void CopyToArchive(string fileName){
-			string direct=Path.GetDirectoryName(fileName);
-			string fileOnly=Path.GetFileName(fileName);
-			string archiveDir=ODFileUtils.CombinePaths(direct,"archive");
-			try {
-				if(!Directory.Exists(archiveDir)){
-					Directory.CreateDirectory(archiveDir);
-				}
-				File.Copy(fileName,ODFileUtils.CombinePaths(archiveDir,fileOnly),true);
-			}
-			catch(Exception ex) {
-				MessageBox.Show(Lans.g("FormClaimsSend","Unable to copy file to the archive directory. Check to make sure you have "
-					+"permission to modify the archive located at")+" "+archiveDir+"\r\n\r\n"+Lans.g("FormClaimsSend","Error message:")+" "
-					+ex.Message);
-			}
 		}
 
 		/// <summary>True if all listClaimProcs point to a procNum in listAllProcs, otherwise false.

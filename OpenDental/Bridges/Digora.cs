@@ -7,6 +7,7 @@ using System.Text;
 using System.Windows.Forms;
 using OpenDentBusiness;
 using System.Collections.Generic;
+using CodeBase;
 
 namespace OpenDental.Bridges{
 	/// <summary></summary>
@@ -52,7 +53,7 @@ namespace OpenDental.Bridges{
 			}
 			info+="\" -r -a";
 			try {
-				Clipboard.SetText(info,TextDataFormat.Text);
+				ODClipboard.SetClipboard(info);
 			}
 			catch(Exception) {
 				//The clipboard will sometimes fail to SetText for many different reasons.  Often times another attempt will be successful.

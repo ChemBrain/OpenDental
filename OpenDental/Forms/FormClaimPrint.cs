@@ -2150,6 +2150,9 @@ namespace OpenDental{
 					case "IsNotOutsideLab":
 						displayStrings[i]=ClaimCur.IsOutsideLab?"":"X";
 						break;
+					case "OfficeNumber":
+						displayStrings[i]=providerClaimTreat.CanadianOfficeNum;
+						break;
 				}//switch
 				if(CultureInfo.CurrentCulture.Name=="nl-BE"	&& displayStrings[i]==""){//Dutch Belgium
 					displayStrings[i]="*   *   *";

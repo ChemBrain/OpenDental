@@ -1988,10 +1988,11 @@ namespace OpenDental.UI{
 					//OverlapPosition remains unchanged.  Haven't yet found a scenario where this fails.
 					CreateRectangle(listOverlaps[k]);
 				}
+				int count=0;//will keep track have how deep the ProcessOverlaps recursion has gone
 				//Some secondary and tertiary overlaps can be created in rare situations.  Fix those.
 				//This seems like a waste of resources, but it only gets triggered when we push our way in at the right.
 				//And it goes fast because we only pass in the short list of appointments that we moved
-				ProcessOverlaps(listApptLayoutInfos,listOverlaps,widthCol,apptLayoutInfo.IdxOp,widthNarrowedOnRight,isWeeklyView,widthWeekDay,widthWeekAppt);
+				ProcessOverlaps(listApptLayoutInfos,listOverlaps,widthCol,apptLayoutInfo.IdxOp,widthNarrowedOnRight,isWeeklyView,widthWeekDay,widthWeekAppt,count);
 			}
 			return listApptLayoutInfos;
 			//Local function to avoid passing lots of parameters.
@@ -2023,12 +2024,19 @@ namespace OpenDental.UI{
 
 		///<summary>A recursive function for rare secondary and tertiary overlaps created by adding a single appointment that shifted other tall appts.</summary>
 		private static void ProcessOverlaps(List<ApptLayoutInfo> listApptLayoutInfos,List<ApptLayoutInfo> listOverlapsPrevious,float widthCol,float idxOp,
-			float widthNarrowedOnRight,bool isWeeklyView,float widthWeekDay,float widthWeekAppt)
+			float widthNarrowedOnRight,bool isWeeklyView,float widthWeekDay,float widthWeekAppt,int count)
 		{
+			if(count>=10) {
+				return;//it should never process overlaps 10 times
+			}
+			count++;
 			for(int k=0;k<listOverlapsPrevious.Count;k++){
 				for(int i=0;i<listApptLayoutInfos.Count;i++){
 					if(listApptLayoutInfos[i].idxInTableAppointments==listOverlapsPrevious[k].idxInTableAppointments){
 						continue;//self
+					}
+					if(listApptLayoutInfos[i].DayOfWeek!=listOverlapsPrevious[k].DayOfWeek) {
+						continue;//if they aren't on the same day, they aren't overlapping, so skip 
 					}
 					//if(listApptLayoutInfos[i].idxInTableAppointments==idxApptOriginal){
 					//	continue;//We also don't want to compare it to the appointment that was originally placed, causing the moves.
@@ -2058,7 +2066,7 @@ namespace OpenDental.UI{
 						}
 						//now, send this fixed appt in recursively to see if it affected anything else
 						ProcessOverlaps(listApptLayoutInfos,new List<ApptLayoutInfo>(){listApptLayoutInfos[i]},//just pass in this single
-							widthCol,idxOp,widthNarrowedOnRight,isWeeklyView,widthWeekDay,widthWeekAppt);
+							widthCol,idxOp,widthNarrowedOnRight,isWeeklyView,widthWeekDay,widthWeekAppt,count);
 					}
 				}
 			}
@@ -3894,18 +3902,25 @@ namespace OpenDental.UI{
 			//delay for hover effect 0.28 sec
 			_dateTimeBubble=DateTime.Now;
 			_bubbleApptIdx=idxAppt;
+			//Height is taller than needed. Later, only the portion we need will be copied to a smaller bitmap.
+			if(_rectangleBubble.Width==0){
+				_rectangleBubble.Size=new Size(200,300);
+			}
 			//most data is already present in TableAppointment, but we do need to get the patient picture
 			bool showingPatientPicture=false;
+			bool isNameWrapping=false;
 			List<DisplayField> listDisplayFieldsBubble=DisplayFields.GetForCategory(DisplayFieldCategory.AppointmentBubble);
 			for(int i=0;i<listDisplayFieldsBubble.Count;i++) {
 				if(listDisplayFieldsBubble[i].InternalName=="Patient Picture") {
 					showingPatientPicture=true;
 					break;
 				}
-			}
-			//Height is taller than needed. Later, only the portion we need will be copied to a smaller bitmap.
-			if(_rectangleBubble.Width==0){
-				_rectangleBubble.Size=new Size(200,300);
+				if(listDisplayFieldsBubble[i].InternalName=="Patient Name" && i==0) {
+					string str=dataRow["PatientName"].ToString();
+					if(_rectangleBubble.Width<TextRenderer.MeasureText(str,_fontBubbleHeader).Width) {
+						isNameWrapping=true;
+					}
+				}
 			}
 			Bitmap bitmap=new Bitmap(_rectangleBubble.Width,800);
 			//We will draw on this tall temp bitmap until we figure out where the bottom is.
@@ -3932,7 +3947,8 @@ namespace OpenDental.UI{
 					catch(ApplicationException) { }  //Folder access might be denied
 				}
 			}
-			Rectangle rectanglePict=new Rectangle(6,17,100,100);//Always draws in the same spot
+			float imageOffset=17;//use this to change the y location of the pat image if the pat name wraps
+			Rectangle rectanglePict=new Rectangle(6,(int)imageOffset,100,100);//Always draws in the same spot, unless the pat name wrapped
 			//Draw the picture later, for the minor advantage of drawing on top of any horizontal line
 			#region infoBubble Text
 			Brush brush=Brushes.Black;//System brush, so we don't need to dispose.
@@ -3955,19 +3971,24 @@ namespace OpenDental.UI{
 					if(!showingPatientPicture) { 
 						x=9; //the position of each display field can be closer to the edge of the appt bubble because there is no image
 					}
+					if(isNameWrapping) {
+						y=imageOffset-3;//the other text needs to start lower down if the name is wrapping
+					}
 				}
 				if(x==0){//This is first line
 					x=8;
 				}
-				if(showingPatientPicture && y>=(rectanglePict.Location.Y+rectanglePict.Height)) {
+				if(showingPatientPicture && y>=(imageOffset+rectanglePict.Height)) {
 					x=2;
 				}
 				int widthBubble=_rectangleBubble.Width;//more concise
 				switch(listDisplayFieldsBubble[i].InternalName) {
 					case "Patient Name":
 						s=dataRow["PatientName"].ToString();
-						//h=g.MeasureString(s,font,widthBubble-(int)x).Height;
-						h=font.Height;//restrict patient name to one line because it can annoyingly wrap
+						h=font.Height;
+						if(isNameWrapping) {
+							h=imageOffset=(float)Math.Floor(g.MeasureString(s,font,widthBubble-(int)x).Height);
+						}
 						g.DrawString(s,font,brush,new RectangleF(x,y,widthBubble-(int)x,h));
 						y+=h;
 						continue;
@@ -4089,8 +4110,8 @@ namespace OpenDental.UI{
 						y+=h;
 						continue;
 					case "Horizontal Line":
-						if(showingPatientPicture && y<117) { //height of pat picture is 100 and the y offset is 17
-							y=117;
+						if(showingPatientPicture && y<100+imageOffset) { //height of pat picture is 100 and the image offset
+							y=100+imageOffset;
 						}
 						y+=3;
 						Pen penGray=new Pen(Brushes.Gray,1.5f);
@@ -4227,6 +4248,9 @@ namespace OpenDental.UI{
 				}
 			}
 			#endregion infoBubble Text
+			if(isNameWrapping) {
+				rectanglePict.Y=(int)imageOffset;//change the y position if the name wrapped
+			}
 			if(showingPatientPicture) { //only draw the pat picture if the display field is present
 				using(SolidBrush brushBackColor = new SolidBrush(Color.FromArgb(232,220,190))){
 					g.FillRectangle(brushBackColor,rectanglePict);
@@ -4238,7 +4262,7 @@ namespace OpenDental.UI{
 					g.DrawString(Lan.g(this,"Patient Picture Unavailable"),_font8,Brushes.Gray,rectangleFUnavail,stringFormat);//this wraps to 2 lines
 				}
 				else{
-					g.DrawImage(bitmapPatPict,6,17);
+					g.DrawImage(bitmapPatPict,6,imageOffset);
 					bitmapPatPict.Dispose();
 				}
 				//in any case, draw the rectangle outline

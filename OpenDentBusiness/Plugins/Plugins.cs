@@ -67,6 +67,9 @@ namespace OpenDentBusiness {
 		///<summary>If this is middle tier, pass in null.</summary>
 		public static void LoadAllPlugins(Form host) {
 			//No need to check RemotingRole; no call to db.
+			if(ODBuild.IsWeb()) {
+				return;//plugins not allowed in cloud mode
+			}
 			List<PluginContainer> listPlugins=new List<PluginContainer>();
 			//Loop through all programs that are enabled with a plug-in dll name set.
 			foreach(Program program in Programs.GetWhere(x => x.Enabled && !string.IsNullOrEmpty(x.PluginDllName))) {

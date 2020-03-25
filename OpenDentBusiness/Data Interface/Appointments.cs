@@ -3942,7 +3942,7 @@ namespace OpenDentBusiness{
 			//Make sure the time pattern is not longer than 39 characters (preserve old behavior).
 			string timePatternFinal=hygTimeStart+provTimeTotal+hygTimeEnd;
 			if(timePatternFinal.Length > 39) {
-				timePatternFinal.Remove(39,timePatternFinal.Length-39);
+				timePatternFinal=timePatternFinal.Remove(39);
 			}
 			return timePatternFinal;
 		}

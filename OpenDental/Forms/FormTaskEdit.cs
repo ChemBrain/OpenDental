@@ -1332,6 +1332,7 @@ namespace OpenDental {
 				checkDone.Checked=true;
 			}
 			else {//because it can't be both new and done.
+				checkDone.Checked=false;
 				if(IsPopup) {//It clearly is Unread, but we don't want to leave it that way upon close OK.
 					checkNew.Checked=false;
 					_statusChanged=true;
@@ -1966,7 +1967,7 @@ namespace OpenDental {
 
 		private void butCopy_Click(object sender,EventArgs e) {
 			try {
-				Clipboard.SetText(CreateCopyTask());
+				ODClipboard.SetClipboard(CreateCopyTask());
 			}
 			catch(Exception ex) {
 				MsgBox.Show(this,"Could not copy contents to the clipboard.  Please try again.");

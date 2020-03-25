@@ -391,7 +391,7 @@ namespace OpenDental {
 			}
 			Canadian.EOBImportHelper(formData,claimprocs,listAllProcs,listAllClaimProcs,claim,false,FormClaimEdit.ShowProviderTransferWindow,eraBehavior,patient);
 			SecurityLogs.MakeLogEntry(Permissions.InsPayCreate,claim.PatNum
-				,"Claim for service date "+POut.Date(claim.DateService)+" amounts overwritten using recieved EOB amounts.");
+				,"Claim for service date "+POut.Date(claim.DateService)+" amounts overwritten manually using recieved EOB amounts.");
 			MsgBox.Show(this,"Done");
 		}
 

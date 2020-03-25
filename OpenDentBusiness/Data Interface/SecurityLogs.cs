@@ -64,9 +64,9 @@ namespace OpenDentBusiness{
 			Db.NonQ(command);
 		}
 
-		public static void DeleteBeforeDate(DateTime dateKeep) {
+		public static void DeleteBeforeDateInclusive(DateTime date) {
 			if(RemotingClient.RemotingRole==RemotingRole.ClientWeb) {
-				Meth.GetVoid(MethodBase.GetCurrentMethod(),dateKeep);
+				Meth.GetVoid(MethodBase.GetCurrentMethod(),date);
 				return;
 			}
 			int countDeleted=0;
@@ -76,7 +76,7 @@ namespace OpenDentBusiness{
 				MiscDataEvent.Fire(CodeBase.ODEventType.MiscData,
 					Lans.g("FormBackup","Removing old data from securityloghash table. Rows deleted so far:")+" "+countDeleted);
 				//limiting to 500,000 to avoid out of memory exceptions
-				string command=$"SELECT SecurityLogNum FROM securitylog WHERE LogDateTime < {POut.DateT(dateKeep)} LIMIT 500000";
+				string command=$"SELECT SecurityLogNum FROM securitylog WHERE DATE(LogDateTime) <= {POut.DateT(date.Date)} LIMIT 500000";
 				listSecurityLogNums=Db.GetListLong(command);
 				if(listSecurityLogNums.Count<1) {
 					break;

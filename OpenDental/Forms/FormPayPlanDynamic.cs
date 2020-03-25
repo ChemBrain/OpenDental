@@ -249,7 +249,7 @@ namespace OpenDental {
 				List<PayPlanCharge> listForDownPayment=PayPlanCharges.GetForDownPayment(terms,_famCur,_listPayPlanLinks,_payPlanCur);
 				listChargesExpected.AddRange(listForDownPayment);
 				listChargesExpected.AddRange(PayPlanEdit.GetListExpectedCharges(_listPayPlanChargesDb,terms,_famCur,_listPayPlanLinks,_listPaySplits
-					,_payPlanCur,false,listForDownPayment.Count,0,false));
+					,_payPlanCur,false,listForDownPayment.Count,0,false,listForDownPayment));
 			}
 			else {
 				listChargesExpected.AddRange(PayPlanEdit.GetListExpectedCharges(_listPayPlanChargesDb,terms,_famCur,_listPayPlanLinks,_payPlanCur,false
@@ -733,7 +733,7 @@ namespace OpenDental {
 				MsgBox.Show(this,"Down payment must be less than or equal to total amount.");
 				return false;
 			}
-			if(PIn.Int(textAPR.Text)!=0 && checkProductionLock.Checked==false) {
+			if(!PIn.Double(textAPR.Text).IsZero() && checkProductionLock.Checked==false) {
 				MsgBox.Show(this,"Payment plans with APR must be locked. Remove the APR or check the box for Full Lock.");
 				return false;
 			}
@@ -1123,7 +1123,7 @@ namespace OpenDental {
 			if(terms.DateFirstPayment.Date==DateTime.Today) {
 				//immediately call the code to run the "service" on this payment plan in case they created a plan who's first charge is today. 
 				List<PayPlanCharge> listCharges=PayPlanEdit.GetListExpectedCharges(_listPayPlanChargesDb,terms,_famCur,_listPayPlanLinks,_payPlanCur,true
-					,listPaySplits:_listPaySplits)
+					,listPaySplits:_listPaySplits,listExpectedChargesDownPayment:listDownPaymentCharges)
 					.FindAll(x => x.ChargeDate <= DateTime.Today);
 				if(listCharges.Count > 0) {
 					PayPlanCharges.InsertMany(listCharges);

@@ -221,6 +221,7 @@ namespace OpenDental{
 			// 
 			// comboPTO
 			// 
+			this.comboPTO.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
 			this.comboPTO.FormattingEnabled = true;
 			this.comboPTO.Location = new System.Drawing.Point(137, 123);
 			this.comboPTO.Name = "comboPTO";

@@ -402,7 +402,7 @@ namespace OpenDental{
 				butOK.Enabled=false;
 			}
 			comboClinic.SelectedClinicNum=PatCur.ClinicNum;
-			fillCombosProv();
+			FillCombosProv();
 			comboPriProv.SetSelectedProvNum(PatCur.PriProv);
 			comboSecProv.SetSelectedProvNum(PatCur.SecProv);
 			if(!Security.IsAuthorized(Permissions.PatPriProvEdit,DateTime.MinValue,true,true) && PatCur.PriProv>0) {
@@ -684,27 +684,28 @@ namespace OpenDental{
 		}
 
 		///<summary>Fills combo provider based on which clinic is selected and attempts to preserve provider selection if any.</summary>
-		private void fillCombosProv() {
+		private void FillCombosProv() {
 			long provNum=comboPriProv.GetSelectedProvNum();
+			List<Provider> listProviders=Providers.GetProvsForClinic(comboClinic.SelectedClinicNum);
 			comboPriProv.Items.Clear();
 			if(PrefC.GetBool(PrefName.PriProvDefaultToSelectProv)) {
 				comboPriProv.Items.AddProvNone("Select Provider");
 			}
 			if(PrefC.GetBool(PrefName.EasyHideDentalSchools)) {//not dental school
-				comboPriProv.Items.AddProvsAbbr(Providers.GetProvsForClinic(comboClinic.SelectedClinicNum));
+				comboPriProv.Items.AddProvsAbbr(listProviders);
 			}
 			else{
-				comboPriProv.Items.AddProvsFull(Providers.GetProvsForClinic(comboClinic.SelectedClinicNum));
+				comboPriProv.Items.AddProvsFull(listProviders);
 			}
 			comboPriProv.SetSelectedProvNum(provNum);
 			provNum=comboSecProv.GetSelectedProvNum();
 			comboSecProv.Items.Clear();
 			comboSecProv.Items.AddProvNone();
 			if(PrefC.GetBool(PrefName.EasyHideDentalSchools)) {//not dental school
-				comboSecProv.Items.AddProvsAbbr(Providers.GetProvsForClinic(comboClinic.SelectedClinicNum));
+				comboSecProv.Items.AddProvsAbbr(listProviders);
 			}
 			else{
-				comboSecProv.Items.AddProvsFull(Providers.GetProvsForClinic(comboClinic.SelectedClinicNum));
+				comboSecProv.Items.AddProvsFull(listProviders);
 			}
 			comboSecProv.SetSelectedProvNum(provNum);
 		}
@@ -1371,7 +1372,7 @@ namespace OpenDental{
 		private void ComboBox_SelectionChangeCommited(object sender,System.EventArgs e) {
 			SetRequiredFields();
 			if(sender==comboClinic){
-				fillCombosProv();
+				FillCombosProv();
 			}
 		}
 

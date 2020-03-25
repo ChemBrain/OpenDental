@@ -190,6 +190,7 @@ namespace OpenDental {
 				//comboClinics.HqDescription="Practice";
 				//hqClinic.Abbr=(PrefC.GetString(PrefName.PracticeTitle)+" ("+Lan.g(this,"Practice")+")");
 				comboClinics.IsAllSelected=true;//if PrefName.EnterpriseApptList hid it, this will have no effect
+				comboClinics.SelectedClinicNum=Clinics.ClinicNum;
 			}
 			textDateFrom.Text=DateTimeOD.Today.AddDays(-7).ToShortDateString();
 			textDateTo.Text=DateTimeOD.Today.ToShortDateString();			

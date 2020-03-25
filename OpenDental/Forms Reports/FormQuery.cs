@@ -1712,7 +1712,7 @@ namespace OpenDental{
 
 		private void butCopy_Click(object sender, System.EventArgs e){
 			try {
-				Clipboard.SetDataObject(textQuery.Text);
+				ODClipboard.SetClipboard(textQuery.Text);
 			}
 			catch(Exception ex) {
 				MsgBox.Show(this,"Could not copy contents to the clipboard.  Please try again.");

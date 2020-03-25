@@ -127,6 +127,8 @@ namespace OpenDental {
 				case XWebTransactionStatus.DtgPaymentApproved:
 				case XWebTransactionStatus.HpfCompletePaymentApproved:
 				case XWebTransactionStatus.HpfCompletePaymentApprovedPartial:
+				case XWebTransactionStatus.EdgeExpressCompletePaymentApproved:
+				case XWebTransactionStatus.EdgeExpressCompletePaymentApprovedPartial:
 					tranStatusStr="Sale";
 					break;
 				case XWebTransactionStatus.DtgPaymentReturned:

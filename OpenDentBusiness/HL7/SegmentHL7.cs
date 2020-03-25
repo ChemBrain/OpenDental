@@ -91,8 +91,11 @@ namespace OpenDentBusiness.HL7 {
 				return _fullText;
 			}
 			set {
-				_fullText=value;
+				_fullText=value??"";
 				Fields=new List<FieldHL7>();
+				if(string.IsNullOrEmpty(value)) {
+					return;
+				}
 				string fieldSeparatorEscaped="\\";//default escape character is \
 				if(_delimiters!=null && _delimiters.Length>2) {
 					fieldSeparatorEscaped=_delimiters[2].ToString();//user may have a different escape char defined (totally not recommended, but possible)

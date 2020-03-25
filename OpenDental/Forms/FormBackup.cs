@@ -645,8 +645,8 @@ namespace OpenDental {
 					}
 				}
 				//Delete the unnecessary data
-				SecurityLogs.DeleteBeforeDate(dateTimeArchive.Value);
-				SecurityLogs.MakeLogEntry(Permissions.Backup,0,$"SecurityLog and SecurityLogHashes before {dateTimeArchive.Value} deleted.");
+				SecurityLogs.DeleteBeforeDateInclusive(dateTimeArchive.Value);
+				SecurityLogs.MakeLogEntry(Permissions.Backup,0,$"SecurityLog and SecurityLogHashes on/before {dateTimeArchive.Value} deleted.");
 			},
 			eventType:typeof(MiscDataEvent),
 			odEventType:ODEventType.MiscData);

@@ -435,6 +435,7 @@
     <Compile Include="Reports\RpProdGoal.cs" />
     <Compile Include="InternalTools\Faq\TableTypes\Faq.cs" />
     <Compile Include="Reports\RpServiceDateView.cs" />
+    <Compile Include="Shared\ODCloudClient\x837Controller.cs" />
     <Compile Include="SheetFramework\SheetDataTableUtil.cs" />
     <Compile Include="SheetFramework\SheetFiller.cs" />
     <Compile Include="TableTypes\Address.cs" />
@@ -2338,6 +2339,7 @@
     <None Include="Web References\localhost\Service1.disco" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Shared\README.txt" />
     <None Include="Resources\RecallPastDue_R.png" />
     <None Include="Resources\RecallPastDue_P.png" />
     <None Include="Resources\Right.gif" />

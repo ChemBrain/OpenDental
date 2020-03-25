@@ -936,7 +936,7 @@ namespace OpenDental {
 			FeeSched fromFeeSched=_listFeeScheds[comboFeeSched.SelectedIndex];
 			if(fromFeeSched.FeeSchedNum==toFeeSched.FeeSchedNum
 				&& fromProvNum==toProvNum
-				&& fromClinicNum.In(listClinicNumsTo)) 
+				&& (!PrefC.HasClinicsEnabled || fromClinicNum.In(listClinicNumsTo)))//If clinics disabled, can cause false negative so shortcircuit
 			{
 				MsgBox.Show(this,"Fee Schedules are not allowed to be copied into themselves. Please choose another fee schedule to copy.");
 				return;

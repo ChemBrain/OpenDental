@@ -37,10 +37,25 @@ namespace CodeBase {
 		#endregion
 		///<summary>Boolean used to determine what directory the logger will write to.</summary>
 		private static bool _canUseMyDocsDir=false;
+		///<summary>Can be set to change the directory the logger will write to.</summary>
+		private static string _loggerDirOverride="";
 
 		#region WebCore Logger Copy
 		public const string DATETIME_FORMAT="MM/dd/yy HH:mm:ss:fff";
 		private static DateTime _lastLoggerCleanup=DateTime.MinValue;
+		///<summary>Can be set to change the directory the logger will write to.</summary>
+		public static string LoggerDirOverride {
+			get {
+				lock(_lock) {
+					return _loggerDirOverride;
+				}
+			}
+			set {
+				lock(_lock) {
+					_loggerDirOverride=value;
+				}
+			}
+		}
 
 		#region Parseable Logging
 		///<summary>This method takes a string that should be some kind of an identifier (usually method name) for the method that is being logged. 
@@ -95,7 +110,7 @@ namespace CodeBase {
 		public static DoVerboseLoggingArgs DoVerboseLogging;
 
 		///<summary>If HasVerboseLogging(Environment.MachineName) then Logger.WriteLine(log). Otherwise do nothing.</summary>
-		private static void LogVerbose(string log,string subDirectory = "") {
+		public static void LogVerbose(string log,string subDirectory = "") {
 			try {
 				if(DoVerboseLogging==null || !DoVerboseLogging()) {
 					return;
@@ -116,13 +131,18 @@ namespace CodeBase {
 			subDirectory=ScrubSubDirPath(subDirectory);
 			string ret = "";
 			bool canUseMyDocsDir;
+			string loggerDirOverride;
 			lock (_lock) {
 				canUseMyDocsDir=_canUseMyDocsDir;
+				loggerDirOverride=LoggerDirOverride;
 			}
 			//Could make this a ternary operator but it is incredibly long.
 			if(canUseMyDocsDir) {
 				//The logger file is sometimes blocked by Windows unless OD is ran as admin. This is a work around to avoid that file block by writing to MyDocuments.
 				ret=System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),"Logger");
+			}
+			else if(!string.IsNullOrEmpty(loggerDirOverride)) {
+				ret=loggerDirOverride;
 			}
 			else {
 				ret=ODFileUtils.CombinePaths(AppDomain.CurrentDomain.BaseDirectory,"Logger");
@@ -154,7 +174,7 @@ namespace CodeBase {
 		}
 
 		public static void WriteException(Exception e,string subDirectory) {
-			WriteError(e.Message+"\r\n"+e.StackTrace,subDirectory);
+			WriteError(MiscUtils.GetExceptionText(e),subDirectory);
 		}
 
 		public static void CloseLogger() {

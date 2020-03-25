@@ -14,7 +14,12 @@ namespace OpenDental {
 	static class ProgramEntry {
 		[STAThread]
 		static void Main(string[] args) {
-			Web.Start(); //allows open dental to run in a web browser
+			if(ODBuild.IsWeb()) {
+				//allows open dental to run in a web browser
+				Web.Start(); 
+				//allows open dental to send data to the browser
+				ODCloudClient.SendDataToBrowser=OpenDental.Thinfinity.Browser.SendData;
+			}
 			//Application.EnableVisualStyles() uses version 6 of comctl32.dll instead of version 5. See https://support.microsoft.com/en-us/kb/2892345
 			//See also http://stackoverflow.com/questions/8335983/accessviolationexception-on-tooltip-that-faults-comctl32-dll-net-4-0
 			Application.EnableVisualStyles();//This line fixes rare AccessViolationExceptions for ToolTips on our ValidDate boxes, ValidDouble boxes, etc...

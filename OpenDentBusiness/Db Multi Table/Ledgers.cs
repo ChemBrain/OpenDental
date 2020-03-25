@@ -402,7 +402,8 @@ namespace OpenDentBusiness{
 
 		///<summary>Returns the transaction query string used in calculating aging.  string familyPatNums is usually a comma delimited list of PatNums for
 		///a family, but can be a comma delimited list of patients from many families or null/empty.  Returns the query string used to select the trans
-		///for calculating aging for the pats in the familyPatNums string.  If familyPatNums is null/empty the query string will be for all pats.</summary>
+		///for calculating aging for the pats in the familyPatNums string.  If familyPatNums is null/empty the query string will be for all pats.
+		///doIncludeProcNum is only used for Transworld and will cause the ProcNum and PayNum columns to be returned by this query.</summary>
 		public static string GetTransQueryString(DateTime asOfDate,string familyPatNums,bool isWoAged=false,bool isHistoric=false,
 			bool doAgePatPayPlanPayments=false,bool doIncludeProcNum=false,bool isAgedByProc=false)
 		{
@@ -423,7 +424,9 @@ namespace OpenDentBusiness{
 			string command="";
 			#region Completed Procs
 			command+="SELECT 'Proc' TranType,pl.ProcNum PriKey,pl.PatNum,pl.ProcDate TranDate,pl.ProcFee*(pl.UnitQty+pl.BaseUnits) TranAmount,"
-				+"0 PayPlanAmount,0 InsWoEst,0 InsPayEst"+(doIncludeProcNum?",pl.ProcNum":"")+(isAgedByProc?",0 AgedProcNum,'0001-01-01' AgedProcDate":"")+" "
+				+"0 PayPlanAmount,0 InsWoEst,0 InsPayEst"
+				+(doIncludeProcNum?",pl.ProcNum,0 PayNum":"")
+				+(isAgedByProc?",0 AgedProcNum,'0001-01-01' AgedProcDate":"")+" "
 				+"FROM procedurelog pl "
 				+"WHERE pl.ProcStatus=2 "
 				+"AND pl.ProcFee != 0 "
@@ -443,7 +446,9 @@ namespace OpenDentBusiness{
 					+"THEN cp.WriteOff ELSE 0 END)"))+" InsWoEst,"//writeoff
 				+"(CASE WHEN "+(isHistoric?("cp.ProcDate <= "+asOfDateStr+" "//historic=NotRcvd OR Rcvd and DateCp>asOfDate
 					+"AND (cp.Status = 0 OR (cp.Status = 1 AND cp.DateCP > "+asOfDateStr+"))"):"cp.Status = 0")+" "//not historic=NotReceived
-					+"THEN cp.InsPayEst ELSE 0 END) InsPayEst"+(doIncludeProcNum?",cp.ProcNum":"")+(isAgedByProc?",0 AgedProcNum,'0001-01-01' AgedProcDate":"")+" "//inspayest
+					+"THEN cp.InsPayEst ELSE 0 END) InsPayEst"//inspayest
+				+(doIncludeProcNum?",cp.ProcNum,0 PayNum":"")
+				+(isAgedByProc?",0 AgedProcNum,'0001-01-01' AgedProcDate":"")+" "
 				+"FROM claimproc cp "
 				+(payPlanVersionCur==PayPlanVersions.AgeCreditsAndDebits?"LEFT JOIN payplan pp ON cp.PayPlanNum=pp.PayPlanNum ":"")
 				+"WHERE cp.status IN (0,1,4,5,7) "//NotReceived,Received,Supplemental,CapClaim,CapComplete
@@ -466,7 +471,9 @@ namespace OpenDentBusiness{
 					+"(CASE WHEN "+(isHistoric?("cp.ProcDate <= "+asOfDateStr+" "//historic=ProcDate<=asOfDate and either NotRcvd OR Rcvd with DateCp>asOfDate
 						+"AND (cp.Status = 0 OR (cp.Status = 1 AND cp.DateCP > "+asOfDateStr+")) "):"cp.Status = 0 ")//not historic=NotReceived
 						+"THEN cp.Writeoff - COALESCE(CASE WHEN css.Writeoff=-1 THEN 0 ELSE css.Writeoff END,0) ELSE 0 END) InsWoEst,"
-					+"0 InsPayEst"+(doIncludeProcNum?",cp.ProcNum":"")+(isAgedByProc?",0 AgedProcNum,'0001-01-01' AgedProcDate":"")+" "
+					+"0 InsPayEst"
+					+(doIncludeProcNum?",cp.ProcNum,0 PayNum":"")
+					+(isAgedByProc?",0 AgedProcNum,'0001-01-01' AgedProcDate":"")+" "
 					+"FROM claimproc cp "
 					+"LEFT JOIN claimsnapshot css ON cp.ClaimProcNum=css.ClaimProcNum "
 					+"WHERE cp.status IN (0,1,4,5,7) "//NotReceived,Received,Supplemental,CapClaim,CapComplete
@@ -477,7 +484,9 @@ namespace OpenDentBusiness{
 					+"SELECT 'Writeoff' TranType,cp.ClaimProcNum PriKey,cp.PatNum,cp.DateCP TranDate,"//use DateCP
 					//If Rcvd and snapshot exists, age claimproc w/o - snapshot w/o (delta)
 					+"-(cp.Writeoff - (CASE WHEN css.Writeoff = -1 THEN 0 ELSE css.Writeoff END)) TranAmount,"
-					+"0 PayPlanAmount,0 InsWoEst,0 InsPayEst"+(doIncludeProcNum?",cp.ProcNum":"")+(isAgedByProc?",0 AgedProcNum,'0001-01-01' AgedProcDate":"")+" "
+					+"0 PayPlanAmount,0 InsWoEst,0 InsPayEst"
+					+(doIncludeProcNum?",cp.ProcNum,0 PayNum":"")
+					+(isAgedByProc?",0 AgedProcNum,'0001-01-01' AgedProcDate":"")+" "
 					+"FROM claimproc cp "
 					+"INNER JOIN claimsnapshot css ON cp.ClaimProcNum=css.ClaimProcNum "
 					+"WHERE cp.status IN (1,4,5,7) "//Received,Supplemental,CapClaim,CapComplete
@@ -489,7 +498,8 @@ namespace OpenDentBusiness{
 			command+="UNION ALL "
 			#region Adjustments
 				+"SELECT 'Adj' TranType,a.AdjNum PriKey,a.PatNum,a.AdjDate TranDate,a.AdjAmt TranAmount,0 PayPlanAmount,0 InsWoEst,0 InsPayEst"
-				+(doIncludeProcNum?",a.ProcNum":"")+(isAgedByProc?",a.ProcNum AgedProcNum,a.ProcDate AgedProcDate":"")+" "
+				+(doIncludeProcNum?",a.ProcNum,0 PayNum":"")
+				+(isAgedByProc?",a.ProcNum AgedProcNum,a.ProcDate AgedProcDate":"")+" "
 				+"FROM adjustment a "
 				+"WHERE a.AdjAmt != 0 "
 				+(isAllPats?"":("AND a.PatNum IN ("+familyPatNums+") "))
@@ -511,7 +521,9 @@ namespace OpenDentBusiness{
 				+"(CASE WHEN ps.PayPlanNum != 0 "
 					+(payPlanVersionCur==PayPlanVersions.AgeCreditsAndDebits?"AND COALESCE(pp.IsClosed,0)=0 ":"") //ignore closed payment plans on v2
 					+"THEN -ps.SplitAmt ELSE 0 END) PayPlanAmount,"//Paysplits attached to payment plans
-					+"0 InsWoEst,0 InsPayEst"+(doIncludeProcNum?",ps.ProcNum":"")+(isAgedByProc?",0 AgedProcNum,'0001-01-01' AgedProcDate":"")+" "
+				+"0 InsWoEst,0 InsPayEst"
+				+(doIncludeProcNum?",ps.ProcNum,ps.PayNum":"")
+				+(isAgedByProc?",0 AgedProcNum,'0001-01-01' AgedProcDate":"")+" "
 				+"FROM paysplit ps "
 				+(payPlanVersionCur==PayPlanVersions.AgeCreditsAndDebits?"LEFT JOIN payplan pp ON ps.PayPlanNum=pp.PayPlanNum ":"")
 				+"WHERE ps.SplitAmt != 0 ";
@@ -532,7 +544,9 @@ namespace OpenDentBusiness{
 				else {
 					command+="COALESCE(ppc.Principal+ppc.Interest,0) PayPlanAmount,";
 				}
-				command+="0 InsWoEst,0 InsPayEst"+(doIncludeProcNum?",0 ProcNum":"")+(isAgedByProc?",0 AgedProcNum,'0001-01-01' AgedProcDate":"")+" "
+				command+="0 InsWoEst,0 InsPayEst"
+				+(doIncludeProcNum?",0 ProcNum,0 PayNum":"")
+				+(isAgedByProc?",0 AgedProcNum,'0001-01-01' AgedProcDate":"")+" "
 				+"FROM payplancharge ppc "
 				+(payPlanVersionCur==PayPlanVersions.AgeCreditsAndDebits?"LEFT JOIN payplan pp ON ppc.PayPlanNum=pp.PayPlanNum ":"")
 				+"WHERE ppc.ChargeDate <= "+billInAdvanceDate+" "//accounts for historic vs current because of how it's set above
@@ -547,7 +561,9 @@ namespace OpenDentBusiness{
 				//if aging patient payplan payments, don't age the CompletedAmt or it will duplicate the credits aged
 				command+="UNION ALL "
 					+"SELECT 'PPComplete' TranType,pp.PayPlanNum PriKey,pp.PatNum,pp.PayPlanDate TranDate,-pp.CompletedAmt TranAmount,"
-					+"0 PayPlanAmount,0 InsWoEst,0 InsPayEst"+(doIncludeProcNum?",0 ProcNum":"")+(isAgedByProc?",0 AgedProcNum,'0001-01-01' AgedProcDate":"")+" "
+					+"0 PayPlanAmount,0 InsWoEst,0 InsPayEst"
+					+(doIncludeProcNum?",0 ProcNum,0 PayNum":"")
+					+(isAgedByProc?",0 AgedProcNum,'0001-01-01' AgedProcDate":"")+" "
 					+"FROM payplan pp "
 					+"WHERE pp.CompletedAmt != 0 "
 					+(isAllPats?"":("AND pp.PatNum IN ("+familyPatNums+") "));
@@ -563,8 +579,8 @@ namespace OpenDentBusiness{
 					+"ppc.ChargeDate TranDate,"
 					+"(CASE WHEN ppc.ChargeType != "+POut.Int((int)PayPlanChargeType.Debit)+" THEN -ppc.Principal "
 						+"WHEN pp.PlanNum=0 THEN ppc.Principal+ppc.Interest ELSE 0 END) TranAmount,0 PayPlanAmount,0 InsWoEst,0 InsPayEst"
-					+(doIncludeProcNum?",0 ProcNum":"")
-					+(isAgedByProc?",(CASE WHEN ppc.ChargeType="+POut.Int((int)PayPlanChargeType.Credit)+" THEN ppc.ProcNum ELSE 0 END) AgedProcNum":"")+" "
+					+(doIncludeProcNum?",0 ProcNum,0 PayNum":"")
+					+(isAgedByProc?",(CASE WHEN ppc.ChargeType="+POut.Int((int)PayPlanChargeType.Credit)+" THEN ppc.ProcNum ELSE 0 END) AgedProcNum":"")
 					+(isAgedByProc?",pl.ProcDate AgedProcDate":"")+" "
 					+"FROM payplancharge ppc "
 					+"LEFT JOIN payplan pp ON pp.PayPlanNum=ppc.PayPlanNum "
@@ -579,7 +595,8 @@ namespace OpenDentBusiness{
 				command+="UNION ALL "
 					+"SELECT 'PPCComplete' TranType,ppc.PayPlanChargeNum PriKey,ppc.PatNum,ppc.ChargeDate TranDate,"
 					+"-ppc.Principal TranAmount,0 PayPlanAmount,0 InsWoEst,0 InsPayEst"
-					+(doIncludeProcNum?",0 ProcNum":"")+(isAgedByProc?",ppc.ProcNum AgedProcNum,pl.ProcDate AgedProcDate":"")+" "
+					+(doIncludeProcNum?",0 ProcNum,0 PayNum":"")
+					+(isAgedByProc?",ppc.ProcNum AgedProcNum,pl.ProcDate AgedProcDate":"")+" "
 					+"FROM payplancharge ppc "
 					+"LEFT JOIN payplan pp ON pp.PayPlanNum=ppc.PayPlanNum "
 					+(isAgedByProc?"LEFT JOIN procedurelog pl ON pl.ProcNum=ppc.ProcNum ":"")
@@ -599,7 +616,7 @@ namespace OpenDentBusiness{
 					SELECT 'PayPlanLink' TranType,ppl.PayPlanLinkNum PriKey,prodlink.PatNum PatNum,DATE(ppl.SecDateTEntry) TranDate,
 					(CASE WHEN ppl.AmountOverride=0 THEN -prodlink.Fee ELSE -ppl.AmountOverride END) TranAmount,0 PayPlanAmount,0 InsWoEst,0 InsPayEst";
 				if(doIncludeProcNum) {
-					command+=",prodlink.ProcNum ProcNum ";
+					command+=",prodlink.ProcNum ProcNum,0 PayNum ";
 				}
 				if(isAgedByProc) {
 					command+=",prodlink.ProcNum AgedProcNum,prodlink.AgeDate AgedProcDate ";
@@ -614,7 +631,7 @@ namespace OpenDentBusiness{
 								THEN claimproc.InsEstTotalOverride ELSE claimproc.InsPayEst END)*-1,0))
 							+SUM(COALESCE((CASE WHEN claimproc.Status IN ({POut.Int((int)ClaimProcStatus.Received)},{POut.Int((int)ClaimProcStatus.Supplemental)},
 								{POut.Int((int)ClaimProcStatus.CapClaim)}) THEN claimproc.WriteOff WHEN claimproc.WriteOffEstOverride!=-1 
-								THEN claimproc.WriteOffEstOverride ELSE claimproc.WriteOffEst END)*-1,0)) Fee
+								THEN claimproc.WriteOffEstOverride WHEN claimproc.WriteOffEst!=-1 THEN claimproc.WriteOffEst ELSE 0 END)*-1,0)) Fee
 						,payplanlink.PayPlanLinkNum LinkNum,procedurelog.ProcNum,procedurelog.ProcDate AgeDate 
 						FROM payplanlink 
 						INNER JOIN procedurelog ON procedurelog.ProcNum=payplanlink.FKey AND payplanlink.LinkType={POut.Int((int)PayPlanLinkType.Procedure)} 
@@ -638,7 +655,8 @@ namespace OpenDentBusiness{
 				//get all family PatNums in case there are no transactions for the family in order to clear out the family balance
 				command+="UNION ALL "
 					+"SELECT 'FamPatNums' TranType,PatNum PriKey,PatNum,'0001-01-01' TranDate,0 TranAmount,0 PayPlanAmount,0 InsWoEst,0 InsPayEst"
-					+(doIncludeProcNum?",0 ProcNum":"")+(isAgedByProc?",0 AgedProcNum,'0001-01-01' AgedProcDate":"")+" "
+					+(doIncludeProcNum?",0 ProcNum,0 PayNum":"")
+					+(isAgedByProc?",0 AgedProcNum,'0001-01-01' AgedProcDate":"")+" "
 					+"FROM patient "
 					+"WHERE PatNum IN ("+familyPatNums+")";
 			}
@@ -665,7 +683,8 @@ namespace OpenDentBusiness{
 				command="SELECT p.PatNum FROM patient p WHERE p.Guarantor IN ("+string.Join(",",listGuarNums)+")";
 				familyPatNums=string.Join(",",Db.GetListLong(command));//will contain at least one patnum (the guarantor)
 			}
-			command="SELECT patient.Guarantor,trans.TranType,trans.PriKey,trans.ProcNum,trans.PatNum,trans.TranDate,trans.TranAmount,trans.InsWoEst+trans.InsPayEst InsEst "
+			command="SELECT patient.Guarantor,trans.TranType,trans.PriKey,trans.ProcNum,trans.PayNum,trans.PatNum,trans.TranDate,trans.TranAmount,"
+				+"trans.InsWoEst+trans.InsPayEst InsEst "
 				+"FROM ("+GetTransQueryString(DateTime.Today,familyPatNums,doIncludeProcNum:true)+") trans "
 				+"INNER JOIN patient ON patient.PatNum=trans.PatNum";
 			Dictionary<string,TsiFKeyType> dictTranTypes=new Dictionary<string,TsiFKeyType>() {
@@ -682,6 +701,7 @@ namespace OpenDentBusiness{
 					PIn.Long(x["PriKey"].ToString()),
 					dictTranTypes[x["TranType"].ToString()],
 					PIn.Long(x["ProcNum"].ToString()),
+					PIn.Long(x["PayNum"].ToString()),
 					PIn.Long(x["PatNum"].ToString()),
 					PIn.Long(x["Guarantor"].ToString()),
 					PIn.Date(x["TranDate"].ToString()),

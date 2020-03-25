@@ -64,6 +64,12 @@ namespace OpenDentBusiness{
 		///proc fee and claimproc messages.</summary>
 		[CrudColumn(IsNotDbColumn=true)]
 		public long ProcNum;
+		///<summary>Not a database column.  Only used temporarily by the OpenDentalService.TransworldThread in order to aggregate paysplit amounts into
+		///their corresponding payments so we can send TSI a net account balance change.  We need to aggregate paysplits so that income transfers don't
+		///cause paid in full messages to TSI.  Every transaction will still have a row in the TsiTransLog table and we don't need to store the PayNum
+		///for use after the sync.  It will only be used during the sync process for paysplit messages.</summary>
+		[CrudColumn(IsNotDbColumn=true)]
+		public long PayNum;
 		///<summary>Not a database column.  Only used temporarily by the OpenDentalService.TransworldThread in order to process transactions in the order
 		///they occurred in the guarantor's account.  This will allow us to mark an account as paid in full if, on any transaction date, the credits for
 		///the date reduce the account balance to &lt;= $0.</summary>
@@ -225,6 +231,7 @@ namespace OpenDentBusiness{
 		public TsiFKeyType KeyType;
 		public long PriKey;
 		public long ProcNum;
+		public long PayNum;
 		public long PatNum;
 		public long Guarantor;
 		public DateTime TranDate;
@@ -234,10 +241,11 @@ namespace OpenDentBusiness{
 		public TsiTrans() {
 		}
 
-		public TsiTrans(long priKey,TsiFKeyType keyType,long procNum,long patNum,long guarantor,DateTime tranDate,double tranAmt) {
+		public TsiTrans(long priKey,TsiFKeyType keyType,long procNum,long payNum,long patNum,long guarantor,DateTime tranDate,double tranAmt) {
 			KeyType=keyType;
 			PriKey=priKey;
 			ProcNum=procNum;
+			PayNum=payNum;
 			PatNum=patNum;
 			Guarantor=guarantor;
 			TranDate=tranDate;

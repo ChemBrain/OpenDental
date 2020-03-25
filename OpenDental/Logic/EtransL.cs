@@ -871,7 +871,7 @@ namespace OpenDental {
 				insSub.Subscriber=member.Pat.PatNum;
 				insSub.SubscriberID=member.SubscriberId;
 				insSub.ReleaseInfo=member.IsReleaseInfo;
-				insSub.AssignBen=true;
+				insSub.AssignBen=PrefC.GetBool(PrefName.InsDefaultAssignBen);
 				insSub.DateEffective=healthCoverage.DateEffective;
 				insSub.DateTerm=healthCoverage.DateTerm;
 				InsSubs.Insert(insSub);

@@ -31,11 +31,9 @@ namespace OpenDental {
 				listSheets.Add(SheetsInternal.GetSheetDef(SheetInternalType.PatientRegistration));
 				listSheets.Add(SheetsInternal.GetSheetDef(SheetInternalType.FinancialAgreement));
 				listSheets.Add(SheetsInternal.GetSheetDef(SheetInternalType.HIPAA));
-				if(PrefC.GetBool(PrefName.PatientFormsShowConsent)) {
-					listSheets.Add(SheetsInternal.GetSheetDef(SheetInternalType.Consent));
-				}
+				//Medical History and Consent forms happen below.
 			}
-			if(SheetType==SheetTypeEnum.PatientForm) {//we will also show medical history
+			if(SheetType==SheetTypeEnum.PatientForm) {//we will also show medical history, and possibly consent forms
 				List<SheetDef> listMedSheets=SheetDefs.GetCustomForType(SheetTypeEnum.MedicalHistory);
 				List<SheetDef> listConSheets=SheetDefs.GetCustomForType(SheetTypeEnum.Consent);
 				if(listMedSheets.Count==0) {

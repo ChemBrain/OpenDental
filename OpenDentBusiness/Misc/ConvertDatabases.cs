@@ -58,6 +58,18 @@ namespace OpenDentBusiness {
 		public static void InvokeConvertMethods() {
 			DataConnection.CommandTimeout=43200;//12 hours, because conversion commands may take longer to run.
 			ConvertDatabases.To2_8_2();//begins going through the chain of conversion steps
+			Logger.DoVerboseLoggingArgs doVerboseLogging=Logger.DoVerboseLogging;
+			ODException.SwallowAnyException(() => {
+				//Need to run queries here because PrefC has not been initialized.
+				string command="SELECT ValueString FROM preference WHERE PrefName='HasVerboseLogging'";
+				string valueString=Db.GetScalar(command);
+				if(valueString.ToLower().Split(',').ToList().Exists(x => x==Environment.MachineName.ToLower())) {
+					Logger.DoVerboseLogging=() => true;
+					//Switch logger to a directory that won't have permissions issues.
+					Logger.UseMyDocsDirectory();
+				}
+				Logger.LogVerbose("Starting convert script");
+			});
 			//Continue going through the chain of conversion methods starting at v17.1.1 via reflection.
 			//Loop through the list of convert databases methods from front to back because it has already been sorted (least to greatest).
 			foreach(ConvertDatabasesMethodInfo convertMethodInfo in ListConvertMethods) {
@@ -97,6 +109,10 @@ namespace OpenDentBusiness {
 				//Always require major, minor, build, revision.  Will throw an exception if the revision was not explicitly set (which we always set).
 				Prefs.UpdateStringNoCache(PrefName.DataBaseVersion,convertMethodInfo.VersionCur.ToString(4));
 			}
+			ODException.SwallowAnyException(() => {
+				Logger.LogVerbose("Ending convert script");
+				Logger.DoVerboseLogging=doVerboseLogging;
+			});
 			DataConnection.CommandTimeout=3600;//Set back to default of 1 hour.
 		}
 	}

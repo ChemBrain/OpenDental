@@ -1263,7 +1263,7 @@ namespace OpenDentBusiness
 						if(IsClaimConnect(clearinghouseClin) || IsEmdeonDental(clearinghouseClin) || IsTesia(clearinghouseClin) || IsEDS(clearinghouseClin)) {
 							//The state licence number can be anywhere between 4 and 14 characters depending on state, and most states have more than one state license format. 
 							//Therefore, we only validate that the state license is present or not.
-							if(provClinicTreat!=null || provClinicTreat.StateLicense!="") { 
+							if(provClinicTreat!=null && !provClinicTreat.StateLicense.IsNullOrEmpty()) { 
 								sw.Write("REF"+s
 									+"0B"+s//REF01 2/3 Reference Identification Qualifier: 0B=State License Number.
 									+Sout(provClinicTreat.StateLicense,50));//REF02 1/50 Reference Identification:

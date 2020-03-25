@@ -8,7 +8,6 @@ using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 #if !DOT_NET_CORE
 using System.Windows.Forms;
@@ -156,35 +155,6 @@ namespace CodeBase {
 			return string.Join("_",fileName.Split(Path.GetInvalidFileNameChars()));
 		}
 
-
-		private static string GetProcessUrl(string exePath="",string extraArgs="",string extraFilePath="",string extraFileData="",
-			string extraFileType="") 
-		{
-			List<string> listParamStrs=new List<string> {
-				string.IsNullOrWhiteSpace(exePath) ? "" : $"exePath={WebUtility.UrlEncode("\""+exePath+"\"")}",
-				string.IsNullOrWhiteSpace(extraArgs) ? "" : $"extraArgs={WebUtility.UrlEncode("\""+extraArgs+"\"")}",
-				string.IsNullOrWhiteSpace(extraFilePath) ? "" : $"extraFilePath={WebUtility.UrlEncode("\""+extraFilePath+"\"")}",
-				string.IsNullOrWhiteSpace(extraFileData) ? "" : $"extraFileData={WebUtility.UrlEncode("\""+extraFileData+"\"")}",
-				string.IsNullOrWhiteSpace(extraFileType) ? "" : $"extraFileType={WebUtility.UrlEncode("\""+extraFileType+"\"")}",
-			};
-			listParamStrs.RemoveAll(x => x=="");//Remove empty list entries to remove extraneous Ampersand characters.
-			string signatureParam=string.Join("&",listParamStrs);
-			byte[] byteArray=Encoding.Unicode.GetBytes(signatureParam);
-			CspParameters csp=new CspParameters {
-				KeyContainerName="cloudkey",
-				Flags=CspProviderFlags.UseMachineKeyStore,
-			};
-			using(RSACryptoServiceProvider rsa=new RSACryptoServiceProvider(csp)) {
-				byte[] signedByteArray=rsa.SignData(byteArray,CryptoConfig.MapNameToOID("SHA256"));
-				string bytesToString=Convert.ToBase64String(signedByteArray);
-				listParamStrs.Add($"hash={WebUtility.UrlEncode("\""+bytesToString+"\"")}");
-				string publicKey=rsa.ToXmlString(false);
-				listParamStrs.Add($"key={WebUtility.UrlEncode("\""+publicKey+"\"")}");
-				string uriString="odcloud:"+string.Join("&",listParamStrs);
-				return uriString;
-			}
-		}
-
 		///<summary>Start the given process.  
 		///If using a WEB compiled version of Open Dental, pass through to the odcloud client to start the process locally.</summary>
 		public static void ProcessStart(Process process) {
@@ -199,10 +169,11 @@ namespace CodeBase {
 		
 		///<summary>Start a new process with the given path and arguments.  
 		///If using a WEB compiled version of Open Dental, pass through to the odcloud client to start the process locally.</summary>
-		public static Process ProcessStart(string path,string commandLineArgs="") {
+		///<param name="doWaitForODCloudClientResponse">If true, will wait for ODCloudClient and throw any exceptions from it.</param>
+		public static Process ProcessStart(string path,string commandLineArgs="",bool doWaitForODCloudClientResponse=false) {
 			if(ODBuild.IsWeb()) {
-				string urlScheme=GetProcessUrl(path,commandLineArgs);
-				return Process.Start(urlScheme);
+				ODCloudClient.LaunchFileWithODCloudClient(path,commandLineArgs,doWaitForResponse:doWaitForODCloudClientResponse);
+				return null;
 			}
 			return Process.Start(path,commandLineArgs);
 		}
@@ -211,9 +182,7 @@ namespace CodeBase {
 		///If using a WEB compiled version of Open Dental, pass through to the odcloud client for File IO.</summary>
 		public static void WriteAllText(string filePath,string text) {
 			if(ODBuild.IsWeb()) {
-				//Construct the odcloud client url scheme for writing to a file (save file path/save file data) and then call process.start
-				string urlScheme=GetProcessUrl(extraFilePath:filePath,extraFileData:text);
-				Process.Start(urlScheme);//This will open a new browser tab with the above URL and trigger odcloud client to open
+				ODCloudClient.LaunchFileWithODCloudClient(extraFilePath:filePath,extraFileData:text);
 			}
 			else {
 				File.WriteAllText(filePath,text);
@@ -230,8 +199,8 @@ namespace CodeBase {
 		///If using a WEB compiled version of Open Dental, pass through to the odcloud client for File IO and to start the process locally.</summary>
 		public static Process WriteAllTextThenStart(string filePath,string fileText,string processPath,string commandLineArgs) {
 			if(ODBuild.IsWeb()) {
-				string urlScheme=GetProcessUrl(processPath,commandLineArgs,filePath,fileText);
-				return Process.Start(urlScheme);
+				ODCloudClient.LaunchFileWithODCloudClient(processPath,commandLineArgs,filePath,fileText);
+				return null;
 			}
 			else {
 				File.WriteAllText(filePath,fileText);
@@ -244,8 +213,8 @@ namespace CodeBase {
 		public static Process WriteAllTextThenStart(string filePath,string fileText,Encoding encoding,string processPath,string commandLineArgs) {
 			if(ODBuild.IsWeb()) {
 				//Purposefully omit encoding.  This can be an enhancement if needed.
-				string urlScheme=GetProcessUrl(processPath,commandLineArgs,filePath,fileText);
-				return Process.Start(urlScheme);
+				ODCloudClient.LaunchFileWithODCloudClient(processPath,commandLineArgs,filePath,fileText);
+				return null;
 			}
 			else {
 				File.WriteAllText(filePath,fileText,encoding);
@@ -281,12 +250,8 @@ namespace CodeBase {
 		public static Process WriteAllBytesThenStart(string filePath,byte[] fileBytes,string processPath,string commandLineArgs) {
 			if(ODBuild.IsWeb()) {
 				string byteString=Convert.ToBase64String(fileBytes);
-				string urlScheme=GetProcessUrl(processPath,commandLineArgs,filePath,byteString,"binary");
-				//URL length of greater than 2000 characters may not be supported by the browser.
-				if(urlScheme.Length>2000) {
-					MessageBox.Show("Unable to process file with cloud client due to size. URL is greater than 2000 characters.");
-				}
-				return Process.Start(urlScheme);
+				ODCloudClient.LaunchFileWithODCloudClient(processPath,commandLineArgs,filePath,byteString,"binary");
+				return null;
 			}
 			else {
 				if(!string.IsNullOrEmpty(processPath)) {

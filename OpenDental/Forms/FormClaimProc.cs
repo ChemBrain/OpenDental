@@ -1378,12 +1378,13 @@ namespace OpenDental {
 			}
 			bool needsLog=false;
 			if(ClaimProcOld.WriteOff!=ClaimProcCur.WriteOff) {
-				insWriteOffEditLog+=$"Writeoff amount changed from {ClaimProcOld.WriteOff.ToString("C")} to {ClaimProcCur.WriteOff.ToString("C")}. ";
+				insWriteOffEditLog+=$"Write off amount changed from {ClaimProcOld.WriteOff.ToString("C")} to {ClaimProcCur.WriteOff.ToString("C")}. ";
 				needsLog=true;
 			}
-			if(ClaimProcOld.WriteOffEst!=ClaimProcCur.WriteOffEst) {
-				insWriteOffEditLog+=$"Writeoff estimate amount changed from {ClaimProcOld.WriteOff.ToString("C")} to "
-					+$"{ClaimProcCur.WriteOff.ToString("C")}. ";
+			double writeOffEstOld=ClaimProcs.GetWriteOffEstimate(ClaimProcOld);//WriteOffEst is never user editable, we have to check overrides
+			double writeOffEstCur=ClaimProcs.GetWriteOffEstimate(ClaimProcCur);//WriteOffEst is never user editable, we have to check overrides
+			if(writeOffEstOld!=writeOffEstCur) {
+				insWriteOffEditLog+=$"Write off estimate amount changed from {writeOffEstOld.ToString("C")} to {writeOffEstCur.ToString("C")}. ";
 				needsLog=true;
 			}
 			if(needsLog) {

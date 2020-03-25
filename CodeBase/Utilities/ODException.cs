@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Runtime.Serialization;
+using System.Security.Permissions;
 
 namespace CodeBase {
 	public static class ODExceptionExtensions {
@@ -6,6 +8,7 @@ namespace CodeBase {
 		public static void DoNothing(this Exception ex) { }
 	}
 
+	[Serializable]
 	public class ODException:ApplicationException {
 		private int _errorCode=0;
 		///<summary>Contains query text when an ErrorCode in the 700s was thrown. This is the query that was attempted prior to an exception.</summary>
@@ -61,6 +64,23 @@ namespace CodeBase {
 		}
 
 		public ODException(string message,Exception ex) : base(message,ex) {
+		}
+
+		///<summary>Used for serialization.</summary>
+		protected ODException(SerializationInfo info,StreamingContext context) : base(info,context) {
+			_errorCode=info.GetInt32(nameof(ErrorCode));
+			_query=info.GetString(nameof(Query));
+		}
+
+		///<summary>Used for serialization.</summary>
+		[SecurityPermission(SecurityAction.Demand,SerializationFormatter=true)]
+		public override void GetObjectData(SerializationInfo info,StreamingContext context) {
+			if(info==null) {
+				throw new ArgumentNullException("info");
+			}
+			info.AddValue(nameof(ErrorCode),ErrorCode);
+			info.AddValue(nameof(Query),Query);
+			base.GetObjectData(info,context);
 		}
 
 		///<summary>Wrap the given action in a try/catch and swallow any exceptions that are thrown. 
@@ -157,6 +177,13 @@ namespace CodeBase {
 			///All subsequent lines of this UE's Message property will become the bug submission's ExceptionStackTrace field.
 			///This specific ErrorCode will be looked for within the heart of the BugSubmission constructor.</summary>
 			BugSubmissionMessage=800,
+			//4000-4999. Values used by ODCloudClient.
+			///<summary>The file trying to write exists.</summary>
+			FileExists=4000,
+			///<summary>Unable to communicate with ODCloudClient.</summary>
+			ODCloudClientTimeout=4001,
+			///<summary>Error occurred when attempting to archive old claims.</summary>
+			ClaimArchiveFailed=4002,
 		}
 	}
 }

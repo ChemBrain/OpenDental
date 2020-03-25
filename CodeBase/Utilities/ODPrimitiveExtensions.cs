@@ -237,6 +237,11 @@ namespace CodeBase {
 			return (DateTime.Now-dateT) > timeSpan;
 		}
 
+		///<summary>Returns true if the difference between now and the given datetime is less than the timeSpan.</summary>
+		public static bool IsNewerThan(this DateTime dateT,TimeSpan timeSpan) {
+			return (DateTime.Now-dateT) < timeSpan;
+		}
+
 		///<summary>Use regular expressions to do an in-situ string replacement. Default behavior is case insensitive.</summary>
 		/// <param name="pattern">Must be a REGEX compatible pattern.</param>
 		/// <param name="replacement">The string that should be used to replace each occurance of the pattern.</param>

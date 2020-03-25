@@ -398,7 +398,7 @@ namespace OpenDental {
 			}
 			WebForms_SheetDef webSheetDef=gridMain.SelectedTag<WebForms_SheetDef>();
 			try {
-				Clipboard.SetText(textURLs.Text);
+				ODClipboard.SetClipboard(textURLs.Text);
 			}
 			catch(Exception ex) {
 				MsgBox.Show(this,"Could not copy contents to the clipboard.  Please try again.");

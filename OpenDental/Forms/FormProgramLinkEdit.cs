@@ -558,11 +558,7 @@ namespace OpenDental{
 			if(!ODBuild.IsWeb()) {
 				return true;
 			}
-			if(ProgramCur.ProgName.In(
-				ProgramName.Dolphin.ToString(),ProgramName.Dexis.ToString(),ProgramName.DentalEye.ToString(),ProgramName.DemandForce.ToString()
-				,ProgramName.iCat.ToString(),ProgramName.MediaDent.ToString(),ProgramName.Trojan.ToString(),ProgramName.Owandy.ToString()
-				,ProgramName.PandaPerioAdvanced.ToString(),ProgramName.TigerView.ToString(),ProgramName.CaptureLink.ToString())) 
-			{
+			if(ProgramCur.ProgName.In(Programs.GetListDisabledForWeb().Select(x => x.ToString()))) {
 				return false;//these programs are not currently allowed for web users
 			}
 			return true;//it was not one of the programs listed
@@ -818,7 +814,11 @@ namespace OpenDental{
 		}
 
 		private void butOK_Click(object sender, System.EventArgs e) {
-			if(checkEnabled.Checked && textPluginDllName.Text!=""){
+			if(checkEnabled.Checked && textPluginDllName.Text!="") {
+				if(ODBuild.IsWeb()) {
+					MessageBox.Show(Lan.g(this,"Plugins are not allowed in Cloud mode."));
+					return;
+				}
 				string dllPath=ODFileUtils.CombinePaths(Application.StartupPath,textPluginDllName.Text);
 				if(dllPath.Contains("[VersionMajMin]")) {
 					Version vers = new Version(Application.ProductVersion);

@@ -2213,6 +2213,16 @@ namespace OpenDentBusiness {
 			}
 		}
 
+		private static void To19_3_62() {
+			string command;
+			command="INSERT INTO preference (PrefName,ValueString) VALUES('AlertCheckFrequencySeconds','180');";
+			Db.NonQ(command);
+			command="SELECT ValueString FROM preference WHERE PrefName='SignalInactiveMinutes'";
+			string signalInactiveMinutes=Db.GetScalar(command);
+			command=$"INSERT INTO preference (PrefName,ValueString) VALUES('AlertInactiveMinutes','{POut.String(signalInactiveMinutes)}');";
+			Db.NonQ(command);
+		}
+
 		private static void To19_4_1() {
 			string command;
 			DataTable table;
@@ -2518,12 +2528,16 @@ namespace OpenDentBusiness {
 
 		private static void To19_4_20() {
 			string command;
-			command="INSERT INTO preference (PrefName,ValueString) VALUES('AlertCheckFrequencySeconds','180');";
-			Db.NonQ(command);
-			command="SELECT ValueString FROM preference WHERE PrefName='SignalInactiveMinutes'";
-			string signalInactiveMinutes=Db.GetScalar(command);
-			command=$"INSERT INTO preference (PrefName,ValueString) VALUES('AlertInactiveMinutes','{POut.String(signalInactiveMinutes)}');";
-			Db.NonQ(command);
+			command="SELECT COUNT(*) FROM preference WHERE PrefName='AlertCheckFrequencySeconds'";
+			//This preference might have already been added in 19.3.62.
+			if(Db.GetScalar(command)=="0") {
+				command="INSERT INTO preference (PrefName,ValueString) VALUES('AlertCheckFrequencySeconds','180');";
+				Db.NonQ(command);
+				command="SELECT ValueString FROM preference WHERE PrefName='SignalInactiveMinutes'";
+				string signalInactiveMinutes=Db.GetScalar(command);
+				command=$"INSERT INTO preference (PrefName,ValueString) VALUES('AlertInactiveMinutes','{POut.String(signalInactiveMinutes)}');";
+				Db.NonQ(command);
+			}
 		}
 
 	}

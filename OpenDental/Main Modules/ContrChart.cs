@@ -11496,7 +11496,10 @@ namespace OpenDental {
 			}
 			//Validate the list of procedures------------------------------------------------------------------------------------
 			DateTime procDate=proclist[0].ProcDate;
-			long clinicNum=proclist[0].ClinicNum;
+			long clinicNum=0;
+			if(PrefC.HasClinicsEnabled) {
+				clinicNum=proclist[0].ClinicNum;
+			}
 			long provNum=proclist[0].ProvNum;
 			for(int i=0;i<proclist.Count;i++){//starts at 0 to check procStatus
 				if(ProcedureCodes.GetStringProcCode(proclist[i].CodeNum,doThrowIfMissing:false)==ProcedureCodes.GroupProcCode){
@@ -11515,7 +11518,7 @@ namespace OpenDental {
 					MsgBox.Show(this,"Procedures must be complete to attach a group note.");
 					return;
 				}
-				if(proclist[i].ClinicNum!=clinicNum){
+				if(PrefC.HasClinicsEnabled && proclist[i].ClinicNum!=clinicNum) {
 					MsgBox.Show(this,"Procedures must have the same clinic to attach a group note.");
 					return;
 				}
@@ -11535,7 +11538,7 @@ namespace OpenDental {
 			group.DateEntryC=DateTime.Now;
 			group.ProcDate=procDate;
 			group.ProvNum=provNum;
-			group.ClinicNum=clinicNum;
+			group.ClinicNum=clinicNum;//Will be 0 above if clinics disabled.
 			group.CodeNum=ProcedureCodes.GetCodeNum(ProcedureCodes.GroupProcCode);
 			if(PrefC.GetBool(PrefName.ProcGroupNoteDoesAggregate)) {
 				string aggNote="";

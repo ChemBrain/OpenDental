@@ -177,15 +177,19 @@ namespace OpenDentBusiness.Eclaims
 			if(clearinghouseClin.ClientProgram==""){
 				return;
 			}
-			if(!File.Exists(clearinghouseClin.ClientProgram)){
+			if(!ODBuild.IsWeb() && !File.Exists(clearinghouseClin.ClientProgram)){
 				MessageBox.Show(clearinghouseClin.ClientProgram+" "+Lans.g("Eclaims","does not exist."));
 				return;
 			}
 			try{
-				Process.Start(clearinghouseClin.ClientProgram);
+				ODFileUtils.ProcessStart(clearinghouseClin.ClientProgram,doWaitForODCloudClientResponse:true);
 			}
-			catch{
+			catch(ODException odEx) {
+				MessageBox.Show(odEx.Message);
+			}
+			catch(Exception ex) {
 				MessageBox.Show(Lans.g("Eclaims","Client program could not be started.  It may already be running. You must open your client program to finish sending claims."));
+				ex.DoNothing();
 			}
 		}
 

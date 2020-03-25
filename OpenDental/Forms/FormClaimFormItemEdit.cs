@@ -1,14 +1,12 @@
 using System;
-using System.Drawing;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
+using System.Globalization;
+using System.Linq;
 using System.Windows.Forms;
+using CodeBase;
 using OpenDentBusiness;
 using OpenDentBusiness.Eclaims;
-using System.Linq;
 
-namespace OpenDental{
+namespace OpenDental {
 	/// <summary>
 	/// Summary description for FormBasicTemplate.
 	/// </summary>
@@ -451,7 +449,11 @@ namespace OpenDental{
 				"DateOtherQualifier",
 				"IsOutsideLab",
 				"IsNotOutsideLab"
-			}.Concat(Enumerable.Range(1,32).Select(x => "Miss"+x))//Miss1-32
+			};
+			if(CultureInfo.CurrentCulture.Name.EndsWith("CA")) {
+				FieldNames=FieldNames.Concat("OfficeNumber".SingleItemToList()).ToArray();
+			}
+			FieldNames=FieldNames.Concat(Enumerable.Range(1,32).Select(x => "Miss"+x))//Miss1-32
 			.Concat(Enumerable.Range(18,11).Select(x => "MedConditionCode"+x))//MedConditionCode18-28
 			.Concat(Enumerable.Range(39,3).SelectMany(x => Enumerable.Range(97,4)
 					.SelectMany(y => new[] { "MedValCode"+x+(char)y,"MedValAmount"+x+(char)y })))//MedValCode39a-41d and MedValAmount39a-41d

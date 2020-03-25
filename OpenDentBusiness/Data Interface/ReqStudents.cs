@@ -90,7 +90,7 @@ namespace OpenDentBusiness{
 			table.Columns.Add("patient");
 			table.Columns.Add("ReqStudentNum");
 			table.Columns.Add("requirement");
-			string command="SELECT AptDateTime,CourseID,reqStudent.Descript ReqDescript,"
+			string command="SELECT AptDateTime,CourseID,reqstudent.Descript ReqDescript,"
 				+"schoolcourse.Descript CourseDescript,reqstudent.DateCompleted, "
 				+"patient.LName,patient.FName,patient.MiddleI,patient.Preferred,ProcDescript,reqstudent.ReqStudentNum "
 				+"FROM reqstudent "

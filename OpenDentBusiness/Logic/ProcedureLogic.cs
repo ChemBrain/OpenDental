@@ -165,7 +165,10 @@ namespace OpenDentBusiness {
 			}
 			//priority and toothnums are the same, so sort by proccode.
 			if(x.CodeNum!=y.CodeNum) {
-				return ProcedureCodes.GetProcCode(x.CodeNum).ProcCode.CompareTo(ProcedureCodes.GetProcCode(y.CodeNum).ProcCode);
+				//GetProcCode(...).ProcCode can be null.
+				//We do not protect the second call because comparing any string to null doesn't cause an error.
+				string procCode=ProcedureCodes.GetProcCode(x.CodeNum).ProcCode??"";
+				return procCode.CompareTo(ProcedureCodes.GetProcCode(y.CodeNum).ProcCode);
 			}
 			//if everything else is the same, sort by ProcNum so sort is deterministic
 			return x.ProcNum.CompareTo(y.ProcNum);

@@ -5084,7 +5084,7 @@ namespace OpenDental{
 			try {
 				Logger.LogToPath("",LogPath.Signals,LogPhase.Start);
 				//This checks if any forms are open that make us want to continue processing signals even if inactive. Currently only FormTerminal.
-				if(Application.OpenForms.OfType<Form>().All(x => x.Name!="FormTerminal")) {
+				if(Application.OpenForms.OfType<FormTerminal>().Count()==0) {
 					DateTime dtInactive=Security.DateTimeLastActivity+TimeSpan.FromMinutes((double)PrefC.GetInt(PrefName.SignalInactiveMinutes));
 					if((double)PrefC.GetInt(PrefName.SignalInactiveMinutes)!=0 && DateTime.Now>dtInactive) {
 						_hasSignalProcessingPaused=true;
@@ -5428,6 +5428,12 @@ namespace OpenDental{
 		///<summary>Takes one task and determines if it should popup for the current user.  Displays task popup if needed.</summary>
 		private void TaskPopupHelper(Task taskPopup,List<UserOdPref> listBlockedTaskLists,List<TaskNote> listNotesForTask=null) {
 			try {
+				//Check if application is in kiosk mode. If so, no popups should happen. 
+				if(Application.OpenForms.OfType<FormTerminal>().Count()>0) {
+					string msg=Lan.g(this,"Kiosk mode enabled, popup blocked for TaskNum:");
+					Logger.LogToPath("",LogPath.Signals,LogPhase.Start,msg+" "+POut.Long(taskPopup.TaskNum));
+					return;
+				} 
 				Logger.LogToPath("",LogPath.Signals,LogPhase.Start,"TaskNum: "+taskPopup.TaskNum.ToString());
 				if(taskPopup.DateTimeEntry>DateTime.Now && taskPopup.ReminderType!=TaskReminderType.NoReminder) {
 					return;//Don't pop up future dated reminder tasks
@@ -7392,13 +7398,15 @@ namespace OpenDental{
 			}
 			if(Security.IsAuthorized(Permissions.UserQueryAdmin,true)) {
 				SecurityLogs.MakeLogEntry(Permissions.UserQuery,0,Lan.g(this,"User query form accessed."));
-				if(_formUserQuery!=null) {
-					_formUserQuery.BringToFront();
-					return;
+				if(_formUserQuery==null || _formUserQuery.IsDisposed) {
+					_formUserQuery=new FormQuery(null);
+					_formUserQuery.FormClosed+=new FormClosedEventHandler((object senderF,FormClosedEventArgs eF) => { _formUserQuery=null; });
+					_formUserQuery.Show();
 				}
-				_formUserQuery=new FormQuery(null);
-				_formUserQuery.FormClosed+=new FormClosedEventHandler((object senderF,FormClosedEventArgs eF) => { _formUserQuery=null; });
-				_formUserQuery.Show(this);
+				if(_formUserQuery.WindowState==FormWindowState.Minimized) {
+					_formUserQuery.WindowState=FormWindowState.Normal;
+				}
+				_formUserQuery.BringToFront();
 			}
 			else {
 				FormQueryFavorites FormQF=new FormQueryFavorites();

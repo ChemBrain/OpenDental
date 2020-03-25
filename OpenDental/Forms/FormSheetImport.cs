@@ -2105,7 +2105,7 @@ namespace OpenDental {
 					sub.Subscriber=subscriber.PatNum;
 					sub.SubscriberID=subscriberIdRow.ImpValDisplay;
 					sub.ReleaseInfo=true;
-					sub.AssignBen=true;
+					sub.AssignBen=PrefC.GetBool(PrefName.InsDefaultAssignBen);
 					insSubNum=InsSubs.Insert(sub);
 				}
 			}
@@ -2192,7 +2192,7 @@ namespace OpenDental {
 				sub.Subscriber=subscriber.PatNum;
 				sub.SubscriberID=subscriberIdRow.ImpValDisplay;
 				sub.ReleaseInfo=true;
-				sub.AssignBen=true;
+				sub.AssignBen=PrefC.GetBool(PrefName.InsDefaultAssignBen);
 				insSubNum=InsSubs.Insert(sub);
 				Benefit ben;
 				List<CovCat> listCovCats=CovCats.GetDeepCopy(true);
