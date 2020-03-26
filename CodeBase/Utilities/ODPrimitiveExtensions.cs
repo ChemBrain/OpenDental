@@ -68,6 +68,11 @@ namespace CodeBase {
 			return (val > 0.0000001f || Math.Abs(val)<=0.0000001f);
 		}
 
+		///<summary>Used to check if a decimal number is "greater than" zero based on some epsilon.</summary>
+		public static bool IsGreaterThanOrEqualToZero(this decimal val) {
+			return (val > 0.0000001M || Math.Abs(val)<=0.0000001M);
+		}
+
 		///<summary>Used to check if a decimal is "greater than" another decimal based on some epsilon.</summary>
 		public static bool IsGreaterThan(this decimal val,decimal val2) {
 			return val-val2 > 0.0000001M;

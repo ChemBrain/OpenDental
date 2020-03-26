@@ -1851,6 +1851,12 @@ namespace OpenDentBusiness{
 		DisabledByHQ,
 	}
 
+	///<summary>Contains exit codes used for FormOpenDental. Not all codes used are listed here. If using a new exit code, you should add it to this
+	///enum.</summary>
+	public enum FormOpenDentalExitCodes {
+		///<summary>The database version is higher than the version of the current program.</summary>
+		DbVersionHigherThanCurrent=309,
+	}
 }
 
 

@@ -397,6 +397,7 @@ namespace OpenDental {
 			}
 			string updateServerName=PrefC.GetString(PrefName.WebServiceServerName);
 			Version storedVersion=new Version(PrefC.GetString(PrefName.ProgramVersion));
+			Version dbVersion=new Version(PrefC.GetString(PrefName.DataBaseVersion));
 			Version currentVersion=new Version(Application.ProductVersion);
 			//Determines if the current version is within the dynamic mode folder.
 			bool isInDynamicModeFolder=Application.StartupPath.Contains("DynamicMode");
@@ -563,6 +564,15 @@ namespace OpenDental {
 						}
 					}
 				}
+			}
+			if(currentVersion < dbVersion) {
+				//This could happen if a previous update was partially successful.
+				if(!isSilent) {
+					MsgBox.Show(Lans.g("PrefL","The current version is lower than the database version. Current version:")+" "+currentVersion
+						+Lans.g("PrefL",". Database version:")+" "+dbVersion+".");
+				}
+				FormOpenDental.ExitCode=(int)FormOpenDentalExitCodes.DbVersionHigherThanCurrent;//309
+				return false;
 			}
 			return true;
 		}

@@ -905,7 +905,6 @@ namespace OpenDental{
 				return;
 			}
 			//MessageBox.Show(selectedDate.ToShortDateString());
-			long clinicNum=0;
 			if(PrefC.HasClinicsEnabled) {
 				if(comboClinic.SelectedClinicNum==-1) {
 					MsgBox.Show(this,"Please select a clinic.");
@@ -932,7 +931,7 @@ namespace OpenDental{
 					empFName=listSelectedEmps[0].FName;
 				}
 			}
-			FormScheduleDayEdit FormS=new FormScheduleDayEdit(selectedDate,clinicNum,provAbbr,empFName,true);
+			FormScheduleDayEdit FormS=new FormScheduleDayEdit(selectedDate,comboClinic.SelectedClinicNum,provAbbr,empFName,true);
 			FormS.ShowDialog();
 			if(FormS.DialogResult!=DialogResult.OK){
 				return;

@@ -1155,9 +1155,9 @@ namespace OpenDentBusiness{
 								}
 							}
 							if(discountPlan!=null && procStat!=ProcStat.C) {
-								decimal discountFee=(decimal)Fees.GetAmount0(PIn.Long(rawProc.Rows[p]["CodeNum"].ToString()),discountPlan.FeeSchedNum,
+								decimal discountFee=(decimal)Fees.GetAmount(PIn.Long(rawProc.Rows[p]["CodeNum"].ToString()),discountPlan.FeeSchedNum,
 									PIn.Long(rawProc.Rows[p]["ClinicNum"].ToString()),PIn.Long(rawProc.Rows[p]["ProvNum"].ToString()),listDiscountPlanFees);
-								if(discountFee.IsGreaterThan(0)) {
+								if(discountFee.IsGreaterThanOrEqualToZero()) {
 									discountPlanDiscount+=Math.Max(procFee-discountFee,0);
 								}
 							}

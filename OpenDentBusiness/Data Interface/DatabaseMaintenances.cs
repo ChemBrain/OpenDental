@@ -4212,13 +4212,32 @@ namespace OpenDentBusiness {
 					List<DbmLog> listDbmLogs=new List<DbmLog>();
 					string methodName=MethodBase.GetCurrentMethod().Name;
 					if(table.Rows.Count>0) {
-						Carrier carrier=Carriers.GetByNameAndPhone("UNKNOWN CARRIER","",true);
-						command="UPDATE insplan SET CarrierNum="+POut.Long(carrier.CarrierNum)//set this new carrier for all insplans
-							+" WHERE CarrierNum NOT IN (SELECT CarrierNum FROM carrier)";//which have invalid carriernums
-						Db.NonQ(command);
-						table.Select().ToList().ForEach(x => listDbmLogs.Add(new DbmLog(Security.CurUser.UserNum,PIn.Long(x["PlanNum"].ToString()),
-							DbmLogFKeyType.InsPlan,DbmLogActionType.Update,methodName,"Updated CarrierNum from "+x["CarrierNum"].ToString()
-							+" to "+carrier.CarrierNum+" from InsPlanInvalidCarrier.")));
+						long carrierNum0=0;//The new CarrierNum for any plans that have 0 for their CarrierNum.
+						List<long> listCarrierNums=table.Select().Select(x => PIn.Long(x["CarrierNum"].ToString())).Distinct().ToList();
+						foreach(long carrierNum in listCarrierNums) {
+							if(carrierNum<=0 && carrierNum0!=0) {
+								continue;//We'll only insert one carrier for all carrier nums equal or less than 0.
+							}
+							Carrier carrier=new Carrier {
+								CarrierName="UNKNOWN CARRIER "+Math.Max(carrierNum,0),
+								CarrierNum=carrierNum,
+							};
+							Carriers.Insert(carrier,useExistingPriKey:carrierNum > 0);
+							if(carrierNum<=0) {
+								carrierNum0=carrier.CarrierNum;
+							}
+							listDbmLogs.Add(new DbmLog(Security.CurUser.UserNum,carrierNum,DbmLogFKeyType.Carrier,DbmLogActionType.Insert,methodName,
+								$"Created new carrier '{carrier.CarrierName}' from InsPlanInvalidCarrier."));
+						}
+						if(carrierNum0!=0) {//If we had any plans with CarrierNum of 0
+							command="UPDATE insplan SET CarrierNum="+POut.Long(carrierNum0)//set this new carrier for the insplans
+								+" WHERE CarrierNum<=0";
+							Db.NonQ(command);
+							table.Select().Where(x => PIn.Long(x["CarrierNum"].ToString())<=0)
+								.ForEach(x => listDbmLogs.Add(new DbmLog(Security.CurUser.UserNum,PIn.Long(x["PlanNum"].ToString()),
+									DbmLogFKeyType.InsPlan,DbmLogActionType.Update,methodName,"Updated CarrierNum from "+x["CarrierNum"].ToString()+" to "+carrierNum0
+									+" from InsPlanInvalidCarrier.")));
+						}
 					}
 					int numberFixed=table.Rows.Count;
 					if(numberFixed>0 || verbose) {

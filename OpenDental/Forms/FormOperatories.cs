@@ -200,6 +200,8 @@ namespace OpenDental{
 		}
 
 		private void FillGrid(){
+			List<long> listSelectedOpNums=gridMain.SelectedTags<Operatory>().Select(x => x.OperatoryNum).ToList();
+			int scrollValueCur=gridMain.ScrollValue;
 			gridMain.BeginUpdate();
 			gridMain.ListGridColumns.Clear();
 			int opNameWidth=180;
@@ -263,6 +265,13 @@ namespace OpenDental{
 				gridMain.ListGridRows.Add(row);
 			}
 			gridMain.EndUpdate();
+			for(int i=0;i<gridMain.ListGridRows.Count;i++) {
+				Operatory op=(Operatory)gridMain.ListGridRows[i].Tag;
+				if(op.OperatoryNum.In(listSelectedOpNums)) {
+					gridMain.SetSelected(i,true);
+				}
+			}
+			gridMain.ScrollValue=scrollValueCur;
 		}
 
 		private void gridMain_CellDoubleClick(object sender, OpenDental.UI.ODGridClickEventArgs e) {

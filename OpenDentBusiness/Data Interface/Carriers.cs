@@ -259,9 +259,9 @@ namespace OpenDentBusiness{
 		}
 
 		///<summary>Surround with try/catch if possibly adding a Canadian carrier.</summary>
-		public static long Insert(Carrier carrier, Carrier carrierOld=null) {
+		public static long Insert(Carrier carrier, Carrier carrierOld=null,bool useExistingPriKey=false) {
 			if(RemotingClient.RemotingRole==RemotingRole.ClientWeb) {
-				carrier.CarrierNum=Meth.GetLong(MethodBase.GetCurrentMethod(),carrier,carrierOld);
+				carrier.CarrierNum=Meth.GetLong(MethodBase.GetCurrentMethod(),carrier,carrierOld,useExistingPriKey);
 				return carrier.CarrierNum;
 			}
 			//Security.CurUser.UserNum gets set on MT by the DtoProcessor so it matches the user from the client WS.
@@ -280,7 +280,7 @@ namespace OpenDentBusiness{
 			if(carrierOld==null) {
 				carrierOld=carrier.Copy();
 			}
-			Crud.CarrierCrud.Insert(carrier);
+			Crud.CarrierCrud.Insert(carrier,useExistingPriKey);
 			if(carrierOld.CarrierNum != 0) {
 				InsEditLogs.MakeLogEntry(carrier,carrierOld,InsEditLogType.Carrier,carrier.SecUserNumEntry);
 			}

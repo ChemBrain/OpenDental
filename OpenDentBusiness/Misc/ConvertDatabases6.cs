@@ -2540,5 +2540,26 @@ namespace OpenDentBusiness {
 			}
 		}
 
+		private static void To19_4_30() {
+			string command;
+			//Remove "From API" PaymentType
+			command="SELECT COALESCE(MIN(DefNum),0) FROM definition WHERE ItemName='From API' AND Category=10";//10 is PaymentTypes
+			long defNum=PIn.Long(Db.GetScalar(command));
+			if(defNum > 0) {
+				//The definition still exists.
+				//Update their "ApiPaymentType" pref to the first in the category
+				command="SELECT DefNum FROM definition WHERE Category=10 AND IsHidden=0 ORDER BY ItemOrder LIMIT 1";
+				long newDef=PIn.Long(Db.GetScalar(command));
+				command=$"UPDATE preference SET ValueString='{POut.Long(newDef)}' WHERE PrefName='ApiPaymentType' AND ValueString='{POut.Long(defNum)}'";
+				Db.NonQ(command);
+				command=$"SELECT COUNT(*) FROM payment WHERE PayType={POut.Long(defNum)}";
+				if(Db.GetScalar(command)=="0") {
+					//There are no payments using this pay type, so delete "From API"
+					command=$"DELETE FROM definition WHERE DefNum={POut.Long(defNum)}";
+					Db.NonQ(command);
+				}
+			}
+		}
+
 	}
 }

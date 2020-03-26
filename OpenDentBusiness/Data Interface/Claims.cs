@@ -1315,6 +1315,11 @@ namespace OpenDentBusiness{
 			claimCur.EmployRelated=YN.No;
 			claimCur.ClaimForm=insPlanCur.ClaimFormNum;
 			claimCur.AttachedFlags="Mail";
+			if(CultureInfo.CurrentCulture.Name.EndsWith("CA")) {
+				//Defaults to X in edit claim form
+				claimCur.CanadianIsInitialUpper="X";
+				claimCur.CanadianIsInitialLower="X";
+			}
 			Claims.Insert(claimCur);
 			claimCur.ClaimIdentifier=Claims.ConvertClaimId(claimCur);
 			Claims.Update(claimCur);
