@@ -1140,13 +1140,11 @@ namespace OpenDental{
 				message.FromAddress=emailAddress.GetFrom();				
 				message.Subject=PrefC.GetString(PrefName.ConfirmEmailSubject);
 				listPatNumsSelected.Add(message.PatNum);
-				str=PrefC.GetString(PrefName.ConfirmEmailMessage);
-				str=str.Replace("[NameF]",Table.Rows[gridMain.SelectedIndices[i]]["nameF"].ToString());
-				//Last name should NOT be included in confirmations (HIPPA).  But, prior to B19814, [NameFL] had been an available tag, so we have to 
-				//continue to make a substitution where [NameFL] is in use.
-				str=str.Replace("[NameFL]",Table.Rows[gridMain.SelectedIndices[i]]["nameF"].ToString());
-				str=str.Replace("[date]",((DateTime)Table.Rows[gridMain.SelectedIndices[i]]["AptDateTime"]).ToString(PrefC.PatientCommunicationDateFormat));
-				str=str.Replace("[time]",((DateTime)Table.Rows[gridMain.SelectedIndices[i]]["AptDateTime"]).ToShortTimeString());
+				Patient pat=new Patient {
+					FName=PIn.String(Table.Rows[gridMain.SelectedIndices[i]]["nameF"].ToString()),
+				};
+				DateTime apptDateTime=PIn.DateT(Table.Rows[gridMain.SelectedIndices[i]]["AptDateTime"].ToString());
+				str=PatComm.BuildConfirmMessage(ContactMethod.Email,pat,apptDateTime);
 				message.BodyText=EmailMessages.FindAndReplacePostalAddressTag(str,clinicNum);
 				try {
 					EmailMessages.SendEmailUnsecure(message,emailAddress);
@@ -1284,12 +1282,11 @@ namespace OpenDental{
 				long clinicNum=SmsPhones.GetClinicNumForTexting(patNum);
 				wirelessPhone=PIn.String(Table.Rows[gridMain.SelectedIndices[i]]["WirelessPhone"].ToString());
 				txtMsgOk=((YN)PIn.Int(Table.Rows[gridMain.SelectedIndices[i]]["TxtMsgOk"].ToString()));
-				message=PrefC.GetString(PrefName.ConfirmTextMessage);
-				message=message.Replace("[NameF]",Table.Rows[gridMain.SelectedIndices[i]]["nameF"].ToString());
-				message=message.Replace("[NameFL]",Table.Rows[gridMain.SelectedIndices[i]]["nameF"].ToString());//Last name should NOT be included in confirmations.
-				message=message.Replace("[date]",((DateTime)Table.Rows[gridMain.SelectedIndices[i]]["AptDateTime"])
-					.ToString(PrefC.PatientCommunicationDateFormat));
-				message=message.Replace("[time]",((DateTime)Table.Rows[gridMain.SelectedIndices[i]]["AptDateTime"]).ToShortTimeString());
+				Patient pat=new Patient {
+					FName=PIn.String(Table.Rows[gridMain.SelectedIndices[i]]["nameF"].ToString()),
+				};
+				DateTime apptDateTime=PIn.DateT(Table.Rows[gridMain.SelectedIndices[i]]["AptDateTime"].ToString());
+				message=PatComm.BuildConfirmMessage(ContactMethod.TextMessage,pat,apptDateTime);
 				if(FormTME.SendText(patNum,wirelessPhone,message,txtMsgOk,clinicNum,SmsMessageSource.Confirmation)) {
 					long aptNum=PIn.Long(Table.Rows[gridMain.SelectedIndices[i]]["AptNum"].ToString());
 					long newStatus=PrefC.GetLong(PrefName.ConfirmStatusTextMessaged);

@@ -102,10 +102,10 @@ namespace OpenDentBusiness{
 		///<summary>Used when viewing securityLog from the security admin window.  PermTypes can be length 0 to get all types.
 		///Throws exceptions.</summary>
 		public static SecurityLog[] Refresh(DateTime dateFrom,DateTime dateTo,Permissions permType,long patNum,long userNum,
-			DateTime datePreviousFrom,DateTime datePreviousTo,bool includeArchived,int limit=0) 
+			DateTime datePreviousFrom,DateTime datePreviousTo,int limit=0) 
 		{
 			if(RemotingClient.RemotingRole==RemotingRole.ClientWeb) {
-				return Meth.GetObject<SecurityLog[]>(MethodBase.GetCurrentMethod(),dateFrom,dateTo,permType,patNum,userNum,datePreviousFrom,datePreviousTo,includeArchived,limit);
+				return Meth.GetObject<SecurityLog[]>(MethodBase.GetCurrentMethod(),dateFrom,dateTo,permType,patNum,userNum,datePreviousFrom,datePreviousTo,limit);
 			}
 			string command="SELECT securitylog.*,LName,FName,Preferred,MiddleI,LogHash FROM securitylog "
 				+"LEFT JOIN patient ON patient.PatNum=securitylog.PatNum "
@@ -143,26 +143,6 @@ namespace OpenDentBusiness{
 				}
 				listLogs[i].LogHash=table.Rows[i]["LogHash"].ToString();
 			}
-			if(includeArchived) {
-				//This will purposefully throw exceptions.
-				DataTable tableArchive=MiscData.RunFuncOnArchiveDatabase<DataTable>(() => {
-					return Db.GetTable(command);
-				});
-				List<SecurityLog> listLogsArchive=Crud.SecurityLogCrud.TableToList(tableArchive);
-				Dictionary<long,Patient> dictPats=Patients.GetMultPats(listLogsArchive.Select(x => x.PatNum).Distinct().ToList())
-					.ToDictionary(x => x.PatNum);
-				for(int i=0;i<listLogsArchive.Count;i++) {
-					Patient pat;
-					if(listLogsArchive[i].PatNum==0 || !dictPats.TryGetValue(listLogsArchive[i].PatNum,out pat)) {
-						listLogsArchive[i].PatientName="";
-					}
-					else {
-						listLogsArchive[i].PatientName=listLogsArchive[i].PatNum+"-"+pat.GetNameLF();
-					}
-					listLogsArchive[i].LogHash=tableArchive.Rows[i]["LogHash"].ToString();
-				}
-				listLogs.AddRange(listLogsArchive);//Add archived entries to returned list.
-			}
 			return listLogs.OrderBy(x => x.LogDateTime).ToArray();
 		}
 
@@ -178,9 +158,9 @@ namespace OpenDentBusiness{
 		//there are no methods for deleting or changing log entries because that will never be allowed.
 
 		///<summary>Used when viewing various audit trails of specific types.  Only implemented Appointments,ProcFeeEdit,InsPlanChangeCarrierName so far. patNum only used for Appointments.  The other two are zero.</summary>
-		public static SecurityLog[] Refresh(long patNum,List<Permissions> permTypes,long fKey,bool includeArchived) {
+		public static SecurityLog[] Refresh(long patNum,List<Permissions> permTypes,long fKey) {
 			//No need to check RemotingRole; no call to db.
-			return Refresh(patNum,permTypes,new List<long>(){ fKey },includeArchived);
+			return Refresh(patNum,permTypes,new List<long>(){ fKey });
 		}
 
 		///<summary>Used when viewing various audit trails of specific types.  This overload will return security logs for multiple objects (or fKeys).
@@ -189,9 +169,9 @@ namespace OpenDentBusiness{
 		///Thus, to get the full experience of a specific type audit trail window, we need to get security logs for multiple objects (FKs) that
 		///comprise the larger object (what the user sees).  Only implemented with ortho chart so far.  FKeys can be null.
 		///Throws exceptions.</summary>
-		public static SecurityLog[] Refresh(long patNum,List<Permissions> permTypes,List<long> fKeys,bool includeArchived) {
+		public static SecurityLog[] Refresh(long patNum,List<Permissions> permTypes,List<long> fKeys) {
 			if(RemotingClient.RemotingRole==RemotingRole.ClientWeb) {
-				return Meth.GetObject<SecurityLog[]>(MethodBase.GetCurrentMethod(),patNum,permTypes,fKeys,includeArchived);
+				return Meth.GetObject<SecurityLog[]>(MethodBase.GetCurrentMethod(),patNum,permTypes,fKeys);
 			}
 			string types="";
 			for(int i=0;i<permTypes.Count;i++) {
@@ -211,12 +191,6 @@ namespace OpenDentBusiness{
 			}
 			command+="ORDER BY LogDateTime";
 			List<SecurityLog> listLogs=Crud.SecurityLogCrud.SelectMany(command);
-			if(includeArchived) {
-				//This will purposefully throw exceptions.
-				listLogs.AddRange(MiscData.RunFuncOnArchiveDatabase<List<SecurityLog>>(() => {
-					return Crud.SecurityLogCrud.SelectMany(command);
-				}));
-			}
 			return listLogs.OrderBy(x => x.LogDateTime).ToArray();
 		}
 

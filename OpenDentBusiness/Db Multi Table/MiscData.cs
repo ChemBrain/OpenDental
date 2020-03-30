@@ -289,10 +289,12 @@ namespace OpenDentBusiness {
 			return GetCurrentDatabase()+"_archive";
 		}
 
-		///<summary>Makes a connection to the archive database, validates that the version of the database is the same as the current database version,
-		///executes the func passed in, and then sets the connection back to the original database before returning the results of the func passed in.
-		///Optionally pass in connection settings to override the archive preferences.  Throws exceptions.</summary>
+		///<summary>NO LONGER USED.
+		///Leaving function here in case we want to reuse the code in future.  We only support connecting to archive DB directly.</summary>
 		public static T RunFuncOnArchiveDatabase<T>(Func<T> f) {
+			//Makes a connection to the archive database, validates that the version of the database is the same as the current database version,
+			//executes the func passed in, and then sets the connection back to the original database before returning the results of the func passed in.
+			//Optionally pass in connection settings to override the archive preferences.  Throws exceptions.
 			if(RemotingClient.RemotingRole.In(RemotingRole.ClientWeb,RemotingRole.ServerWeb)) {//May already be behind a remoting role check.
 				//This method will eventually invoke SetDB() which is unacceptable for the Middle Tier.
 				throw new ApplicationException(Lans.g(nameof(MiscData),"Archive databases are not available when using a Middle Tier connection.")+"\r\n"+

@@ -4571,6 +4571,22 @@ namespace OpenDentBusiness {
 			return "";
 		}		
 
+		///<summary>Builds a confirmation sms's message text based on the appropriate preference, given patient, and given date.</summary>
+		public static string BuildConfirmMessage(ContactMethod contactMethod,Patient pat,DateTime apptDateTime) {
+			string message=contactMethod switch {
+				ContactMethod.Email=>PrefC.GetString(PrefName.ConfirmEmailMessage),
+				ContactMethod.TextMessage=>PrefC.GetString(PrefName.ConfirmTextMessage),
+				_=>PrefC.GetString(PrefName.ConfirmTextMessage),
+			};
+			message=message.Replace("[NameF]",pat.FName);
+			//Last name should NOT be included in confirmations (HIPPA).  But, prior to B19814, [NameFL] had been an available tag, so we have to 
+			//continue to make a substitution where [NameFL] is in use.
+			message=message.Replace("[NameFL]",pat.FName);//Last name should NOT be included in confirmations.
+			message=message.Replace("[date]",apptDateTime.ToString(PrefC.PatientCommunicationDateFormat));
+			message=message.Replace("[time]",apptDateTime.ToShortTimeString());
+			return message;
+		}
+
 		#region Short Codes
 
 		///<summary>Returns true if the clinic is using an eService automated texting feature for which it is set to use Short Codes and the patient is 

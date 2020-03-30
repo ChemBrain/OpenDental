@@ -1974,7 +1974,7 @@ namespace OpenDental {
 					appt=Appointments.GetOneApt(contrApptPanel.SelectedAptNum);
 					if(ApptIsNull(appt)) { return; }
 					Patient pat=Patients.GetPat(appt.PatNum);
-					string message=SmsToMobiles.BuildConfirmSmsMessage(pat,appt.AptDateTime);
+					string message=PatComm.BuildConfirmMessage(ContactMethod.TextMessage,pat,appt.AptDateTime);
 					bool wasTextSent=FormOpenDental.S_OnTxtMsg_Click(pat.PatNum,message);
 					if(wasTextSent) {
 						Appointments.SetConfirmed(appt,PrefC.GetLong(PrefName.ConfirmStatusTextMessaged));

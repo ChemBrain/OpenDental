@@ -946,7 +946,7 @@ namespace OpenDental{
 				pat.TxtMsgOk=YN.Yes;
 				Patients.Update(pat,patOld);
 			}
-			string message=SmsToMobiles.BuildConfirmSmsMessage(pat,AptCur.AptDateTime);
+			string message=PatComm.BuildConfirmMessage(ContactMethod.TextMessage,pat,AptCur.AptDateTime);
 			FormTxtMsgEdit FormTME=new FormTxtMsgEdit();
 			FormTME.PatNum=pat.PatNum;
 			FormTME.WirelessPhone=pat.WirelessPhone;

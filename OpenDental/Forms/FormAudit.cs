@@ -46,7 +46,6 @@ namespace OpenDental{
 		private Label label2;
 		private Label label3;
 		private ODGrid grid;
-		private CheckBox checkIncludeArchived;
 		private List<Userod> _listUserods;
 
 		///<summary></summary>
@@ -98,7 +97,6 @@ namespace OpenDental{
 			this.label2 = new System.Windows.Forms.Label();
 			this.label3 = new System.Windows.Forms.Label();
 			this.grid = new OpenDental.UI.ODGrid();
-			this.checkIncludeArchived = new System.Windows.Forms.CheckBox();
 			this.SuspendLayout();
 			// 
 			// textDateEditedFrom
@@ -304,23 +302,9 @@ namespace OpenDental{
 			this.grid.TranslationName = "TableAudit";
 			this.grid.CellDoubleClick += new OpenDental.UI.ODGridClickEventHandler(this.grid_CellDoubleClick);
 			// 
-			// checkIncludeArchived
-			// 
-			this.checkIncludeArchived.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
-			this.checkIncludeArchived.FlatStyle = System.Windows.Forms.FlatStyle.System;
-			this.checkIncludeArchived.Location = new System.Drawing.Point(685, 5);
-			this.checkIncludeArchived.Name = "checkIncludeArchived";
-			this.checkIncludeArchived.Size = new System.Drawing.Size(100, 18);
-			this.checkIncludeArchived.TabIndex = 278;
-			this.checkIncludeArchived.Text = "Show Archived";
-			this.checkIncludeArchived.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-			this.checkIncludeArchived.UseVisualStyleBackColor = true;
-			this.checkIncludeArchived.CheckedChanged += new System.EventHandler(this.checkIncludeArchived_CheckedChanged);
-			// 
 			// FormAudit
 			// 
 			this.ClientSize = new System.Drawing.Size(1108, 634);
-			this.Controls.Add(this.checkIncludeArchived);
 			this.Controls.Add(this.grid);
 			this.Controls.Add(this.textDateEditedFrom);
 			this.Controls.Add(this.textDateEditedTo);
@@ -358,12 +342,6 @@ namespace OpenDental{
 		#endregion
 
 		private void FormAudit_Load(object sender, System.EventArgs e) {
-			if(RemotingClient.RemotingRole==RemotingRole.ClientWeb) {//Archive not supported over MT connection.
-				checkIncludeArchived.Enabled=false;
-			}
-			if(string.IsNullOrEmpty(PrefC.GetString(PrefName.ArchiveServerName))) {//Archive db not setup.
-				checkIncludeArchived.Enabled=false;
-			}
 			textDateFrom.Text=DateTime.Today.AddDays(-10).ToShortDateString();
 			textDateTo.Text=DateTime.Today.ToShortDateString();
 			for(int i=0;i<permissionsAlphabetic.Count;i++){
@@ -446,12 +424,12 @@ namespace OpenDental{
 			try {
 				if(comboPermission.SelectedIndex==0) {
 					logList=SecurityLogs.Refresh(PIn.Date(textDateFrom.Text),PIn.Date(textDateTo.Text),
-						Permissions.None,PatNum,userNum,datePreviousFrom,datePreviousTo,checkIncludeArchived.Checked,PIn.Int(textRows.Text));
+						Permissions.None,PatNum,userNum,datePreviousFrom,datePreviousTo,PIn.Int(textRows.Text));
 				}
 				else {
 					logList=SecurityLogs.Refresh(PIn.Date(textDateFrom.Text),PIn.Date(textDateTo.Text),
 						(Permissions)Enum.Parse(typeof(Permissions),comboPermission.SelectedItem.ToString()),PatNum,userNum,
-						datePreviousFrom,datePreviousTo,checkIncludeArchived.Checked,PIn.Int(textRows.Text));
+						datePreviousFrom,datePreviousTo,PIn.Int(textRows.Text));
 				}
 			}
 			catch(Exception ex) {
@@ -548,10 +526,6 @@ namespace OpenDental{
 			pagesPrinted=0;
 			headingPrinted=false;
 			PrinterL.TryPrintOrDebugClassicPreview(pd_PrintPage,Lan.g(this,"Audit trail printed"),printoutOrientation:PrintoutOrientation.Landscape);
-		}
-
-		private void checkIncludeArchived_CheckedChanged(object sender,EventArgs e) {
-			FillGrid();
 		}
 
 		///<summary>Raised for each page to be printed.</summary>

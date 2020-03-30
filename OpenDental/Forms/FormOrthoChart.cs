@@ -55,12 +55,6 @@ namespace OpenDental {
 		}
 
 		private void FormOrthoChart_Load(object sender,EventArgs e) {
-			if(RemotingClient.RemotingRole==RemotingRole.ClientWeb) {//Archive not supported over MT connection.
-				checkIncludeArchived.Enabled=false;
-			}
-			if(string.IsNullOrEmpty(PrefC.GetString(PrefName.ArchiveServerName))) {//Archive db not setup.
-				checkIncludeArchived.Enabled=false;
-			}
 			signatureBoxWrapper.SetAllowDigitalSig(true);
 			_listOrthoChartsInitial=OrthoCharts.GetAllForPatient(_patCur.PatNum);
 			_listDatesAdded=new List<DateTime>() {
@@ -697,9 +691,9 @@ namespace OpenDental {
 			SecurityLog[] orthoChartLogs;
 			SecurityLog[] patientFieldLogs;
 			try {
-				orthoChartLogs=SecurityLogs.Refresh(_patCur.PatNum,new List<Permissions> { Permissions.OrthoChartEditFull },null,checkIncludeArchived.Checked);
+				orthoChartLogs=SecurityLogs.Refresh(_patCur.PatNum,new List<Permissions> { Permissions.OrthoChartEditFull },null);
 				patientFieldLogs=SecurityLogs.Refresh(new DateTime(1,1,1),DateTime.Today,Permissions.PatientFieldEdit,_patCur.PatNum,0,
-					DateTime.MinValue,DateTime.Today,checkIncludeArchived.Checked);
+					DateTime.MinValue,DateTime.Today);
 			}
 			catch(Exception ex) {
 				FriendlyException.Show(Lan.g(this,"There was a problem loading the Audit Trail."),ex);

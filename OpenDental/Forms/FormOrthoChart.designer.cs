@@ -27,7 +27,6 @@ namespace OpenDental{
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormOrthoChart));
 			this.mainMenu1 = new System.Windows.Forms.MainMenu(this.components);
 			this.menuItemSetup = new System.Windows.Forms.MenuItem();
-			this.checkIncludeArchived = new System.Windows.Forms.CheckBox();
 			this.butPrint = new OpenDental.UI.Button();
 			this.gridOrtho = new OpenDental.UI.ODGrid();
 			this.tabControl = new System.Windows.Forms.TabControl();
@@ -54,17 +53,6 @@ namespace OpenDental{
 			this.menuItemSetup.Index = 0;
 			this.menuItemSetup.Text = "Setup";
 			this.menuItemSetup.Click += new System.EventHandler(this.menuItemSetup_Click);
-			// 
-			// checkIncludeArchived
-			// 
-			this.checkIncludeArchived.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.checkIncludeArchived.FlatStyle = System.Windows.Forms.FlatStyle.System;
-			this.checkIncludeArchived.Location = new System.Drawing.Point(533, 541);
-			this.checkIncludeArchived.Name = "checkIncludeArchived";
-			this.checkIncludeArchived.Size = new System.Drawing.Size(133, 18);
-			this.checkIncludeArchived.TabIndex = 119;
-			this.checkIncludeArchived.Text = "Include Archived";
-			this.checkIncludeArchived.UseVisualStyleBackColor = true;
 			// 
 			// butPrint
 			// 
@@ -223,7 +211,6 @@ namespace OpenDental{
 			// 
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
 			this.ClientSize = new System.Drawing.Size(974, 570);
-			this.Controls.Add(this.checkIncludeArchived);
 			this.Controls.Add(this.butPrint);
 			this.Controls.Add(this.gridOrtho);
 			this.Controls.Add(this.tabControl);
@@ -264,6 +251,5 @@ namespace OpenDental{
 		private System.Windows.Forms.TabPage tabPage2;
 		private UI.ODGrid gridOrtho;
 		private UI.Button butPrint;
-		private System.Windows.Forms.CheckBox checkIncludeArchived;
 	}
 }
