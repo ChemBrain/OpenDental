@@ -71,6 +71,22 @@ namespace OpenDentBusiness{
 			}
 		}
 
+		///<summary>The date and time the schedule starts.</summary>
+		[XmlIgnore]
+		public DateTime DateTimeStart {
+			get {
+				return SchedDate.Add(StartTime);
+			}
+		}
+
+		///<summary>The date and time the schedule stops.</summary>
+		[XmlIgnore]
+		public DateTime DateTimeStop {
+			get {
+				return SchedDate.Add(StopTime);
+			}
+		}
+
 		public Schedule Copy() {
 			Schedule retVal=(Schedule)this.MemberwiseClone();
 			retVal.Ops=new List<long>(Ops);
