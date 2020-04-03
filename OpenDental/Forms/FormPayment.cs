@@ -4985,6 +4985,16 @@ namespace OpenDental {
 					return false;
 				}
 			}
+			if(IsNew && !_isCCDeclined) {
+				//Currently we do not want to modify historical data or credit transaction values. Moving forward zero dollar splits are not valid.
+				_listSplitsCur.RemoveAll(x => x.SplitAmt.IsZero());
+			}
+			//At this point there better be a split in the list of Current Payment Splits.
+			//There is no such thing as a payment with no payment splits.  If there is then the DBM 'PaymentMissingPaySplit' needs to be removed.
+			if(_listSplitsCur.Count==0) {
+				MsgBox.Show(this,"Please create payment splits.");
+				return false;
+			}
 			if(_listSplitsCur.Count>1) {
 				_paymentCur.IsSplit=true;
 			}
@@ -5001,10 +5011,6 @@ namespace OpenDental {
 			//Set all DatePays the same.
 			for(int i=0;i<_listSplitsCur.Count;i++) {
 				_listSplitsCur[i].DatePay=_paymentCur.PayDate;
-			}
-			if(IsNew && !_isCCDeclined) {
-				//Currently we do not want to modify historical data or credit transaction values. Moving forward zero dollar splits are not valid.
-				_listSplitsCur.RemoveAll(x => x.SplitAmt.IsZero());
 			}
 			bool hasChanged=PaySplits.Sync(_listSplitsCur,_listPaySplitsOld);
 			foreach(PaySplit paySplitOld in _listPaySplitsForSecLog) {
