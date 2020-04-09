@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
@@ -48,6 +49,15 @@ namespace CodeBase {
 			SendToODCloudClientSynchronously(cloudClientData,CloudClientAction.ExportClaim);
 		}
 
+		///<summary>Sends a message to ODCloudClient to launch Sirona.</summary>
+		public static void SendToSirona(string pathExe,List<string> listIniLines) {
+			ODCloudClientData cloudClientData=new ODCloudClientData {
+				ExePath=pathExe,
+				OtherData=JsonConvert.SerializeObject(listIniLines),
+			};
+			SendToODCloudClientSynchronously(cloudClientData,CloudClientAction.SendToSirona);
+		}
+
 		///<summary>Sends a requests to ODCloudClient and waits for a response. Throws any exception that ODCloudClient returns.</summary>
 		private static string SendToODCloudClientSynchronously(ODCloudClientData cloudClientData,CloudClientAction cloudClientAction,int timeoutSecs=30) {
 			bool hasReceivedResponse=false;
@@ -64,9 +74,11 @@ namespace CodeBase {
 			thread.AddExceptionHandler(e => exFromThread=e);
 			thread.Start();
 			DateTime start=DateTime.Now;
-			while(!hasReceivedResponse && exFromThread==null && (DateTime.Now-start).TotalSeconds < timeoutSecs) {
-				Thread.Sleep(100);
-			}
+			ODProgress.ShowAction(() => {
+				while(!hasReceivedResponse && exFromThread==null && (DateTime.Now-start).TotalSeconds < timeoutSecs) {
+					Thread.Sleep(100);
+				}
+			});
 			if(exFromThread!=null) {
 				throw exFromThread;
 			}
@@ -126,6 +138,8 @@ namespace CodeBase {
 			public string FileType;
 			///<summary>Defaults to true. Whether to overwrite FilePath. If false and FilePath exists, throws an exception.</summary>
 			public bool DoOverwriteFile=true;
+			///<summary>Any additional data that is necessary for this action type.</summary>
+			public string OtherData;
 		}
 
 		///<summary>Contains the arguments to be sent to OD Cloud Client. Will be serialized as JSON.</summary>
@@ -178,6 +192,8 @@ namespace CodeBase {
 			CheckIsRunning,
 			///<summary>Writes the claim data to the specified file and archives any old claims.</summary>
 			ExportClaim,
+			///<summary>Launches the Sirona bridge.</summary>
+			SendToSirona,
 		}
 
 		///<summary>Tells the browser what action to take with the data passed to it.</summary>

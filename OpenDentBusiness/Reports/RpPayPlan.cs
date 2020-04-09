@@ -90,8 +90,14 @@ namespace OpenDentBusiness {
 					+POut.Int((int)ClaimProcStatus.Supplemental)+","
 					+POut.Int((int)ClaimProcStatus.CapClaim)
 					+") AND claimproc.PayPlanNum!=0),0) '_insPaid', ";
-			command+="COALESCE((SELECT SUM(Principal) FROM payplancharge WHERE payplancharge.PayPlanNum=payplan.PayPlanNum "
-				+"AND payplancharge.ChargeType="+POut.Int((int)PayPlanChargeType.Debit)+"),0) '_principal', "//for v1, debits are the only ChargeType.
+			command+="COALESCE(CASE "
+					//When pay plan isn't dynamic, all charges are already created, so we can sum principal from them to get plans total principal.
+					+"WHEN payplan.IsDynamic=0 THEN "
+						+"(SELECT SUM(Principal) FROM payplancharge "
+						//for v1, debits are the only ChargeType.
+						+"WHERE payplancharge.PayPlanNum=payplan.PayPlanNum AND payplancharge.ChargeType="+POut.Int((int)PayPlanChargeType.Debit)+") "
+					//When pay plan is dynamic, we will get it from dppprincipal, a table constructed to calculate total principal for dynamic pay plans.
+					+"WHEN payplan.IsDynamic=1 THEN dppprincipal.TotalPrincipal ELSE 0 END,0)'_principal', "
 				+"COALESCE((SELECT SUM(Principal) FROM payplancharge WHERE payplancharge.PayPlanNum=payplan.PayPlanNum "
 				+"AND payplancharge.ChargeType="+POut.Int((int)PayPlanChargeType.Credit)+"),0) '_credits', "//for v1, will always be 0.
 				+"COALESCE((SELECT SUM(Principal) FROM payplancharge WHERE payplancharge.PayPlanNum=payplan.PayPlanNum "
@@ -110,6 +116,45 @@ namespace OpenDentBusiness {
 				+"FROM payplan "
 				+"LEFT JOIN patient ON patient.PatNum=payplan.Guarantor "
 				+"LEFT JOIN payplancharge ON payplan.PayPlanNum=payplancharge.PayPlanNum "
+				+"LEFT JOIN "
+					//construct dppprincipal (dynamic payment plan principal) table
+					+"(SELECT payplanlink.PayPlanNum,"
+						//Sum total production linked to dynamic pay plan for all linked adjustments and procedures 
+						+"ROUND(SUM(CASE "
+							+"WHEN payplanlink.AmountOverride!=0 THEN payplanlink.AmountOverride "//If override isn't zero, use it in sum
+							+"ELSE (CASE "//Otherwise, use adjustment amount or total proc fee for linked production
+								+"WHEN payplanlink.LinkType="+POut.Int((int)PayPlanLinkType.Adjustment)+" THEN adjustment.AdjAmt "
+								+"WHEN payplanlink.LinkType="+POut.Int((int)PayPlanLinkType.Procedure)+" "
+								+"THEN procedurelog.ProcFee*GREATEST(1,procedurelog.BaseUnits+procedurelog.UnitQty) "
+								+"ELSE 0 END)"
+							//Factor in non-payplan pay splits, adjustments to procedures, and insurance estimates, payments, writeoffs, and estimated writeoffs
+							+"-COALESCE(sumsplit.SumSplit,0)+COALESCE(sumprocadj.SumProcAdj,0)-COALESCE(sumins.SumIns,0) "
+							+"END),2) AS 'TotalPrincipal' "
+					+"FROM payplanlink "
+						+"LEFT JOIN adjustment ON adjustment.AdjNum=payplanlink.FKey AND payplanlink.LinkType="+POut.Int((int)PayPlanLinkType.Adjustment)+" "
+						+"LEFT JOIN procedurelog ON procedurelog.ProcNum=payplanlink.FKey AND payplanlink.LinkType="+POut.Int((int)PayPlanLinkType.Procedure)+" "
+						+"LEFT JOIN "//Table to sum all paysplits made to linked production outside of pay plan.
+							+"(SELECT paysplit.ProcNum,paysplit.AdjNum,SUM(paysplit.SplitAmt) AS 'SumSplit' "
+							+"FROM paysplit WHERE paysplit.PayPlanNum=0 AND paysplit.PayPlanChargeNum=0 GROUP BY paysplit.ProcNum,paysplit.AdjNum) "
+							+"AS sumsplit ON (payplanlink.FKey=sumsplit.ProcNum AND sumsplit.ProcNum!=0 AND payplanlink.LinkType="+POut.Int((int)PayPlanLinkType.Procedure)+") OR "
+							+"(payplanlink.FKey=sumsplit.AdjNum AND sumsplit.AdjNum!=0 AND payplanlink.LinkType="+POut.Int((int)PayPlanLinkType.Adjustment)+") "
+						+"LEFT JOIN "//Table to sum all adjustments made to linked procedures.
+							+"(SELECT adjustment.ProcNum, SUM(adjustment.AdjAmt) AS 'SumProcAdj' FROM adjustment GROUP BY adjustment.ProcNum) "
+							+"AS sumprocadj ON sumprocadj.ProcNum=procedurelog.ProcNum AND payplanlink.LinkType="+POut.Int((int)PayPlanLinkType.Procedure)+" "
+						+"LEFT JOIN "//Table to sum all ins estimates, ins payments, estimated writeoffs, and writeoffs to linked procedures.
+							+"(SELECT claimproc.ProcNum, SUM(CASE "
+								+"WHEN claimproc.Status IN ("+string.Join(",",ClaimProcs.GetInsPaidStatuses().Select(x => POut.Int((int)x)))+") "
+								+"THEN claimproc.InsPayAmt+claimproc.WriteOff "
+								+"WHEN claimproc.Status IN ("+string.Join(",",ClaimProcs.GetEstimatedStatuses().Select(x => POut.Int((int)x)))+") "
+								+"THEN claimproc.InsPayEst+(CASE "
+									+"WHEN claimproc.WriteOffEstOverride!=-1 THEN claimproc.WriteOffEstOverride "
+									+"WHEN claimproc.WriteOffEst!=-1 THEN claimproc.WriteOffEst "
+									+"ELSE 0 END) "
+								+"ELSE 0 END) AS 'SumIns' "
+							+"FROM claimproc GROUP BY claimproc.ProcNum) AS sumins "
+							+"ON procedurelog.ProcNum=sumins.ProcNum AND payplanlink.LinkType="+POut.Int((int)PayPlanLinkType.Procedure)+" "
+					//Grouped by PayPlanNum so that we can sum total principal for each dynamic pay plan.
+					+"GROUP BY PayPlanLink.PayPlanNum) AS dppprincipal ON dppprincipal.PayPlanNum=PayPlan.PayPlanNum AND PayPlan.IsDynamic=1 "
 				+"WHERE TRUE ";//Always include true, so that the WHERE clause may always be present.
 			if(hasDateRange) {
 				command+="AND payplan.PayPlanDate >= "+POut.Date(dateStart)+" "

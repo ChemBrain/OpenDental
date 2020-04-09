@@ -242,11 +242,19 @@ namespace CodeBase {
 
 #if !DOT_NET_CORE
 
+		///<summary>Write the given filebytes and launches a file.</summary>
+		///<param name="filePath">The location to write the bytes to.</param>
+		///<param name="fileBytes">The bytes to write to the file.</param>
+		///<param name="processPath">The path of the file to launch.</param>
 		public static Process WriteAllBytesThenStart(string filePath,byte[] fileBytes,string processPath) {
 			return WriteAllBytesThenStart(filePath,fileBytes,processPath,"");
 		}
 
-		///<summary>Write the given filebytes </summary>
+		///<summary>Write the given filebytes and launches a file.</summary>
+		///<param name="filePath">The location to write the bytes to.</param>
+		///<param name="fileBytes">The bytes to write to the file.</param>
+		///<param name="processPath">The path of the file to launch.</param>
+		///<param name="commandLineArgs">Command line arguments to pass to processPath.</param>
 		public static Process WriteAllBytesThenStart(string filePath,byte[] fileBytes,string processPath,string commandLineArgs) {
 			if(ODBuild.IsWeb()) {
 				string byteString=Convert.ToBase64String(fileBytes);

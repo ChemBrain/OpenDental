@@ -23,6 +23,10 @@ namespace OpenDental.Bridges{
 			ProgramProperty PPCur=ProgramProperties.GetCur(ForProgram,"InfoFile path");
 			string infoFile=PPCur.PropertyValue;
 			if(infoFile.Trim()=="") {
+				if(ODBuild.IsWeb()) {
+					MsgBox.Show("Dexis","InfoFile path must not be empty.");
+					return;
+				}
 				infoFile=CodeBase.ODFileUtils.CombinePaths(PrefC.GetTempFolderPath(),"infofile.txt");
 			}
 			if(pat!=null) {
@@ -42,7 +46,8 @@ namespace OpenDental.Bridges{
 					//not the patient names.  Thus there is no chance of breaking the Dexis bridge by using code page 1252 instead.
 					//06/01/2015 A customer tested and confirmed that using the XDR bridge and thus coding page 1252, solved the special characters issue.
 					Encoding enc=Encoding.GetEncoding(1252);
-					using(StreamWriter sw=new StreamWriter(infoFile,false,enc)) {
+					using MemoryStream memStream=new MemoryStream();
+					using(StreamWriter sw=new StreamWriter(memStream,enc)) {
 						sw.WriteLine(pat.LName+", "+pat.FName
 							+"  "+pat.Birthdate.ToShortDateString()
 							+"  ("+id+")");
@@ -56,7 +61,7 @@ namespace OpenDental.Bridges{
 						else
 							sw.WriteLine("SX=M");
 					}
-					ODFileUtils.ProcessStart(path,"\"@"+infoFile+"\"");
+					ODFileUtils.WriteAllBytesThenStart(infoFile,memStream.ToArray(),path,"\"@"+infoFile+"\"");
 				} catch {
 					MessageBox.Show(path+" is not available.");
 				}

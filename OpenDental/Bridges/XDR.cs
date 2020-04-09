@@ -27,6 +27,10 @@ namespace OpenDental.Bridges{
 			string locationID=listXDRProperties.FirstOrDefault(x => x.ClinicNum==Clinics.ClinicNum && x.PropertyDesc==XDR.PropertyDescs.LocationID)?.PropertyValue;
 			string infoFile=listXDRProperties.FirstOrDefault(x => x.PropertyDesc==XDR.PropertyDescs.InfoFilePath)?.PropertyValue;
 			if(infoFile.Trim()=="") {
+				if(ODBuild.IsWeb()) {
+					MsgBox.Show("XDR","InfoFile path must not be empty.");
+					return;
+				}
 				infoFile=CodeBase.ODFileUtils.CombinePaths(PrefC.GetTempFolderPath(),"infofile.txt");
 			}
 			if(pat!=null) {
@@ -45,7 +49,8 @@ namespace OpenDental.Bridges{
 					//On 05/19/2015, a reseller noticed UTF8 encoding in the Dexis bridge caused a similar issue.
 					//06/01/2015 A customer tested and confirmed that using the XDR bridge and thus coding page 1252, solved the special characters issue.
 					Encoding enc=Encoding.GetEncoding(1252);
-					using(StreamWriter sw=new StreamWriter(infoFile,false,enc)) {
+					using MemoryStream memStream=new MemoryStream();
+					using(StreamWriter sw=new StreamWriter(memStream,enc)) {
 						sw.WriteLine($"{pat.LName}, {pat.FName}  {pat.Birthdate.ToShortDateString()}  ({id})");
 						sw.WriteLine($"PN={id}");
 						sw.WriteLine($"LN={pat.LName}");
@@ -60,7 +65,7 @@ namespace OpenDental.Bridges{
 						sw.WriteLine($"LO={locationID}");
 						sw.WriteLine($"UN={Security.CurUser.UserName}");
 					}
-					ODFileUtils.ProcessStart(path,"\"@"+infoFile+"\"");
+					ODFileUtils.WriteAllBytesThenStart(infoFile,memStream.ToArray(),path,"\"@"+infoFile+"\"");
 				}
 				catch {
 					MessageBox.Show("Error writing to infoFile.");

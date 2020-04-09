@@ -435,6 +435,7 @@
     <Compile Include="Reports\RpProdGoal.cs" />
     <Compile Include="InternalTools\Faq\TableTypes\Faq.cs" />
     <Compile Include="Reports\RpServiceDateView.cs" />
+    <Compile Include="Shared\ODCloudClient\Sirona.cs" />
     <Compile Include="Shared\ODCloudClient\x837Controller.cs" />
     <Compile Include="SheetFramework\SheetDataTableUtil.cs" />
     <Compile Include="SheetFramework\SheetFiller.cs" />

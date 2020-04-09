@@ -319,8 +319,9 @@ namespace OpenDental {
 			gridUsers.EndUpdate();
 			_isFillingList=false;//Done filling the grid.
 			//Selection logic has to occur after ODGrid.EndUpdate().
-			if(selectedUser!=null && listFilteredUsers.Any(x => x.UserNum==selectedUser.UserNum)) {
-				SelectedUser=selectedUser;//Reselect previously selected user.
+			if(selectedUser!=null) {
+				//Reselect previously selected user.  SelectedUser is allowed to be null (ex. on load).
+				SelectedUser=listFilteredUsers.FirstOrDefault(x => x.UserNum==selectedUser.UserNum);
 			}
 			RefreshUserTabGroups();
 		}

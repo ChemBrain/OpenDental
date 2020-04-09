@@ -2720,16 +2720,16 @@ namespace OpenDentBusiness{
 			}
 			string command="UPDATE appointment SET Confirmed="+POut.Long(confirmStatus);
 			if(PrefC.GetLong(PrefName.AppointmentTimeArrivedTrigger)==confirmStatus) {
-				command+=",DateTimeArrived="+DbHelper.Now();
+				command+=",DateTimeArrived="+POut.DateT(DateTime.Now);
 				if(createSheetsForCheckin) {
 					Sheets.CreateSheetsForCheckIn(appt);
 				}
 			}
 			else if(PrefC.GetLong(PrefName.AppointmentTimeSeatedTrigger)==confirmStatus){
-				command+=",DateTimeSeated="+DbHelper.Now();
+				command+=",DateTimeSeated="+POut.DateT(DateTime.Now);
 			}
 			else if(PrefC.GetLong(PrefName.AppointmentTimeDismissedTrigger)==confirmStatus){
-				command+=",DateTimeDismissed="+DbHelper.Now();
+				command+=",DateTimeDismissed="+POut.DateT(DateTime.Now);
 			}
 			command+=" WHERE AptNum="+POut.Long(appt.AptNum);
 			Db.NonQ(command);

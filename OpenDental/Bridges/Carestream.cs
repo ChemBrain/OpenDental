@@ -34,36 +34,29 @@ namespace OpenDental.Bridges{
 			else {
 				id=pat.ChartNumber;
 			}
-			try {
-				using(StreamWriter sw=new StreamWriter(infoFile,false)) {//Create file if does not exist.  Overwrite contents if exists.
-					sw.WriteLine("[PATIENT]");
-					sw.WriteLine("ID="+Tidy(id,15));
-					sw.WriteLine("FIRSTNAME="+Tidy(pat.FName,255));
-					if(!string.IsNullOrEmpty(pat.Preferred)) {
-						sw.WriteLine("COMMONNAME="+Tidy(pat.Preferred,255));
-					}
-					sw.WriteLine("LASTNAME="+Tidy(pat.LName,255));
-					if(!string.IsNullOrEmpty(pat.MiddleI)) {
-						sw.WriteLine("MIDDLENAME="+Tidy(pat.MiddleI,255));
-					}
-					if(pat.Birthdate.Year>1880) {
-						sw.WriteLine("DOB="+pat.Birthdate.ToString("yyyyMMdd"));
-					}
-					if(pat.Gender==PatientGender.Female) {
-						sw.Write("GENDER=F");
-					}
-					else if(pat.Gender==PatientGender.Male) {
-						sw.Write("GENDER=M");
-					}
-				}
+			StringBuilder sw=new StringBuilder();
+			sw.AppendLine("[PATIENT]");
+			sw.AppendLine("ID="+Tidy(id,15));
+			sw.AppendLine("FIRSTNAME="+Tidy(pat.FName,255));
+			if(!string.IsNullOrEmpty(pat.Preferred)) {
+				sw.AppendLine("COMMONNAME="+Tidy(pat.Preferred,255));
 			}
-			catch(Exception ex) {
-				MessageBox.Show(Lan.g("Carestream","Unable to write to file")+": "+infoFile+"\r\n"+Lan.g("Carestream","Error")+": "+ex.Message);
-				return;
+			sw.AppendLine("LASTNAME="+Tidy(pat.LName,255));
+			if(!string.IsNullOrEmpty(pat.MiddleI)) {
+				sw.AppendLine("MIDDLENAME="+Tidy(pat.MiddleI,255));
+			}
+			if(pat.Birthdate.Year>1880) {
+				sw.AppendLine("DOB="+pat.Birthdate.ToString("yyyyMMdd"));
+			}
+			if(pat.Gender==PatientGender.Female) {
+				sw.Append("GENDER=F");
+			}
+			else if(pat.Gender==PatientGender.Male) {
+				sw.Append("GENDER=M");
 			}
 			try {
 				string arguments=@"-I """+infoFile+@"""";
-				ODFileUtils.ProcessStart(path,arguments);
+				ODFileUtils.WriteAllTextThenStart(infoFile,sw.ToString(),path,arguments);
 			}
 			catch(Exception ex) {
 				MessageBox.Show(ex.Message);

@@ -166,13 +166,11 @@ namespace OpenDentBusiness{
 				ProgramName.Apixia,
 				ProgramName.AudaxCeph,
 				ProgramName.CADI,
-				ProgramName.Carestream,
 				ProgramName.DBSWin,
 				ProgramName.DemandForce,
 				ProgramName.DentalEye,
 				ProgramName.DentalTekSmartOfficePhone,
 				ProgramName.DentX,
-				ProgramName.Dexis,
 				ProgramName.Dolphin,
 				ProgramName.DrCeph,
 				ProgramName.EvaSoft,
@@ -187,7 +185,6 @@ namespace OpenDentBusiness{
 				ProgramName.PT,
 				ProgramName.PTupdate,
 				ProgramName.Schick,
-				ProgramName.Sirona,
 				ProgramName.Trojan,
 				ProgramName.TigerView,
 				ProgramName.TrophyEnhanced,
@@ -195,7 +192,6 @@ namespace OpenDentBusiness{
 				ProgramName.Vipersoft,
 				ProgramName.VixWinOld,
 				ProgramName.Xcharge,
-				ProgramName.XDR,
 			};
 		}
 

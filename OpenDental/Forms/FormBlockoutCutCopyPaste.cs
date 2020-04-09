@@ -31,6 +31,12 @@ namespace OpenDental {
 		private OpenDental.UI.Button butClearDay;
 		public DateTime DateSelected;
 
+		private bool _isWeekend {
+			get {
+				return DateSelected.DayOfWeek==DayOfWeek.Saturday || DateSelected.DayOfWeek==DayOfWeek.Sunday;
+			}
+		}
+
 		///<summary></summary>
 		public FormBlockoutCutCopyPaste()
 		{
@@ -242,6 +248,9 @@ namespace OpenDental {
 		#endregion
 
 		private void FormBlockoutCutCopyPaste_Load(object sender,EventArgs e) {
+			if(_isWeekend) {
+				checkWeekend.Checked=true;
+			}			
 			if(ApptViewNumCur!=ApptViewNumPrevious){
 				DateCopyStart=DateTime.MinValue;
 				DateCopyEnd=DateTime.MinValue;
@@ -325,6 +334,10 @@ namespace OpenDental {
 		private void CopyOverBlockouts(int numRepeat) {
 			if(DateCopyStart.Year < 1880) {
 				MsgBox.Show(this,"Please copy a selection to the clipboard first.");
+				return;
+			}
+			if(_isWeekend && !checkWeekend.Checked) {//user is trying to 'paste' onto a weekend date
+				MsgBox.Show(this,"You must check 'Include Weekends' if you would like to paste into weekends.");
 				return;
 			}
 			//calculate which day or week is currently selected.
