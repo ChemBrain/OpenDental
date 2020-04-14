@@ -201,6 +201,24 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Required dlls\CDT.dll</HintPath>
     </Reference>
+    <Reference Include="Google.Apis">
+      <HintPath>..\Required dlls\Google.Apis.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis.Auth">
+      <HintPath>..\Required dlls\Google.Apis.Auth.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis.Auth.PlatformServices">
+      <HintPath>..\Required dlls\Google.Apis.Auth.PlatformServices.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis.Core">
+      <HintPath>..\Required dlls\Google.Apis.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis.Gmail.v1">
+      <HintPath>..\Required dlls\Google.Apis.Gmail.v1.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Apis.PlatformServices">
+      <HintPath>..\Required dlls\Google.Apis.PlatformServices.dll</HintPath>
+    </Reference>
     <Reference Include="Health.Direct.Agent">
       <HintPath>..\Required dlls\Health.Direct.Agent.dll</HintPath>
     </Reference>
@@ -461,7 +479,8 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="WebBridges\AvaTax.cs" />
-    <Compile Include="WebBridges\Google.cs" />
+    <Compile Include="WebBridges\Google\Google.cs" />
+    <Compile Include="WebBridges\Google\GoogleApiConnector.cs" />
     <Compile Include="WebBridges\PDMP\PDMP.cs" />
     <Compile Include="WebBridges\PDMP\PDMPLogicoy.cs" />
     <Compile Include="WebBridges\PDMP\PDMPScript.cs" />

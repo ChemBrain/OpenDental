@@ -18,7 +18,7 @@ namespace CodeBase {
 
 		///<summary>Sends a request to ODCloudClient to launch the file.</summary>
 		public static void LaunchFileWithODCloudClient(string exePath="",string extraArgs="",string extraFilePath="",string extraFileData="",
-			string extraFileType="",bool doWaitForResponse=false) 
+			string extraFileType="",bool doWaitForResponse=false,string createDirIfNeeded="") 
 		{
 			if(exePath.StartsWith("http://") || exePath.StartsWith("https://")) {
 				Process.Start(exePath);//No need to go to ODCloudClient if we can simply launch a browser tab.
@@ -30,6 +30,7 @@ namespace CodeBase {
 				FilePath=extraFilePath,
 				FileData=extraFileData,
 				FileType=extraFileType,
+				CreateDirIfNeeded=createDirIfNeeded,
 			};
 			if(doWaitForResponse) {
 				SendToODCloudClientSynchronously(cloudClientData,CloudClientAction.LaunchFile);
@@ -138,6 +139,8 @@ namespace CodeBase {
 			public string FileType;
 			///<summary>Defaults to true. Whether to overwrite FilePath. If false and FilePath exists, throws an exception.</summary>
 			public bool DoOverwriteFile=true;
+			///<summary>If included, will create the directory if it doesn't exist.</summary>
+			public string CreateDirIfNeeded;
 			///<summary>Any additional data that is necessary for this action type.</summary>
 			public string OtherData;
 		}

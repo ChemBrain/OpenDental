@@ -170,10 +170,15 @@ namespace CodeBase {
 		///<summary>Start a new process with the given path and arguments.  
 		///If using a WEB compiled version of Open Dental, pass through to the odcloud client to start the process locally.</summary>
 		///<param name="doWaitForODCloudClientResponse">If true, will wait for ODCloudClient and throw any exceptions from it.</param>
-		public static Process ProcessStart(string path,string commandLineArgs="",bool doWaitForODCloudClientResponse=false) {
+		///<param name="createDirIfNeeded">If included, will create the directory if it doesn't exist.</param>
+		public static Process ProcessStart(string path,string commandLineArgs="",bool doWaitForODCloudClientResponse=false,string createDirIfNeeded="") {
 			if(ODBuild.IsWeb()) {
-				ODCloudClient.LaunchFileWithODCloudClient(path,commandLineArgs,doWaitForResponse:doWaitForODCloudClientResponse);
+				ODCloudClient.LaunchFileWithODCloudClient(path,commandLineArgs,doWaitForResponse:doWaitForODCloudClientResponse,
+					createDirIfNeeded:createDirIfNeeded);
 				return null;
+			}
+			if(!string.IsNullOrEmpty(createDirIfNeeded) && !Directory.Exists(createDirIfNeeded)) {
+				Directory.CreateDirectory(createDirIfNeeded);
 			}
 			return Process.Start(path,commandLineArgs);
 		}
@@ -262,10 +267,10 @@ namespace CodeBase {
 				return null;
 			}
 			else {
+				File.WriteAllBytes(filePath,fileBytes);
 				if(!string.IsNullOrEmpty(processPath)) {
 					return Process.Start(processPath,commandLineArgs);
 				}
-				File.WriteAllBytes(filePath,fileBytes);
 				return Process.Start(filePath,commandLineArgs);
 			}
 		}

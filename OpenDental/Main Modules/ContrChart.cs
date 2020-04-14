@@ -13219,7 +13219,7 @@ namespace OpenDental {
 					continue;
 				}
 				Control control=null;
-				bool isHqOnly=false;
+				bool isHqOrDistibutorControl=false;
 				switch(fieldDef.FieldName) {
 					#region Set control based on matching FieldName
 					case "PatientInfo":
@@ -13243,7 +13243,7 @@ namespace OpenDental {
 					case "toothChart":
 						if(odInternalCustomerGrids.Visible) {//Replace toothchart with HQ bug submission control
 							control=odInternalCustomerGrids;
-							isHqOnly=true;
+							isHqOrDistibutorControl=true;
 						}
 						else {
 							control=toothChart;
@@ -13254,19 +13254,19 @@ namespace OpenDental {
 						break;
 					case "ButtonErxAccess":
 						control=butErxAccess;
-						isHqOnly=true;
+						isHqOrDistibutorControl=true;
 						break;
 					case "ButtonPhoneNums":
 						control=butPhoneNums;
-						isHqOnly=true;
+						isHqOrDistibutorControl=true;
 						break;
 					case "ButtonForeignKey":
 						control=butForeignKey;
-						isHqOnly=true;
+						isHqOrDistibutorControl=true;
 						break;
 					case "ButtonUSAKey":
 						control=butAddKey;
-						isHqOnly=true;
+						isHqOrDistibutorControl=true;
 						break;
 					case "ButtonNewTP":
 						control=butNewTP;
@@ -13285,7 +13285,7 @@ namespace OpenDental {
 						//Control not matched
 						break;
 				}
-				if(isHqOnly && !PrefC.IsODHQ) {
+				if(isHqOrDistibutorControl && !(PrefC.IsODHQ || PrefC.GetBool(PrefName.DistributorKey))) {
 					control=null;
 				}
 				dictControls.Add(fieldDef.FieldName,control);//Can add null

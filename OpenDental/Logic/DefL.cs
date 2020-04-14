@@ -491,12 +491,15 @@ namespace OpenDental {
 					|| selectedDef.DefNum==PrefC.GetLong(PrefName.AppointmentTimeDismissedTrigger)
 					|| selectedDef.DefNum==PrefC.GetLong(PrefName.TreatPlanDiscountAdjustmentType)
 					|| selectedDef.DefNum==PrefC.GetLong(PrefName.BillingChargeAdjustmentType)
-					|| selectedDef.DefNum==PrefC.GetLong(PrefName.PracticeDefaultBillType)
 					|| selectedDef.DefNum==PrefC.GetLong(PrefName.FinanceChargeAdjustmentType)
 					|| selectedDef.DefNum==PrefC.GetLong(PrefName.RecurringChargesPayTypeCC)
 					|| selectedDef.DefNum==PrefC.GetLong(PrefName.TpUnearnedType)) 
 				{
 					MsgBox.Show(_lanThis,"You cannot hide a definition if it is in use within Module Preferences.");
+					return false;
+				}
+				else if(selectedDef.DefNum==PrefC.GetLong(PrefName.PracticeDefaultBillType)) {
+					MsgBox.Show(_lanThis,"You cannot hide a billing type when it is selected as the practice default billing type.");
 					return false;
 				}
 				else {

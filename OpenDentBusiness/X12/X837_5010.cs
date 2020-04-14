@@ -1508,7 +1508,7 @@ namespace OpenDentBusiness
 						//since this is the date on the check from the carrier, which is what the format is asking for.
 						//The claimpayment.DateIssued field is currently optional in UI, thus we would need to validate it below.
 						//There will always be at least 1 claimproc in listOtherClaimProcs since hasAdjForOtherPlans is true.
-						datePaidOtherIns=listOtherClaimProcs.SelectMany(x => x).Max(x => x.DateCP);
+						datePaidOtherIns=listOtherClaimProcs.SelectMany(x => x).Concat(listTotalPaymentProcs).Max(x => x.DateCP);
 						//it's a required segment, so always include it.
 						sw.Write("DTP"+s
 							+"573"+s//DTP01 3/3 Date/Time Qualifier: 573=Date Claim Paid.
@@ -2095,10 +2095,18 @@ namespace OpenDentBusiness
 					//2430 DTP: (medical,institutional,dental) Line Check or Remittance Date.  Required.
 					//Apex has not required this segment in the past and we will not send it to them until they require it of us.
 					if(hasAdjForOtherPlans && IsClaimConnect(clearinghouseClin)) {
+						//When selecting date, include dates for Total Payments on any other claim that the current proc has completed claimprocs on.
+						List<long> listOtherClaimNumsProcCur=claimProcList.FindAll(x => x.ClaimNum!=claim.ClaimNum
+							&& x.Status.In(ClaimProcStatus.CapClaim,ClaimProcStatus.Received,ClaimProcStatus.Supplemental)
+							&& x.ProcNum==proc.ProcNum).Select(x => x.ClaimNum).Distinct().ToList();
+						List<ClaimProc> listTotalPaymentClaimprocsForProcCur=claimProcList.FindAll(x => listOtherClaimNumsProcCur
+							.Contains(x.ClaimNum) && x.ProcNum==0);
+						DateTime datePaidOtherInsProcCur=listOtherClaimProcs.SelectMany(x => x).Where(x => x.ProcNum==proc.ProcNum)
+							.Concat(listTotalPaymentClaimprocsForProcCur).Max(x => x.DateCP);
 						sw.Write("DTP"+s
 							+"573"+s//DTP01 3/3 Date/Time Qualifier: 573=Date Claim Paid.
 							+"D8"+s//DTP02 2/3 Date Time Period Format Qualifier: D8=Date Expressed in Format CCYYMMDD.
-							+datePaidOtherIns.ToString("yyyyMMdd"));//DTP03 1/35 Date Time Period:
+							+datePaidOtherInsProcCur.ToString("yyyyMMdd"));//DTP03 1/35 Date Time Period:
 						EndSegment(sw);
 					}
 					//2430 AMT: (medical,institutional,dental) Remaining Patient Liability. We do not support.

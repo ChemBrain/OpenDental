@@ -48,7 +48,7 @@ namespace OpenDental.Bridges {
 			info+=" -N "+pat.FName.Replace(" ","")+"^"+pat.LName.Replace(" ","");//no spaces allowed
 			info+=" -P "+fullPath;//This is the Numbered Mode subdirectory
 			try {
-				ODFileUtils.ProcessStart(path,info);
+				ODFileUtils.ProcessStart(path,info,createDirIfNeeded:fullPath);
 			}
 			catch(Exception ex) {
 				MessageBox.Show(ex.Message+"\r\nFile and command line:\r\n"+path+" "+info);

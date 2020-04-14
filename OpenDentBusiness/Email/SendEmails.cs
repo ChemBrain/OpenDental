@@ -8,6 +8,9 @@ using CDO;
 using CodeBase;
 using MimeKit;
 using MailKit.Security;
+using GmailApi=Google.Apis.Gmail.v1;
+using Google;
+using System.Text.RegularExpressions;
 
 namespace OpenDentBusiness.Email {
 
@@ -18,9 +21,9 @@ namespace OpenDentBusiness.Email {
 		///be null.</summary>
 		public static void WireEmailUnsecure(BasicEmailAddress address,BasicEmailMessage emailMessage,NameValueCollection nameValueCollectionHeaders,
 			params AlternateView[] arrayAlternateViews) {
-			if(!address.AccessToken.IsNullOrEmpty() && address.SMTPserver=="smtp.gmail.com") {//For now we only support OAuth for Gmail but this may change in the future.
-				MailMessage message=BasicEmailMessageToMailMessage(emailMessage,nameValueCollectionHeaders,arrayAlternateViews);
-				SendEmailOAuth(address,message);
+			//For now we only support OAuth for Gmail but this may change in the future.
+			if(!address.AccessToken.IsNullOrEmpty() && address.SMTPserver=="smtp.gmail.com") {
+				SendEmailOAuth(address,emailMessage);
 			}
 			else {
 				bool isImplicitSsl=(address.ServerPort==465);
@@ -159,26 +162,73 @@ namespace OpenDentBusiness.Email {
 		}
 
 		///<summary>Throws exceptions if failing to send emails or authenticate with Google.</summary>
-		private static void SendEmailOAuth(BasicEmailAddress address,MailMessage message) {
-			MimeMessage mimeMessage=MimeMessage.CreateFromMailMessage(message);
-			using MailKit.Net.Smtp.SmtpClient clientMK=new MailKit.Net.Smtp.SmtpClient();
+		private static void SendEmailOAuth(BasicEmailAddress address,BasicEmailMessage message) {
+			using GmailApi.GmailService gService=GoogleApiConnector.CreateGmailService(address);
 			try {
-				clientMK.Connect(address.SMTPserver,address.ServerPort,SecureSocketOptions.Auto);
-				// Note: only needed if the SMTP server requires authentication
-				clientMK.Authenticate(new SaslMechanismOAuth2(address.EmailUsername,address.AccessToken));
-				clientMK.Send(mimeMessage);
+				GmailApi.Data.Message gmailMessage=CreateGmailMsg(address,message);
+				gService.Users.Messages.Send(gmailMessage,address.EmailUsername).Execute();
 			}
-			catch(AuthenticationException ae) {//Don't try to refresh the token here, we don't have a db context if we're in the OpenDentalEmail project.
-				ae.DoNothing();
-				throw new Exception("Unable to authenticate with Google: "+ae.Message);//This will bubble up to the UI level and be caught in a copypaste box.
+			catch(GoogleApiException gae) {
+				gae.DoNothing();
+				//This will bubble up to the UI level and be caught in a copypaste box.
+				throw new Exception("Unable to authenticate with Google: "+gae.Message);
 			}
-			catch(Exception e) {//Need this catch to dispose our client before bubbling up to the UI.
-				throw new Exception($"Error sending email with OAuth authorization: {e.Message}");//This will bubble up to the UI level and be caught in a copypaste box.
+			catch(Exception ex) {
+				//This will bubble up to the UI level and be caught in a copypaste box.
+				throw new Exception($"Error sending email with OAuth authorization: {ex.Message}");
 			}
-			finally {
-				clientMK.Disconnect(true);
-				clientMK.Dispose();
+		}
+
+		///<summary>Helper method that creates a new MIME message based on the parameters (to, cc, bcc, from, and body)</summary>
+		private static MimeMessage CreateMIMEMsg(BasicEmailAddress emailAddress,BasicEmailMessage emailMessage) {
+			MimeMessage mimeMsg=new MimeMessage();
+			Multipart multipart=new Multipart();
+			mimeMsg.From.Add(new MailboxAddress(emailAddress.EmailUsername));
+			if(!emailMessage.Subject.IsNullOrEmpty()) {
+				mimeMsg.Subject=emailMessage.Subject;
 			}
+			//Create MailAddress objects for all addresses.
+			//MailAddress will automatically parse out "DisplayName" <email@address.com> and every variation
+			MailAddress toAddress=new MailAddress(emailMessage.ToAddress.Trim());
+			mimeMsg.To.Add(new MailboxAddress(toAddress.DisplayName,toAddress.Address));
+			if(!emailMessage.CcAddress.IsNullOrEmpty()) {
+				MailAddress ccAddress=new MailAddress(emailMessage.CcAddress.Trim());
+				mimeMsg.Cc.Add(new MailboxAddress(ccAddress.DisplayName,ccAddress.Address));
+			}
+			if(!emailMessage.BccAddress.IsNullOrEmpty()) {
+				MailAddress bccAddress=new MailAddress(emailMessage.BccAddress.Trim());
+				mimeMsg.Cc.Add(new MailboxAddress(bccAddress.DisplayName,bccAddress.Address));
+			}
+			if(emailMessage.ListAttachments!=null) {
+				foreach(Tuple<string,string> attachmentPath in emailMessage.ListAttachments) {
+					multipart.Add(new MimePart() {
+						Content=new MimeContent(File.OpenRead(attachmentPath.Item1)),
+						ContentDisposition=new ContentDisposition(ContentDisposition.Attachment),
+						ContentTransferEncoding=ContentEncoding.Base64,
+						FileName=Path.GetFileName(attachmentPath.Item1)
+					});
+				}
+			}
+			multipart.Add(new TextPart() { Text=emailMessage.BodyText });
+			mimeMsg.Body=multipart;
+			return mimeMsg;
+		}
+
+		///<summary>Helper method that returns a ready-to-send Gmail Message</summary>
+		private static GmailApi.Data.Message CreateGmailMsg(BasicEmailAddress emailAddress,BasicEmailMessage emailMessage) {
+			MimeKit.MimeMessage mimeMsg=CreateMIMEMsg(emailAddress,emailMessage);
+			using Stream stream=new MemoryStream();
+			mimeMsg.WriteTo(stream);
+			stream.Position=0;
+			using StreamReader sr=new StreamReader(stream);
+			GmailApi.Data.Message gMsg=new GmailApi.Data.Message();
+			string rawString=sr.ReadToEnd();
+			byte[] raw=System.Text.Encoding.UTF8.GetBytes(rawString);
+			gMsg.Raw=System.Convert.ToBase64String(raw);
+			//What we send to Gmail must be a Base64 File/URL safe string.  We must convert our base64 to be URL safe. (replace - and _ with + and / respectively)
+			gMsg.Raw=gMsg.Raw.Replace("+","-");
+			gMsg.Raw=gMsg.Raw.Replace("/","_");
+			return gMsg;
 		}
 
 	}

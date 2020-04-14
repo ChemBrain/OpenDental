@@ -25,6 +25,13 @@ using OpenDentBusiness.Email;
 using OpenDentBusiness.FileIO;
 using System.Net.Security;
 using MailKit.Security;
+using GmailApi=Google.Apis.Gmail.v1;
+using Google.Apis.Util.Store;
+using Google.Apis.Auth.OAuth2.Flows;
+using Google.Apis.Auth.OAuth2.Responses;
+using Google.Apis.Requests;
+using Google;
+using Google.Apis.Services;
 
 namespace OpenDentBusiness{
 	///<summary>An email message is always attached to a patient.</summary>
@@ -503,7 +510,7 @@ namespace OpenDentBusiness{
 				strErrors+=Lans.g("EmailMessages","Direct messages cannot be sent over implicit SSL.");
 			}
 			else {
-				WireEmailUnsecure(emailMessageEncrypted,emailAddressFrom,nameValueCollectionHeaders,alternateView);//Not really unsecure in this spot, because the message is already encrypted.
+				WireEmailUnsecure(emailMessageEncrypted,emailAddressFrom,nameValueCollectionHeaders,arrayAlternateViews: alternateView);//Not really unsecure in this spot, because the message is already encrypted.
 			}
 			ms.Dispose();
 			return strErrors;
@@ -822,7 +829,7 @@ namespace OpenDentBusiness{
 		///This is used from wherever email needs to be sent throughout the program.
 		///If a message must be encrypted, then encrypt it before calling this function.
 		///nameValueCollectionHeaders can be null.</summary>
-		private static void WireEmailUnsecure(EmailMessage emailMessage,EmailAddress emailAddress,NameValueCollection nameValueCollectionHeaders,params AlternateView[] arrayAlternateViews) {
+		private static void WireEmailUnsecure(EmailMessage emailMessage,EmailAddress emailAddress,NameValueCollection nameValueCollectionHeaders,bool hasRetried=false,params AlternateView[] arrayAlternateViews) {
 			//No need to check RemotingRole; no call to db.
 			//When batch email operations are performed, we sometimes do this check further up in the UI.  This check is here to as a catch-all.
 			if(RemotingClient.RemotingRole!=RemotingRole.ServerWeb//server can send email without checking user
@@ -831,39 +838,31 @@ namespace OpenDentBusiness{
 				return;
 			}
 			//Verify that we can connect to Google using OAuth before moving on as we can't refresh tokens from OpenDentalEmail Processor.
-			if(!emailAddress.AccessToken.IsNullOrEmpty() && emailAddress.SMTPserver=="smtp.gmail.com") {
-				using MailKit.Net.Smtp.SmtpClient clientMK=new MailKit.Net.Smtp.SmtpClient();
+			if(!emailAddress.AccessToken.IsNullOrEmpty() && emailAddress.SMTPserver.ToLower()=="smtp.gmail.com") {
+				using GmailApi.GmailService gService=GoogleApiConnector.CreateGmailService(ODEmailAddressToBasic(emailAddress));
 				try {
-					clientMK.Connect(emailAddress.SMTPserver,emailAddress.ServerPort,SecureSocketOptions.Auto);
-					// Note: only needed if the SMTP server requires authentication
-					clientMK.Authenticate(new SaslMechanismOAuth2(emailAddress.EmailUsername,emailAddress.AccessToken));
+					//This call to Google is only to ensure that we have a valid OAuth token.  
+					//There is no connect or authorize, so this is the best/smallest request we can do.
+					//We have to ensure we have an OAuth token right here because we will send the email in SendEmail.WireEmailUnsecure,
+					// which doesn't have a DB context and wouldn't be able to refresh the token.
+					gService.Users.GetProfile(emailAddress.EmailUsername).Execute();
 				}
-				catch(AuthenticationException ae) {//Hopefully their token is just expired. Refresh and attempt to send again.
-					ae.DoNothing();
-					try {
-						//Move retry and save to emailmessages.wireemailunsecure
-						clientMK.Disconnect(true);
-						string accessToken=Google.MakeRefreshAccessTokenRequest(emailAddress.RefreshToken);
-						clientMK.Connect(emailAddress.SMTPserver,emailAddress.ServerPort,SecureSocketOptions.Auto);
-						clientMK.Authenticate(new SaslMechanismOAuth2(emailAddress.EmailUsername,accessToken));
-						emailAddress.AccessToken=accessToken;
-						EmailAddresses.Update(emailAddress);
-						EmailAddresses.RefreshCache();
+				catch(GoogleApiException gae) {
+					if(!hasRetried && gae.HttpStatusCode==HttpStatusCode.Unauthorized) {
+						RefreshGmailToken(emailAddress);
+						//Try one more time after refreshing
+						WireEmailUnsecure(emailMessage,emailAddress,nameValueCollectionHeaders,true,arrayAlternateViews);
+						return;
 					}
-					catch(Exception ex) {//Didn't work, display error.
-						throw new Exception("Unable to authenticate with Google: "+ex.Message);//This will bubble up to the UI level and be caught in a copypaste box.
-					}
+					throw gae;
 				}
-				catch(Exception e) {//Need this catch to dispose our client before bubbling up to the UI.
-					throw new Exception($"Error sending email with OAuth authorization: {e.Message}");//This will bubble up to the UI level and be caught in a copypaste box.
-				}
-				finally {
-					clientMK.Disconnect(true);
-					clientMK.Dispose();
+				catch(Exception ex) {
+					throw ex;
 				}
 			}
-			emailMessage.UserNum=Security.CurUser.UserNum;
+			//Always send the email through this centralized method.  We cannot assume we have a database context inside SendEmail.
 			SendEmail.WireEmailUnsecure(ODEmailAddressToBasic(emailAddress),ODEmailMessageToBasic(emailMessage),nameValueCollectionHeaders,arrayAlternateViews);
+			emailMessage.UserNum=Security.CurUser.UserNum;
 			SecurityLogs.MakeLogEntry(Permissions.EmailSend,emailMessage.PatNum,"Email Sent");
 		}
 
@@ -895,6 +894,13 @@ namespace OpenDentBusiness{
 		public static void SendEmailUnsecure(EmailMessage emailMessage,EmailAddress emailAddress) {
 			//No need to check RemotingRole; no call to db.
 			WireEmailUnsecure(emailMessage,emailAddress,null);
+		}
+
+		///<summary>Helper method that refreshes the user's Gmail Access Token and updates it in the database.</summary>
+		private static void RefreshGmailToken(EmailAddress emailAddress) {
+			emailAddress.AccessToken=Google.MakeRefreshAccessTokenRequest(emailAddress.RefreshToken);
+			EmailAddresses.Update(emailAddress);
+			Signalods.SetInvalid(InvalidType.Email);
 		}
 
 		#endregion Sending
@@ -1051,141 +1057,58 @@ namespace OpenDentBusiness{
 		}
 
 		///<summary>Use token based authentication to retrieve emails.</summary>
-		private static List<EmailMessage> RetrieveFromInboxOAuth(EmailAddress emailAddressInbox,ref List<string> listSkipMsgUids,int receiveCount) {
-			List<EmailMessage> retVal=new List<EmailMessage>();
-			//DEBUG pass this in to the Pop3Client: new MailKit.ProtocolLogger(Console.OpenStandardOutput())
-			using MailKit.Net.Pop3.Pop3Client clientMK=new MailKit.Net.Pop3.Pop3Client(){
-				Timeout=180000,
-				//This validation callback method was written by the creator of Mailkit and can be found here:
-				//https://github.com/jstedfast/MailKit/issues/307
-				ServerCertificateValidationCallback=(sender,certificate,chain,sslPolicyErrors) => {
-					if(sslPolicyErrors==SslPolicyErrors.None) {
-						return true;
-					}
-					// if there are errors in the certificate chain, look at each error to determine the cause.
-					if((sslPolicyErrors & SslPolicyErrors.RemoteCertificateChainErrors)!=0) {
-						if(chain!=null && chain.ChainStatus!=null) {
-							foreach(var status in chain.ChainStatus) {
-								if((certificate.Subject==certificate.Issuer) && (status.Status==X509ChainStatusFlags.UntrustedRoot)) {
-									// self-signed certificates with an untrusted root are valid. 
-									continue;
-								}
-								else if(status.Status!=X509ChainStatusFlags.NoError) {
-									// if there are any other errors in the certificate chain, the certificate is invalid,
-									// so the method returns false.
-									return false;
-								}
-							}
-						}
-						// When processing reaches this line, the only errors in the certificate chain are 
-						// untrusted root errors for self-signed certificates. These certificates are valid
-						// for default Exchange server installations, so return true.
-						return true;
-					}
-					return false;
-				}
-			};
-			#region Authenticate with AccessToken
-			try {
-				//We were always getting a revocation unknown error, and since we don't use a certificate we will never actually be "revoked"
-				//so there is no need to check for it.
-				clientMK.CheckCertificateRevocation=false;
-				clientMK.Connect(emailAddressInbox.Pop3ServerIncoming,emailAddressInbox.ServerPortIncoming);
-				clientMK.Authenticate(new MailKit.Security.SaslMechanismOAuth2(emailAddressInbox.EmailUsername,emailAddressInbox.AccessToken));
-			}
-			catch(Exception e) {
-				e.DoNothing();
-				clientMK.Disconnect(true);
+		private static List<EmailMessage> RetrieveFromInboxOAuth(EmailAddress emailAddressInbox,ref List<string> listSkipMsgUids,int receiveCount,bool hasRetried=false) {
+			//Get all the IDs in the users inbox (this is paginated so we have to continuously receive IDs until we don't receive a 'next page' token)
+			List<EmailMessage> listEmailMessages=new List<EmailMessage>();
+			using GmailApi.GmailService gService=GoogleApiConnector.CreateGmailService(ODEmailAddressToBasic(emailAddressInbox));
+			List<GmailApi.Data.Message> listMessageIds=new List<GmailApi.Data.Message>();
+			List<EmailMessageUid> listEmailMessageUids=EmailMessageUids.GetForRecipientAddress(emailAddressInbox.EmailUsername);
+			//This example is from: https://developers.google.com/gmail/api/v1/reference/users/messages/list
+			GmailApi.UsersResource.MessagesResource.ListRequest request=gService.Users.Messages.List(emailAddressInbox.EmailUsername);
+			do {
 				try {
-					string accessToken=Google.MakeRefreshAccessTokenRequest(emailAddressInbox.RefreshToken);
-					clientMK.Connect(emailAddressInbox.Pop3ServerIncoming,emailAddressInbox.ServerPortIncoming);
-					clientMK.Authenticate(new MailKit.Security.SaslMechanismOAuth2(emailAddressInbox.EmailUsername,accessToken));
-					emailAddressInbox.AccessToken=accessToken;
-					EmailAddresses.Update(emailAddressInbox);
-					EmailAddresses.RefreshCache();
+					GmailApi.Data.ListMessagesResponse response=request.Execute();
+					listMessageIds.AddRange(response.Messages);
+					request.PageToken=response.NextPageToken;
+				}
+				catch(GoogleApiException gae) {
+					if(!hasRetried && gae.HttpStatusCode==HttpStatusCode.Unauthorized) {
+						RefreshGmailToken(emailAddressInbox);
+						return RetrieveFromInboxOAuth(emailAddressInbox,ref listSkipMsgUids,receiveCount,true);
+					}
+					throw gae;
 				}
 				catch(Exception ex) {
-					clientMK.Disconnect(true);
-					clientMK.Dispose();
+					throw ex;
+				}
+			} while(!request.PageToken.IsNullOrEmpty());
+			//Filter out messages that have already been received
+			listMessageIds=listMessageIds.Where(x => !x.Id.In(listEmailMessageUids.Select(y => y.MsgId.TrimStart("GmailId".ToCharArray())))).ToList();
+			//After receiving all of the ID's in the inbox, perform a GET for each email message
+			foreach(GmailApi.Data.Message msg in listMessageIds) {
+				GmailApi.UsersResource.MessagesResource.GetRequest emailRequest=gService.Users.Messages.Get(emailAddressInbox.EmailUsername,msg.Id);
+				emailRequest.Format=GmailApi.UsersResource.MessagesResource.GetRequest.FormatEnum.Raw;
+				try {
+					GmailApi.Data.Message response=emailRequest.Execute();
+					//What we receive from Gmail is a Base64 File/URL safe string, but we need this to be just Base64 (replace - and _ with + and / respectively)
+					response.Raw=Regex.Replace(response.Raw,"-","+");
+					response.Raw=Regex.Replace(response.Raw,"_","/");
+					byte[] rawResponse=Convert.FromBase64String(response.Raw);
+					using MemoryStream mm=new MemoryStream(rawResponse);
+					MimeKit.MimeMessage mimeMsg=MimeKit.MimeMessage.Load(mm);
+					//Convert MIME to our Email format and store the UID in the database
+					EmailMessage recd=ProcessRawEmailMessageIn(mimeMsg.ToString(),0,emailAddressInbox,true);
+					EmailMessageUid uid=new EmailMessageUid();
+					uid.MsgId=msg.Id; //Interchangeable with response.id
+					uid.RecipientAddress=recd.RecipientAddress;
+					EmailMessageUids.Insert(uid);
+					listEmailMessages.Add(recd);
+				}
+				catch (Exception ex) {
 					throw ex;
 				}
 			}
-			#endregion
-			#region Access E-Mails
-			try {
-				List<string> listMsgUids=clientMK.GetMessageUids().ToList();//Get all unique identifiers for each email in the inbox.
-				List<EmailMessageUid> listDownloadedMsgUids=EmailMessageUids.GetForRecipientAddress(emailAddressInbox.EmailUsername.Trim());
-				List<string> listDownloadedMsgUidStrs=new List<string>();
-				for(int i=0;i<listDownloadedMsgUids.Count;i++) {
-					listDownloadedMsgUidStrs.Add(listDownloadedMsgUids[i].MsgId);
-				}
-				int msgDownloadedCount=0;
-				for(int i=0;i<listMsgUids.Count;i++) {
-					int msgIndex=i;//The message indicies are 1-based.
-					if(listDownloadedMsgUidStrs.Contains(listMsgUids[i])) {
-						continue;//Skip emails which have already been downloaded.
-					}
-					string strMsgUid=listMsgUids[i];//Example: 1420562540.886638.p3plgemini22-06.prod.phx.2602059520
-					if(strMsgUid.Length>4000) {//The EmailMessageUid.MsgId field is only 4000 characters in size.
-						strMsgUid=strMsgUid.Substring(0,4000);
-					}
-					if(!listSkipMsgUids.IsNullOrEmpty() && listSkipMsgUids.Contains(strMsgUid)) {
-						continue;
-					}
-					if(listSkipMsgUids!=null) {
-						listSkipMsgUids.Add(strMsgUid);
-					}
-					//At this point, we know that the email is one which we have not downloaded yet.
-					MimeKit.MimeMessage mimeKitMsg;
-					try {
-						mimeKitMsg=clientMK.GetMessage(msgIndex);//This is where the entire raw email is downloaded.
-						bool isEmailFromInbox=true;
-						if(mimeKitMsg.Headers[MimeKit.HeaderId.From].ToString().ToLower().Contains(emailAddressInbox.EmailUsername.Trim().ToLower())) {//The email Recipient and email From addresses are the same.
-							 //The email Recipient and email To or CC or BCC addresses are the same.  We have verified that a user can send an email to themself using only CC or BCC.
-							if(String.Join(",",mimeKitMsg.Headers[MimeKit.HeaderId.To]).ToLower().Contains(emailAddressInbox.EmailUsername.Trim().ToLower()) ||
-								String.Join(",",mimeKitMsg.Headers[MimeKit.HeaderId.Cc]).ToLower().Contains(emailAddressInbox.EmailUsername.Trim().ToLower()) ||
-								String.Join(",",mimeKitMsg.Headers[MimeKit.HeaderId.Bcc]).ToLower().Contains(emailAddressInbox.EmailUsername.Trim().ToLower())) {
-								//Download this message because it was clearly sent from the user to theirself.
-							}
-							else {
-								//Gmail will report sent email as if it is part of the Inbox. These emails will have the From address as the Recipient address, but the To address will be a different address.
-								isEmailFromInbox=false;
-							}
-						}
-						if(isEmailFromInbox) {
-							string strRawEmail=mimeKitMsg.ToString();
-							EmailMessage emailMessage=ProcessRawEmailMessageIn(strRawEmail,0,emailAddressInbox,true);//Inserts to db.
-							retVal.Add(emailMessage);
-							msgDownloadedCount++;
-						}
-						EmailMessageUid emailMessageUid=new EmailMessageUid();
-						emailMessageUid.RecipientAddress=emailAddressInbox.EmailUsername.Trim();
-						emailMessageUid.MsgId=strMsgUid;
-						EmailMessageUids.Insert(emailMessageUid);//Remember Uid was downloaded, to avoid email duplication the next time the inbox is refreshed.
-						listDownloadedMsgUidStrs.Add(strMsgUid);
-					}
-					catch(ThreadAbortException) {
-						//This can happen if the application is exiting. We need to leave right away so the program does not lock up.
-						//Otherwise, this loop could continue for a while if there are a lot of messages to download.
-						throw;
-					}
-					catch {
-						//If one particular email fails to download, then skip it for now and move on to the next email.
-					}
-					if(receiveCount>0 && msgDownloadedCount>=receiveCount) {
-						break;
-					}
-				}
-			}
-			catch(Exception ex) {
-				throw ex;
-			}
-			finally {
-				clientMK.Disconnect(true);
-				clientMK.Dispose();
-			}
-			#endregion
-			return retVal;
+			return listEmailMessages;
 		}
 
 		///<summary>Parses a raw email into a usable object.</summary>

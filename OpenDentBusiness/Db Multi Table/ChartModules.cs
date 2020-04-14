@@ -1233,7 +1233,7 @@ namespace OpenDentBusiness {
 				row["aptDateTime"]=DateTime.MinValue;
 				row["AptNum"]=rawApt.Rows[i]["AptNum"].ToString();
 				row["clinic"]="";
-				row["ClinicNum"]=0;
+				row["ClinicNum"]=rawApt.Rows[i]["ClinicNum"].ToString();
 				row["colorBackG"]=Color.White.ToArgb();
 				dateT=PIn.DateT(rawApt.Rows[i]["AptDateTime"].ToString());
 				apptStatus=PIn.Long(rawApt.Rows[i]["AptStatus"].ToString());
