@@ -245,7 +245,7 @@ namespace OpenDental.UI{
 				rectangleFString.Width=rectangleCombo.Width-2;
 				rectangleFString.Height=rectangleCombo.Height-4;
 				int widthMax=rectangleCombo.Width-15;
-				g.DrawString(GetDisplayText(widthMax),this.Font,Brushes.Black,rectangleFString);
+				g.DrawString(GetDisplayText(widthMax),this.Font,Brushes.Black,rectangleFString, new StringFormat(StringFormatFlags.NoWrap));
 			}
 			//Draw blue rectangle around listbox, which doesn't have its own rectangle
 			Rectangle rectangleOutline=new Rectangle();

@@ -74,10 +74,9 @@ namespace OpenDentBusiness{
 		}
 
 		//Retotals all items attached to order and updates AmountTotal.
-		public static void UpdateOrderPrice(long orderNum) {
+		public static SupplyOrder UpdateOrderPrice(long orderNum) {
 			if(RemotingClient.RemotingRole==RemotingRole.ClientWeb) {
-				Meth.GetVoid(MethodBase.GetCurrentMethod(),orderNum);
-				return;
+				return Meth.GetObject<SupplyOrder>(MethodBase.GetCurrentMethod(),orderNum);	
 			}
 			string command="SELECT SUM(Qty*Price) FROM supplyorderitem WHERE SupplyOrderNum="+orderNum;
 			double amountTotal=PIn.Double(Db.GetScalar(command));
@@ -85,6 +84,7 @@ namespace OpenDentBusiness{
 			SupplyOrder so=Crud.SupplyOrderCrud.SelectOne(command);
 			so.AmountTotal=amountTotal;
 			SupplyOrders.Update(so);
+			return so;
 		}
 
 

@@ -59,9 +59,9 @@ namespace OpenDentBusiness{
 			return Crud.PayPlanCrud.SelectMany(command);
 		}
 
-		///<summary>Returns a list of overpaid payplans from the listPayPlanNums. Only necessary for Dynamic Payment Plans. 
-		///Returns an empty list if none are overpaid.</summary>
-		public static List<PayPlan> GetOverpaidPayPlans(List<long> listPayPlanNums) {
+		///<summary>Returns a list of overcharged payplans from the listPayPlanNums. Only necessary for Dynamic Payment Plans. 
+		///Returns an empty list if none are overcharged.</summary>
+		public static List<PayPlan> GetOverchargedPayPlans(List<long> listPayPlanNums) {
 			if(RemotingClient.RemotingRole==RemotingRole.ClientWeb) {
 				return Meth.GetObject<List<PayPlan>>(MethodBase.GetCurrentMethod(),listPayPlanNums);
 			}
@@ -75,40 +75,54 @@ namespace OpenDentBusiness{
 					listDynamicPayPlansForPatient.Add(payPlanCur);
 				}
 			}
+			#region Get Data
 			List<PayPlanLink> listPayPlanLinksAll=PayPlanLinks.GetForPayPlans(listPayPlanNums);
-			List<PayPlanLink> listProcedureLinksForPayPlan=listPayPlanLinksAll.Where(x => x.LinkType==PayPlanLinkType.Procedure).ToList();
-			List<PayPlanLink> listAdjustmentLinksForPayPlan=listPayPlanLinksAll.Where(x => x.LinkType==PayPlanLinkType.Adjustment).ToList();
+			List<long> listProcedureLinkFKeys=listPayPlanLinksAll.Where(x => x.LinkType==PayPlanLinkType.Procedure).Select(x => x.FKey).ToList();
+			List<long> listAdjustmentLinkFKeys=listPayPlanLinksAll.Where(x => x.LinkType==PayPlanLinkType.Adjustment).Select(x => x.FKey).ToList();
 			List<PayPlanCharge> listPayPlanCharges=PayPlanCharges.GetForPayPlans(listPayPlanNums);
-			List<Procedure> listProcsAttachedToPayPlan=Procedures.GetManyProc(listProcedureLinksForPayPlan.Select(x => x.FKey).ToList(),false);
-			List<ClaimProc> listClaimProcsForProcs=ClaimProcs.GetForProcs(listProcedureLinksForPayPlan.Select(x => x.FKey).ToList());
-			List<Adjustment> listAdjForProcs=Adjustments.GetForProcs(listProcedureLinksForPayPlan.Select(x => x.FKey).ToList());
-			decimal chargedAmt=0;
-			decimal expectedPatPortion=0;
-			List<PayPlan> listPayPlansOverpaid=new List<PayPlan>();
+			List<Procedure> listProcsAttachedToPayPlan=Procedures.GetManyProc(listProcedureLinkFKeys,false);
+			List<Adjustment> listAdjsAttachedToPayPlan=Adjustments.GetMany(listAdjustmentLinkFKeys);
+			List<ClaimProc> listClaimProcsForProcs=ClaimProcs.GetForProcs(listProcedureLinkFKeys);
+			List<Adjustment> listAdjForProcs=Adjustments.GetForProcs(listProcedureLinkFKeys);
+			#endregion Get Data
+			List<PayPlan> listPayPlansOvercharged=new List<PayPlan>();
 			foreach(long payPlanNum in listPayPlanNums) {
 				List<PayPlanLink> listLinksForPayPlan=listPayPlanLinksAll.FindAll(x => x.PayPlanNum==payPlanNum);
-				foreach(PayPlanLink payPlanLink in listLinksForPayPlan) {//for each procedure 
-					if(!listProcedureLinksForPayPlan.IsNullOrEmpty() && payPlanLink.LinkType == PayPlanLinkType.Procedure) {
-						chargedAmt=(decimal)listPayPlanCharges.FindAll(x => x.FKey==payPlanLink.FKey && x.LinkType==payPlanLink.LinkType).Sum(x => x.Principal);//current amount charged
-						List<ClaimProc> listClaimProcsForProcedure=listClaimProcsForProcs.FindAll(x => x.ProcNum==payPlanLink.FKey);
+				//Get total amount that has been debited for the current pay plan thus far.
+				decimal amtDebitedTotal=listPayPlanCharges.FindAll(x => x.PayPlanNum==payPlanNum && x.ChargeType==PayPlanChargeType.Debit)
+					.Sum(x => (decimal)x.Principal);
+				#region Sum Linked Production
+				decimal totalPrincipalForPayPlan=0;
+				foreach(PayPlanLink payPlanLink in listLinksForPayPlan) {
+					PayPlanProductionEntry productionEntry=null;
+					if(payPlanLink.LinkType==PayPlanLinkType.Procedure) {
 						Procedure proc=listProcsAttachedToPayPlan.FirstOrDefault(x => x.ProcNum==payPlanLink.FKey);
 						if(proc!=null) {
-							expectedPatPortion=ClaimProcs.GetPatPortion(proc,listClaimProcsForProcedure,listAdjForProcs);
+							productionEntry=new PayPlanProductionEntry(proc,payPlanLink,listClaimProcsForProcs,listAdjForProcs);
 						}
 					}
-					else if(!listAdjustmentLinksForPayPlan.IsNullOrEmpty() && payPlanLink.LinkType==PayPlanLinkType.Adjustment) {
-						//If an adjustment exists for any of the procs on the plan, allow it to - well - adjust!
-						chargedAmt=(decimal)listPayPlanCharges.FindAll(x => x.FKey==payPlanLink.FKey && x.LinkType==payPlanLink.LinkType).Sum(x => x.Principal);
+					else if(payPlanLink.LinkType==PayPlanLinkType.Adjustment) {
+						Adjustment adj=listAdjsAttachedToPayPlan.FirstOrDefault(x => x.AdjNum==payPlanLink.FKey);
+						if(adj!=null) {
+							productionEntry=new PayPlanProductionEntry(adj,payPlanLink);
+						}
 					}
-					//The amount billed for production is not greater than the amount the patient owes, meaning we dont want it in the overpaid list
-					if(chargedAmt.IsGreaterThan(expectedPatPortion)) {
-						listPayPlansOverpaid.Add(PayPlans.GetOne(payPlanLink.PayPlanNum));
-						break;
+					if(productionEntry!=null) {
+						if(productionEntry.AmountOverride==0) {
+							totalPrincipalForPayPlan+=productionEntry.AmountOriginal;
+						}
+						else {
+							totalPrincipalForPayPlan+=productionEntry.AmountOverride;
+						}
 					}
 				}
-
+				#endregion Sum Linked Production
+				//If the total that has been debited thus far exceeds the total principal for the pay plan, it is overcharged.
+				if(amtDebitedTotal.IsGreaterThan(totalPrincipalForPayPlan)) {
+					listPayPlansOvercharged.Add(PayPlans.GetOne(payPlanNum));
+				}
 			}
-			return listPayPlansOverpaid;
+			return listPayPlansOvercharged;
 		}
 
 		///<summary>Determines if there are any valid plans with that patient as the guarantor.</summary>

@@ -343,17 +343,17 @@ namespace OpenDental {
 				supplyOrderItem.Qty=qtyNew;
 				supplyOrderItem.Price=priceNew;
 				SupplyOrderItems.Update(supplyOrderItem);
-				SupplyOrders.UpdateOrderPrice(supplyOrderItem.SupplyOrderNum);//this might be an expensive query that we could avoid
-				//int selectedOrder=gridOrders.GetSelectedIndex();
+				SupplyOrder updatedSupplyOrderItem=SupplyOrders.UpdateOrderPrice(supplyOrderItem.SupplyOrderNum);//this might be an expensive query that we could avoid
 				FillGridOrderItem();
-				double gridOrderTotal=0;
-				for(int i=0;i<_tableOrderItems.Rows.Count;i++) {
-					gridOrderTotal+=(double)PIn.Int(_tableOrderItems.Rows[i]["Qty"].ToString())*PIn.Double(_tableOrderItems.Rows[i]["Price"].ToString());
+				int index=_listSupplyOrders.FindIndex(x=>x.SupplyOrderNum==supplyOrderItem.SupplyOrderNum);
+				if(index<0) {//Just in case, shouldn't happen
+					FillGridOrders();
+					return;
 				}
-				gridOrders.SelectedGridRows[0].Cells[2].Text=gridOrderTotal.ToString("c2");
+				_listSupplyOrders[index]=updatedSupplyOrderItem;
+				gridOrders.SelectedGridRows[0].Cells[2].Text=updatedSupplyOrderItem.AmountTotal.ToString("c2");
 				gridOrders.Invalidate();
 			}
-			//gridOrders.SetSelected(selectedOrder,true);
 		}
 
 		private void UpdatePriceAndRefresh() {

@@ -119,11 +119,12 @@ namespace OpenDental.UI{
 			rectangleFString.Width=rectangle.Width-2;
 			rectangleFString.Height=rectangle.Height-4;
 			int widthMax=rectangle.Width-15;
+			StringFormat stringFormat=new StringFormat(StringFormatFlags.NoWrap);
 			if(Enabled){
-				g.DrawString(GetDisplayText(widthMax),this.Font,Brushes.Black,rectangleFString);
+				g.DrawString(GetDisplayText(widthMax),this.Font,Brushes.Black,rectangleFString,stringFormat);
 			}
 			else{
-				g.DrawString(GetDisplayText(widthMax),this.Font,_brushDisabledText,rectangleFString);
+				g.DrawString(GetDisplayText(widthMax),this.Font,_brushDisabledText,rectangleFString,stringFormat);
 			}
 		}
 		#endregion Event - OnPaint

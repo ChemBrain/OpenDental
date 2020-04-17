@@ -115,8 +115,8 @@ namespace OpenDental {
 					}
 				}
 			}
-			List<PayPlan> listOverPaidPayPlans=PayPlans.GetOverpaidPayPlans(new List<long>{_payPlanCur.PayPlanNum});
-			foreach(PayPlan payPlan in listOverPaidPayPlans) {
+			List<PayPlan> listOverchargedPayPlans=PayPlans.GetOverchargedPayPlans(new List<long>{_payPlanCur.PayPlanNum});
+			foreach(PayPlan payPlan in listOverchargedPayPlans) {
 				if(_payPlanCur.PayPlanNum==payPlan.PayPlanNum) {
 					labelOverpaidWarning.Visible=true;
 				}

@@ -866,12 +866,12 @@ namespace OpenDental{
 			FormClaimPrint FormCP=new FormClaimPrint();
 			if(gridMain.SelectedTags<ClaimSendQueueItem>().Count==0){
 				for(int i=0;i<gridMain.ListGridRows.Count;i++) {
-					ClaimSendQueueItem queueItem=(ClaimSendQueueItem)gridMain.SelectedGridRows[i].Tag;
+					ClaimSendQueueItem queueItem=(ClaimSendQueueItem)gridMain.ListGridRows[i].Tag;
 					if((queueItem.ClaimStatus=="W" || queueItem.ClaimStatus=="P") && !queueItem.CanSendElect){
 						gridMain.SetSelected(i,true);
 					}
 				}
-				if(!MsgBox.Show(this,true,"No claims were selected.  Print all selected paper claims?")){
+				if(!MsgBox.Show(this,MsgBoxButtons.YesNo,"No claims were selected.  Print all selected paper claims?")){
 					return;
 				}
 			}

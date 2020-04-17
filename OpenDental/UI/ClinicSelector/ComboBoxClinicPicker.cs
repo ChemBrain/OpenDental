@@ -247,11 +247,12 @@ namespace OpenDental.UI {
 					g.DrawString(labelFake.Text,Font,Brushes.Black,2,4);
 				}
 			}
+			StringFormat stringFormat=new StringFormat(StringFormatFlags.NoWrap);
 			if(Enabled){
-				g.DrawString(GetDisplayText(widthMax),this.Font,Brushes.Black,rectangleFString);//in combobox
+				g.DrawString(GetDisplayText(widthMax),this.Font,Brushes.Black,rectangleFString,stringFormat);//in combobox
 			}
 			else{
-				g.DrawString(GetDisplayText(widthMax),this.Font,_brushDisabledText,rectangleFString);//in combobox
+				g.DrawString(GetDisplayText(widthMax),this.Font,_brushDisabledText,rectangleFString,stringFormat);//in combobox
 			}
 		}
 		#endregion Events -  Protected Overrides

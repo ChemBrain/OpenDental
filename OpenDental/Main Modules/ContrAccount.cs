@@ -3028,7 +3028,7 @@ namespace OpenDental {
 				return;
 			}
 			List<long> listPayPlanNums=table.Select().Select(x => PIn.Long(x["PayPlanNum"].ToString())).ToList();
-			List<PayPlan> listOverPaidPayPlans=PayPlans.GetOverpaidPayPlans(listPayPlanNums);
+			List<PayPlan> listOverchargedPayPlans=PayPlans.GetOverchargedPayPlans(listPayPlanNums);
 			//do not hide payment plans that still have a balance when not on v2
 			if(!checkShowCompletePayPlans.Checked) { //Hide the payment plans grid if there are no payment plans currently visible.
 				bool existsOpenPayPlan=false;
@@ -3129,8 +3129,8 @@ namespace OpenDental {
 				}
 				row.Cells.Add(cell);
 				row.Tag=table.Rows[i];
-				foreach(PayPlan payPlan in listOverPaidPayPlans){
-					if(listOverPaidPayPlans.Select(x => x.PayPlanNum).ToList().Contains(PIn.Long(table.Rows[i]["PayPlanNum"].ToString()))) {
+				foreach(PayPlan payPlan in listOverchargedPayPlans){
+					if(listOverchargedPayPlans.Select(x => x.PayPlanNum).ToList().Contains(PIn.Long(table.Rows[i]["PayPlanNum"].ToString()))) {
 						row.ColorBackG=Color.FromArgb(255,255,128);
 					}
 				}
