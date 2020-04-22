@@ -92,6 +92,12 @@ namespace OpenDental{
 		private bool _isSchedulingUnscheduledAppt;
 
 		#region Properties
+	 ///<summary>Indicates whether _selectedApptStatus is a patient note</summary>
+		private bool _isPtNote {
+			get {
+				return _selectedApptStatus.In(ApptStatus.PtNote,ApptStatus.PtNoteCompleted);
+			}
+		}
 
 		///<summary>The currently selected ApptStatus.</summary>
 		private ApptStatus _selectedApptStatus {
@@ -1883,7 +1889,8 @@ namespace OpenDental{
 				List<Procedure> listOldProcs=gridProc.SelectedIndices.Select(x => ((Procedure)gridProc.ListGridRows[x].Tag).Copy()).ToList();
 				ProcFeeHelper procFeeHelper=new ProcFeeHelper(AptCur.PatNum);
 				string promptText="";
-				updateProcFees=Procedures.ShouldFeesChange(listNewProcs,listOldProcs,ref promptText,procFeeHelper);
+				//PatientNote "Appointment" will never have fees.  Prompting/Updating proc fees unnecessary.
+				updateProcFees=(!_isPtNote && Procedures.ShouldFeesChange(listNewProcs,listOldProcs,ref promptText,procFeeHelper));
 				if(updateProcFees && promptText!="" && !MsgBox.Show(this,MsgBoxButtons.YesNo,promptText)) {
 					updateProcFees=false;
 				}

@@ -508,7 +508,6 @@ namespace OpenDental {
 						|| DefCur.DefNum==PrefC.GetLong(PrefName.BillingChargeAdjustmentType)
 						|| DefCur.DefNum==PrefC.GetLong(PrefName.FinanceChargeAdjustmentType)
 						|| DefCur.DefNum==PrefC.GetLong(PrefName.PrepaymentUnearnedType)
-						|| DefCur.DefNum==PrefC.GetLong(PrefName.PracticeDefaultBillType)
 						|| DefCur.DefNum==PrefC.GetLong(PrefName.SalesTaxAdjustmentType)
 						|| DefCur.DefNum==PrefC.GetLong(PrefName.RecurringChargesPayTypeCC)
 						|| DefCur.DefNum==PrefC.GetLong(PrefName.TpUnearnedType))
@@ -531,6 +530,10 @@ namespace OpenDental {
 					}
 					else if(DefCur.DefNum==PrefC.GetLong(PrefName.WebSchedRecallConfirmStatus)) {
 						MsgBox.Show(this,"You cannot hide a definition that is used as an appointment confirmation status in Web Sched Recall Appt.");
+						return;
+					}
+					else if(DefCur.DefNum==PrefC.GetLong(PrefName.PracticeDefaultBillType)) {
+						MsgBox.Show(this,"You cannot hide a billing type when it is selected as the practice default billing type.");
 						return;
 					}
 					else {

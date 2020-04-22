@@ -471,12 +471,6 @@ namespace OpenDental {
 				return false;
 			}
 			Def selectedDef = (Def)gridDefs.ListGridRows[gridDefs.GetSelectedIndex()].Tag;
-			//Warn the user if they are about to hide a billing type currently in use.
-			if(selectedDefCatOpt.DefCat==DefCat.BillingTypes && Patients.IsBillingTypeInUse(selectedDef.DefNum)) {
-				if(!MsgBox.Show(_lanThis,MsgBoxButtons.OKCancel,"Warning: Billing type is currently in use by patients, insurance plans, or preferences.")) {
-					return false;
-				}
-			}
 			if(selectedDef.Category==DefCat.ProviderSpecialties
 				&& (Providers.IsSpecialtyInUse(selectedDef.DefNum)
 				|| Referrals.IsSpecialtyInUse(selectedDef.DefNum)))
@@ -513,6 +507,12 @@ namespace OpenDental {
 				List<Def> listDefsCurNotHidden = Defs.GetDefsForCategory(selectedDefCatOpt.DefCat,true);
 				if(listDefsCurNotHidden.Count ==1) {
 					MsgBox.Show(_lanThis,"You cannot hide the last definition in this category.");
+					return false;
+				}
+			}
+			//Warn the user if they are about to hide a billing type currently in use.
+			if(selectedDefCatOpt.DefCat==DefCat.BillingTypes && Patients.IsBillingTypeInUse(selectedDef.DefNum)) {
+				if(!MsgBox.Show(_lanThis,MsgBoxButtons.OKCancel,"Warning: Billing type is currently in use by patients, insurance plans, or preferences.")) {
 					return false;
 				}
 			}

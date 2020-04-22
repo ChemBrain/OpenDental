@@ -437,10 +437,7 @@ namespace OpenDentBusiness{
 			#region Regular Claimproc By DateCP
 				+"SELECT 'Claimproc' TranType,cp.ClaimProcNum PriKey,cp.PatNum,cp.DateCP TranDate,"
 				+"(CASE WHEN cp.Status != 0 THEN (CASE WHEN cp.PayPlanNum = 0 THEN -cp.InsPayAmt ELSE 0 END)"
-					+(isWoAged?"":" - cp.WriteOff")+" ELSE 0 END) TranAmount,"
-				+"(CASE WHEN cp.PayPlanNum != 0 AND cp.Status IN(1,4,5) "//Received,Supplemental,CapClaim attached to payplan
-				+(payPlanVersionCur==PayPlanVersions.AgeCreditsAndDebits ? "AND COALESCE(pp.IsClosed,0)=0 ":"") //ignore closed payment plans on v2
-					+(isHistoric?("AND cp.DateCP <= "+asOfDateStr+" "):"")+"THEN -cp.InsPayAmt ELSE 0 END) PayPlanAmount,"//Claim payments tracked by payplan
+					+(isWoAged?"":" - cp.WriteOff")+" ELSE 0 END) TranAmount,0 PayPlanAmount,"
 				+(isWoAged?"0":("(CASE WHEN "+(isHistoric?("cp.ProcDate <= "+asOfDateStr+" "//historic=NotRcvd OR Rcvd and DateCp>asOfDate
 					+"AND (cp.Status = 0 OR (cp.Status = 1 AND cp.DateCP > "+asOfDateStr+"))"):"cp.Status = 0")+" "//not historic=NotReceived
 					+"THEN cp.WriteOff ELSE 0 END)"))+" InsWoEst,"//writeoff
@@ -454,7 +451,7 @@ namespace OpenDentBusiness{
 				+"WHERE cp.status IN (0,1,4,5,7) "//NotReceived,Received,Supplemental,CapClaim,CapComplete
 				+(isAllPats?"":("AND cp.PatNum IN ("+familyPatNums+") "))
 				//efficiency improvement for MySQL only.
-				+(DataConnection.DBtype==DatabaseType.MySql?"HAVING TranAmount != 0 OR PayPlanAmount != 0 OR InsWoEst != 0 OR InsPayEst != 0 ":"");
+				+(DataConnection.DBtype==DatabaseType.MySql?"HAVING TranAmount != 0 OR InsWoEst != 0 OR InsPayEst != 0 ":"");
 			#endregion Regular Claimproc By DateCP
 			#region Original and Current Writeoff/Delta
 			//Only included if writeoffs are aged.  Requires joining to the claimsnapshot table.
@@ -537,22 +534,18 @@ namespace OpenDentBusiness{
 			#region PayPlan Charges
 				//Calculate the payment plan charges for each payment plan guarantor on or before date considering the PayPlansBillInAdvanceDays setting.
 				//Ignore pay plan charges for a different family, since payment plan guarantors might be in another family.
-				+"SELECT 'PPCharge' TranType,ppc.PayPlanChargeNum PriKey,ppc.Guarantor PatNum,ppc.ChargeDate TranDate,0 TranAmount,";
-				if(payPlanVersionCur==PayPlanVersions.AgeCreditsAndDebits) {
-					command+="(CASE WHEN COALESCE(pp.IsClosed,0)=0 THEN COALESCE(ppc.Principal+ppc.Interest,0) ELSE 0 END) PayPlanAmount,";
-				}
-				else {
-					command+="COALESCE(ppc.Principal+ppc.Interest,0) PayPlanAmount,";
-				}
-				command+="0 InsWoEst,0 InsPayEst"
+				+"SELECT 'PPCharge' TranType,ppc.PayPlanChargeNum PriKey,ppc.Guarantor PatNum,ppc.ChargeDate TranDate,0 TranAmount,"
+				+"ppc.Principal+ppc.Interest PayPlanAmount,0 InsWoEst,0 InsPayEst"
 				+(doIncludeProcNum?",0 ProcNum,0 PayNum":"")
 				+(isAgedByProc?",0 AgedProcNum,'0001-01-01' AgedProcDate":"")+" "
 				+"FROM payplancharge ppc "
-				+(payPlanVersionCur==PayPlanVersions.AgeCreditsAndDebits?"LEFT JOIN payplan pp ON ppc.PayPlanNum=pp.PayPlanNum ":"")
+				+"INNER JOIN payplan pp ON ppc.PayPlanNum=pp.PayPlanNum "
 				+"WHERE ppc.ChargeDate <= "+billInAdvanceDate+" "//accounts for historic vs current because of how it's set above
 				+"AND ppc.ChargeType="+POut.Int((int)PayPlanChargeType.Debit)+" "
+				+(payPlanVersionCur==PayPlanVersions.AgeCreditsAndDebits?"AND !pp.IsClosed ":"")
 				+(isAllPats?"":("AND ppc.Guarantor IN ("+familyPatNums+") "))
-				+"AND COALESCE(ppc.Principal+ppc.Interest,0) != 0 ";
+				+"AND ppc.Principal+ppc.Interest != 0 "
+				+"AND pp.PlanNum=0 ";//exclude payplans used to track insurance payments
 			#endregion PayPlan Charges
 			#region PayPlan Principal and Interest/CompletedAmt
 			#region PayPlan Version 1
