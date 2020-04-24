@@ -86,10 +86,10 @@ namespace OpenDentBusiness{
 			List<Adjustment> listAdjForProcs=Adjustments.GetForProcs(listProcedureLinkFKeys);
 			#endregion Get Data
 			List<PayPlan> listPayPlansOvercharged=new List<PayPlan>();
-			foreach(long payPlanNum in listPayPlanNums) {
-				List<PayPlanLink> listLinksForPayPlan=listPayPlanLinksAll.FindAll(x => x.PayPlanNum==payPlanNum);
+			foreach(PayPlan payPlanCur in listDynamicPayPlansForPatient) {
+				List<PayPlanLink> listLinksForPayPlan=listPayPlanLinksAll.FindAll(x => x.PayPlanNum==payPlanCur.PayPlanNum);
 				//Get total amount that has been debited for the current pay plan thus far.
-				decimal amtDebitedTotal=listPayPlanCharges.FindAll(x => x.PayPlanNum==payPlanNum && x.ChargeType==PayPlanChargeType.Debit)
+				decimal amtDebitedTotal=listPayPlanCharges.FindAll(x => x.PayPlanNum==payPlanCur.PayPlanNum && x.ChargeType==PayPlanChargeType.Debit)
 					.Sum(x => (decimal)x.Principal);
 				#region Sum Linked Production
 				decimal totalPrincipalForPayPlan=0;
@@ -119,7 +119,7 @@ namespace OpenDentBusiness{
 				#endregion Sum Linked Production
 				//If the total that has been debited thus far exceeds the total principal for the pay plan, it is overcharged.
 				if(amtDebitedTotal.IsGreaterThan(totalPrincipalForPayPlan)) {
-					listPayPlansOvercharged.Add(PayPlans.GetOne(payPlanNum));
+					listPayPlansOvercharged.Add(payPlanCur);
 				}
 			}
 			return listPayPlansOvercharged;

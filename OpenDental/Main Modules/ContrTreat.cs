@@ -1801,9 +1801,11 @@ namespace OpenDental{
 		}
 
 		private void gridPlans_CellDoubleClick(object sender, OpenDental.UI.ODGridClickEventArgs e) {
-			//if(e.Row==0){
-			//	return;//there is nothing to edit if user clicks on current.
-			//}
+			if(e.Row<0 || e.Row>_listTreatPlans.Count()) {
+				MsgBox.Show("Error making a selection. Please try again.");
+				FillPlans(true);
+				return;
+			}
 			long tpNum=_listTreatPlans[e.Row].TreatPlanNum;
 			TreatPlan tpSelected=_listTreatPlans[e.Row];
 			if(tpSelected.TPStatus==TreatPlanStatus.Saved) {

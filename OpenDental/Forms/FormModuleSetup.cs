@@ -460,7 +460,7 @@ namespace OpenDental{
 					comboItem = new ODBoxItem<double>(seconds.ToString("f1") + " "+Lan.g(this,"seconds"),seconds);
 				}
 				comboDelay.Items.Add(comboItem);
-				if(PrefC.GetDouble(PrefName.FormClickDelay)==seconds) {
+				if(PrefC.GetDouble(PrefName.FormClickDelay,doUseEnUSFormat:true)==seconds) {
 					comboDelay.SelectedIndex = i;
 				}
 			}

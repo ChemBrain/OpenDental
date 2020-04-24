@@ -1273,6 +1273,11 @@ namespace OpenDental {
 		}
 
 		private void gridIns_CellDoubleClick(object sender,ODGridClickEventArgs e) {
+			if(e.Row<0 || e.Row>_listClaimProcsForProc.Count()) {
+				MsgBox.Show("An error occurred. Please try making your selection again.");
+				FillIns();
+				return;
+			}
 			FormClaimProc FormC=new FormClaimProc(_listClaimProcsForProc[e.Row],_procCur,_famCur,_patCur,_listInsPlans,HistList,ref LoopList,_listPatPlans,true,_listInsSubs);
 			if(_procCur.IsLocked || !Procedures.IsProcComplEditAuthorized(_procCur)) {
 				FormC.NoPermissionProc=true;

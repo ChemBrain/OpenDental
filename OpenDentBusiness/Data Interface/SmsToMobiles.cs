@@ -107,7 +107,7 @@ namespace OpenDentBusiness{
 				listCommandFilters.Add($"PatNum = {patNum}");
 			}
 			if(!string.IsNullOrEmpty(phoneNumber)) {
-				listCommandFilters.Add($"MobilePhoneNumber = {phoneNumber}");
+				listCommandFilters.Add($"MobilePhoneNumber = '{POut.String(phoneNumber)}'");
 			}
 			string command="SELECT * FROM smstomobile";
 			if(listCommandFilters.Count>0) {
