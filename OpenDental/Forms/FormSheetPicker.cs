@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using CodeBase;
 using OpenDentBusiness;
 
 namespace OpenDental {
@@ -31,6 +32,7 @@ namespace OpenDental {
 				listSheets.Add(SheetsInternal.GetSheetDef(SheetInternalType.PatientRegistration));
 				listSheets.Add(SheetsInternal.GetSheetDef(SheetInternalType.FinancialAgreement));
 				listSheets.Add(SheetsInternal.GetSheetDef(SheetInternalType.HIPAA));
+				listSheets.Add(SheetsInternal.GetSheetDef(SheetInternalType.COVID19));
 				//Medical History and Consent forms happen below.
 			}
 			if(SheetType==SheetTypeEnum.PatientForm) {//we will also show medical history, and possibly consent forms

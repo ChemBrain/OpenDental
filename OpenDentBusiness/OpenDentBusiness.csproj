@@ -2359,6 +2359,7 @@
     <None Include="Web References\localhost\Service1.disco" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\COVID19.xml" />
     <Content Include="Shared\README.txt" />
     <None Include="Resources\RecallPastDue_R.png" />
     <None Include="Resources\RecallPastDue_P.png" />

@@ -248,7 +248,9 @@ namespace OpenDental{
 		}
 
 		private void checkInsDefaultAssignmentOfBenefits_Click(object sender,EventArgs e) {
-			if(!Security.IsAuthorized(Permissions.InsPlanChangeAssign)) {
+			//Users with Setup permission are always allowed to change the Checked property of this check box.
+			//However, there is a second step when changing the value that can only be performed by users with the InsPlanChangeAssign permission.
+			if(!Security.IsAuthorized(Permissions.InsPlanChangeAssign,true)) {
 				return;
 			}
 			string promptMsg=Lan.g(this,"Would you like to immediately change all plans to use assignment of benefits?\r\n"

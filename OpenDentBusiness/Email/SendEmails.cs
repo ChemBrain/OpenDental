@@ -209,7 +209,12 @@ namespace OpenDentBusiness.Email {
 					});
 				}
 			}
-			multipart.Add(new TextPart() { Text=emailMessage.BodyText });
+			if(emailMessage.IsHtml) {
+				multipart.Add(new TextPart(MimeKit.Text.TextFormat.Html) { Text=emailMessage.HtmlBody });
+			}
+			else {
+				multipart.Add(new TextPart() { Text=emailMessage.BodyText });
+			}
 			mimeMsg.Body=multipart;
 			return mimeMsg;
 		}

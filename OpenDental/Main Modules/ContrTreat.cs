@@ -992,6 +992,7 @@ namespace OpenDental{
 			for(int i=0;i<ProcTPSelectList.Length;i++) {
 				row=new TpRow();
 				isDone=false;
+				long plannedAptNumCur=0;
 				long aptNumCur=0;
 				if(ProcTPSelectList[i].TagOD==null) {
 					ProcTPSelectList[i].TagOD=0L;
@@ -1004,6 +1005,7 @@ namespace OpenDental{
 						if(ProcList[j].ProcStatus==ProcStat.C) {
 							isDone=true;
 						}
+						plannedAptNumCur=ProcList[j].PlannedAptNum;
 						aptNumCur=ProcList[j].AptNum;
 					}
 				}
@@ -1024,7 +1026,7 @@ namespace OpenDental{
 				row.ProvNum=ProcTPSelectList[i].ProvNum;
 				row.DateTP=ProcTPSelectList[i].DateTP;
 				row.ClinicNum=ProcTPSelectList[i].ClinicNum;
-				row.Appt=(aptNumCur>0 ? "X" : "");
+				row.Appt=row.Appt=FillApptCellForRow(plannedAptNumCur,aptNumCur);
 				row.CatPercUCR=(decimal)ProcTPSelectList[i].CatPercUCR;
 				if(treatPlanTemp.TPType!=TreatPlanType.Insurance) {
 					if(!checkShowIns.Checked) {
@@ -2381,7 +2383,7 @@ namespace OpenDental{
 				row.ProvNum=listProcForTP[i].ProvNum;
 				row.DateTP=listProcForTP[i].DateTP;
 				row.ClinicNum=listProcForTP[i].ClinicNum;
-				row.Appt=(listProcForTP[i].AptNum>0 ? "X" : "");
+				row.Appt=FillApptCellForRow(listProcForTP[i].PlannedAptNum,listProcForTP[i].AptNum);
 				//Passing in empty lists to simulate what the fee would be if the patient did not have any insurance.
 				row.CatPercUCR=(decimal)Procedures.GetProcFee(PatCur,new List<PatPlan>(),new List<InsSub>(),new List<InsPlan>(),listProcForTP[i].CodeNum,
 					listProcForTP[i].ProvNum,listProcForTP[i].ClinicNum,listProcForTP[i].MedicalCode,listFees:loadActiveData.ListFees);
@@ -2636,6 +2638,19 @@ namespace OpenDental{
 			#endregion Totals
 			treatPlan.ListProcTPs=retVal;
 			return retVal;
+		}
+
+		///<summary>Returns string that will occupy the procedure's 'Appt' cell in the main grid. 'X' if procedure is on scheduled appointment,
+		///'P' if on an unscheduled planned appointment, or a blank string if on no appointments.</summary>
+		private string FillApptCellForRow(long plannedAptNum,long aptNum) {
+			string result="";
+			if(plannedAptNum>0) {
+				result="P";
+			}
+			if(aptNum>0) {
+				result="X";
+			}
+			return result;
 		}
 
 		///<summary>Refreshes Canadian Lab Fee ClaimProcs in listClaimProcs from the Db, and adds any new Canadian Lab Fee ClaimProcs that were 

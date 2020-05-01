@@ -65,7 +65,7 @@ namespace OpenDentBusiness.WebTypes.WebSched.TimeSlot {
 			//Apparently scheduling this one recall can potentially schedule a bunch of other recalls at the same time.
 			//We need to potentially bloat our time pattern based on the other recalls that are due for this specific patient.
 			if(recallCur!=null) {
-				Patient patCur=Patients.GetLim(recallCur.PatNum);
+				Patient patCur=Patients.GetPat(recallCur.PatNum);
 				List<Recall> listRecalls=Recalls.GetList(recallCur.PatNum);
 				timePatternRecall=Recalls.GetRecallTimePattern(recallCur,listRecalls,patCur,new List<string>());
 			}

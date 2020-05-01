@@ -86,7 +86,12 @@ namespace OpenDental {
 			foreach(SheetDevice device in listDevices) {
 				GridRow row=new GridRow();
 				row.Tag=device;
-				row.Cells.Add(new GridCell(device.Name));
+				if(device.IsMobileAppDevice){
+					row.Cells.Add(new GridCell(device.Name+"\r\n("+device.MobileDevice.UniqueID+")"));
+				}
+				else{
+					row.Cells.Add(new GridCell(device.Name));
+				}
 				row.Cells.Add(new GridCell(device.SessionName));
 				row.Cells.Add(new GridCell(device.PatName));
 				if(PrefC.HasClinicsEnabled) {
@@ -327,6 +332,19 @@ namespace OpenDental {
 			///of ComputerKiosk or MobileDevice can be initialized at a time (which shouldbe enforced by the structure of this class.</summary>
 			public bool IsKiosk {
 				get { return _computerKiosk!=null; }
+			}
+
+			///<summary>Returns true if _mobileDevice is not null and false if it is. This makes the assumption that only one or the other
+			///of ComputerKiosk or MobileDevice can be initialized at a time (which shouldbe enforced by the structure of this class.</summary>
+			public bool IsMobileAppDevice {
+				get { return _mobileDevice!=null; }
+			}
+
+			///<summary>Returns _mobileDevice which can be null. Should only be called after checking IsMobileAppDevice when true.</summary>
+			public MobileAppDevice MobileDevice{
+				get{
+					return _mobileDevice;
+				}
 			}
 
 			public SheetDevice(TerminalActive kiosk) {

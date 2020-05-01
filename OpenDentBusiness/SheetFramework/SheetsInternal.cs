@@ -99,6 +99,8 @@ namespace OpenDentBusiness{
 					sheetDef=GetSheetFromResource(Properties.Resources.PatientDashboardToothChart);
 					SheetDefs.SetPatImageFieldNames(sheetDef);
 					return sheetDef;
+				case SheetInternalType.COVID19:
+					return GetSheetFromResource(Properties.Resources.COVID19);
 				default:
 					throw new ApplicationException("Invalid SheetInternalType.");
 			}

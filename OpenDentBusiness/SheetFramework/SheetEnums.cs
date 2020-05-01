@@ -191,6 +191,7 @@ namespace OpenDentBusiness {
 		PatientDashboard,
 		[SheetInternal(DoShowInInternalList=false,DoShowInDashboardSetup=true)]
 		PatientDashboardToothChart,
+		COVID19,
 	}
 
 	public enum OutInCheck{

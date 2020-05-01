@@ -39,6 +39,10 @@ namespace OpenDentBusiness.WebTypes {
 		///<summary>The background template for Android.</summary>
 		public static string BackgroundTemplateAndroid=$"{{\"data\":{{\"{PushJsonTemplateKey}\":\"$({PushJsonTemplateKey})\",\"{VersionTemplateKey}\":\"$("
 			+$"{VersionTemplateKey})\"}}}}";
+		public static string AlertTemplateUWP=$"{{\"{VersionTemplateKey}\":\"$({VersionTemplateKey})\",\"{PushJsonTemplateKey}\":\"$("
+			+$"{PushJsonTemplateKey})\",\"{AlertTitleTemplateKey}\":\"$({AlertMessageTemplateKey})\"}}";
+		public static string BackgroundTemplateUWP=$"{{\"{VersionTemplateKey}\":\"$({VersionTemplateKey})\",\"{PushJsonTemplateKey}\":\"$("
+			+$"{PushJsonTemplateKey})\"}}";
 		///<summary>The template expiration. We do not expire templates.</summary>
 		public static string PushHubExpiry=DateTime.Now.AddYears(5).ToString(CultureInfo.CreateSpecificCulture("en-us"));
 		///<summary>The prefix for the RegKeyNum tag.</summary>

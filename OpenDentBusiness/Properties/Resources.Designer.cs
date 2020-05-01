@@ -303,7 +303,7 @@ namespace OpenDentBusiness.Properties {
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
         ///&lt;ClaimForm xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot;&gt;
         ///  &lt;IsNew&gt;false&lt;/IsNew&gt;
-        ///  &lt;ClaimFormNum&gt;15&lt;/ClaimFormNum&gt;
+        ///  &lt;ClaimFormNum&gt;7&lt;/ClaimFormNum&gt;
         ///  &lt;Description&gt;ADA 2019&lt;/Description&gt;
         ///  &lt;IsHidden&gt;false&lt;/IsHidden&gt;
         ///  &lt;FontName&gt;Arial&lt;/FontName&gt;
@@ -314,7 +314,7 @@ namespace OpenDentBusiness.Properties {
         ///  &lt;OffsetY&gt;0&lt;/OffsetY&gt;
         ///  &lt;Width&gt;850&lt;/Width&gt;
         ///  &lt;Height&gt;1100&lt;/Height&gt;
-        ///  &lt;IsInternal&gt;fal [rest of string was truncated]&quot;;.
+        ///  &lt;IsInternal&gt;fals [rest of string was truncated]&quot;;.
         /// </summary>
         public static string ClaimFormADA_2019 {
             get {
@@ -436,6 +436,28 @@ namespace OpenDentBusiness.Properties {
         public static string Consent {
             get {
                 return ResourceManager.GetString("Consent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+        ///&lt;SheetDef xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot;&gt;
+        ///  &lt;IsNew&gt;false&lt;/IsNew&gt;
+        ///  &lt;SheetDefNum&gt;0&lt;/SheetDefNum&gt;
+        ///  &lt;Description&gt;Dental Patient Screening Form&lt;/Description&gt;
+        ///  &lt;SheetType&gt;PatientForm&lt;/SheetType&gt;
+        ///  &lt;FontSize&gt;11&lt;/FontSize&gt;
+        ///  &lt;FontName&gt;Arial&lt;/FontName&gt;
+        ///  &lt;Width&gt;850&lt;/Width&gt;
+        ///  &lt;Height&gt;950&lt;/Height&gt;
+        ///  &lt;IsLandscape&gt;false&lt;/IsLandscape&gt;
+        ///  &lt;PageCount&gt;1&lt;/PageCount&gt;
+        ///  &lt;IsMultiPage&gt;true&lt;/IsMultiPage&gt;
+        ///  &lt;By [rest of string was truncated]&quot;;.
+        /// </summary>
+        public static string COVID19 {
+            get {
+                return ResourceManager.GetString("COVID19", resourceCulture);
             }
         }
         
@@ -1278,7 +1300,7 @@ namespace OpenDentBusiness.Properties {
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
         ///&lt;SheetDef xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot;&gt;
         ///  &lt;IsNew&gt;false&lt;/IsNew&gt;
-        ///  &lt;SheetDefNum&gt;0&lt;/SheetDefNum&gt;
+        ///  &lt;SheetDefNum&gt;10&lt;/SheetDefNum&gt;
         ///  &lt;Description&gt;Statement&lt;/Description&gt;
         ///  &lt;SheetType&gt;Statement&lt;/SheetType&gt;
         ///  &lt;FontSize&gt;9&lt;/FontSize&gt;
@@ -1288,8 +1310,7 @@ namespace OpenDentBusiness.Properties {
         ///  &lt;IsLandscape&gt;false&lt;/IsLandscape&gt;
         ///  &lt;PageCount&gt;1&lt;/PageCount&gt;
         ///  &lt;IsMultiPage&gt;false&lt;/IsMultiPage&gt;
-        ///  &lt;SheetFieldDefs&gt;
-        ///    &lt;S [rest of string was truncated]&quot;;.
+        ///  &lt;BypassGlobalLock&gt;Never [rest of string was truncated]&quot;;.
         /// </summary>
         public static string Statement {
             get {

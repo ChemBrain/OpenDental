@@ -555,6 +555,7 @@ namespace OpenDental{
 			this.checkAssign.Size = new System.Drawing.Size(205, 20);
 			this.checkAssign.TabIndex = 4;
 			this.checkAssign.Text = "Assignment of Benefits (pay provider)";
+			this.checkAssign.Click += new System.EventHandler(this.CheckAssign_Click);
 			// 
 			// checkRelease
 			// 
@@ -3298,6 +3299,12 @@ namespace OpenDental{
 			Patient subsc=Patients.GetLim(FormF.SelectedPatNum);
 			textSubscriber.Text=subsc.GetNameLF();
 			textSubscriberID.Text=subsc.SSN;
+		}
+
+		private void CheckAssign_Click(object sender,EventArgs e) {
+			if(!Security.IsAuthorized(Permissions.InsPlanChangeAssign)) {
+				checkAssign.Checked=!checkAssign.Checked;
+			}
 		}
 
 		private void butSearch_Click(object sender,System.EventArgs e) {
