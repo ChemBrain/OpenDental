@@ -85,7 +85,7 @@ namespace OpenDental {
 				string fileName;
 				if(ODBuild.IsWeb()) {
 					//file download dialog will come up later, after file is created.
-					fileName=ODFileUtils.CombinePaths(Path.GetTempPath(),"autonotes.json");
+					fileName="autonotes.json";
 				}
 				else {
 					using(SaveFileDialog saveDialog=ExportDialogSetup()) {
